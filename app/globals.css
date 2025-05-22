@@ -41,7 +41,12 @@ body {
   visibility: hidden;
 }
 
-
+@layer base {
+  .wrapper-cent{
+    width: 1000px;
+    margin: 0 auto;
+  }
+}
 
 @layer base {
   :root {

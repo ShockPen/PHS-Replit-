@@ -78,14 +78,14 @@ export default function Page() {
         {
             title: "Java",
             icon: (
-                <IconCoffee className="h-full w-full text-neutral-500 dark:text-neutral-300" />
+                <IconCoffee className="h-full w-full text-neutral-500 dark:text-blue-500" />
             ),
             href: "/studenthome/java",
         },
         {
             title: "Node.js",
             icon: (
-                <IconFileTypeJs className="h-full w-full text-neutral-500 dark:text-neutral-300" />
+                <IconFileTypeJs className="h-full w-full text-neutral-500 dark:text-blue-500" />
             ),
             href: "/studenthome/linux",
         },
@@ -93,21 +93,21 @@ export default function Page() {
         {
             title: "Python",
             icon: (
-                <IconBrandPython className="h-full w-full text-neutral-500 dark:text-neutral-300" />
+                <IconBrandPython className="h-full w-full text-neutral-500 dark:text-blue-500" />
             ),
-            href: "/studenthome/linux",
+            href: "/studenthome/python",
         },
         {
             title: "C++",
             icon: (
-                <IconBrandCpp className="h-full w-full text-neutral-500 dark:text-neutral-300" />
+                <IconBrandCpp className="h-full w-full text-neutral-500 dark:text-blue-500" />
             ),
             href: "/studenthome/linux",
         },
         {
             title: "Linux Terminal",
             icon: (
-                <IconTerminal2 className="h-full w-full text-neutral-500 dark:text-neutral-300" />
+                <IconTerminal2 className="h-full w-full text-neutral-500 dark:text-blue-500" />
             ),
             href: "/studenthome/linux",
         },
@@ -126,7 +126,7 @@ export default function Page() {
                         );
                     })}
                 </div>
-                <button className="border rounded-md px-4 py-2 mt-1 text-black dark:text-white bg-neutral-300 dark:bg-neutral-800" onClick={createProject}>Create New Project</button>
+                <button className="border rounded-md px-4 py-2 mt-1 text-black dark:text-white bg-neutral-300 dark:bg-blue-800" onClick={createProject}>Create New Project</button>
             </div>
         );
     }
@@ -137,7 +137,7 @@ export default function Page() {
                 <div className="flex flex-col space-y-1">
                     <Link href="/studenthome/generateclubqrcode">
                         <button
-                            className="border rounded-md px-4 py-2 mt-1 text-black dark:text-white bg-neutral-300 dark:bg-neutral-800"
+                            className="border rounded-md px-4 py-2 mt-1 text-black dark:text-white bg-neutral-300 dark:bg-blue-800"
                         >
                             Generate Club Meeting Attendance QR Code
                         </button>
@@ -153,21 +153,21 @@ export default function Page() {
             description: "Explore the birth of groundbreaking ideas and inventions.",
             header: <JavaProjects />,
             className: "md:col-span-2",
-            icon: <IconClipboardCopy className="h-4 w-4 text-neutral-500" />,
+            icon: <IconClipboardCopy className="h-4 w-4 text-blue-500" />,
         },
         {
             title: "Your Linux Terminal",
             description: "Dive into the transformative power of technology.",
             header: <Skeleton />,
             className: "md:col-span-1",
-            icon: <IconFileBroken className="h-4 w-4 text-neutral-500" />,
+            icon: <IconFileBroken className="h-4 w-4 text-blue-500" />,
         },
         {
             title: "Your Clubs",
             description: "Discover the beauty of thoughtful and functional design.",
             header: <GenerateClubMeetingQRCode />,
             className: "md:col-span-1",
-            icon: <IconSignature className="h-4 w-4 text-neutral-500" />,
+            icon: <IconSignature className="h-4 w-4 text-blue-500" />,
         },
         {
             title: "Etc.",
@@ -175,7 +175,7 @@ export default function Page() {
                 "Understand the impact of effective communication in our lives.",
             header: <p>stest</p>,
             className: "md:col-span-2",
-            icon: <IconTableColumn className="h-4 w-4 text-neutral-500" />,
+            icon: <IconTableColumn className="h-4 w-4 text-blue-500" />,
         },
     ];
 
@@ -219,7 +219,7 @@ export default function Page() {
                 />
             </div>
 
-            <BentoGrid className="max-w-4xl mx-auto md:auto-rows-[20rem] pb-4">
+            <BentoGrid className="max-w-4x2 mx-auto md:auto-rows-[20rem] pb-4">
                 {items.map((item, i) => (
                     <BentoGridItem
                         key={i}
