@@ -1,4 +1,5 @@
-"use client"
+'use client';
+import { loadPyodide } from 'pyodide';
 import React, { MouseEventHandler, useEffect, useRef, useState } from 'react';
 import {
     IconCoffee,
@@ -20,28 +21,75 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import { cn } from "@/app/lib/utils";
 import { useSession } from "next-auth/react";
+import Script from 'next/script';
+
 const MonacoEditor = dynamic(() => import('@monaco-editor/react'), { ssr: false });
+
 export default function Page() {
+    const [code, setCode] = useState('');
+    const [pyodide, setPyodide] = useState<any>(null);
+
+    useEffect(() => {
+        const loadPyodideRuntime = async () => {
+            const pyodideInstance = await (window as any).loadPyodide();
+            await pyodideInstance.loadPackage("numpy");
+            setPyodide(pyodideInstance);
+        };
+        if ((window as any).loadPyodide) {
+            loadPyodideRuntime();
+        }
+    }, []);
+
+    const runPython = async () => {
+        if (!pyodide) {
+            console.log("Pyodide is not loaded yet.");
+            return;
+        }
+        const wrappedCode = `
+import sys
+from io import StringIO
+sys.stdout = StringIO()
+sys.stderr = sys.stdout
+
+${code}
+
+sys.stdout.getvalue()
+`;
+
+        const result = pyodide.runPython(wrappedCode);
+        console.log(result);
+    };
+
     return (
         <>
-        <div className = "flex items-center flex-col space-y-2 pt-16 rounded-md bg-neutral-800 h-96 l-80 w-80">
-            <button className = "mt-20 border-1 font-medium w-48 rounded-md bg-black hover:bg-stone-600 border-blue-500">
-                Add File
-            </button>
-            <button className = "mt-20 border-1 font-medium w-48 rounded-md bg-black hover:bg-red-600 border-blue-500">
-                Run Main.py
-            </button>
-            <button className = "mt-20 border-1 font-medium w-48 rounded-md bg-black hover:bg-blue-600 border-blue-500">
-                Save Project
-            </button>
-        </div>
-        <div className="h-96">
-            <MonacoEditor
-            language="python"
-            theme="vs-dark"
-            options={{ automaticLayout: true }}
-            />
-        </div>
+            {/* Load pyodide via CDN */}
+            <Script src="https://cdn.jsdelivr.net/pyodide/v0.27.1/full/pyodide.js" strategy="beforeInteractive" />
+
+            <div className="flex items-center flex-col space-y-2 pt-16 rounded-md bg-neutral-800 h-96 l-10 w-80">
+                <button className="mt-20 border-1 font-medium w-48 rounded-md bg-black hover:bg-stone-600 border-blue-500">
+                    Add File
+                </button>
+                <button
+                    onClick={runPython}
+                    id="runCode"
+                    className="mt-20 border-1 font-medium w-48 rounded-md bg-black hover:bg-red-600 border-blue-500"
+                >
+                    Run Main.py
+                </button>
+                <button className="mt-20 border-1 font-medium w-48 rounded-md bg-black hover:bg-blue-600 border-blue-500">
+                    Save Project
+                </button>
+            </div>
+
+            <div id="ed" className="h-96 w-full float-right">
+                <MonacoEditor
+                    language="python"
+                    theme="vs-dark"
+                    value={code}
+                    onChange={(value) => setCode(value || '')}
+                    options={{ automaticLayout: true }}
+                />
+            </div>
         </>
     );
 }

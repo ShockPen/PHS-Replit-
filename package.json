@@ -45,6 +45,7 @@
     "next-mdx-remote": "^5.0.0",
     "next-themes": "^0.3.0",
     "nodemailer": "^6.10.0",
+    "pyodide": "^0.27.6",
     "qrcode": "^1.5.4",
     "qss": "^3.0.0",
     "react": "^19.1.0",
