@@ -1,24 +1,7 @@
 "use client";
 
-import { Sidebar, SidebarBody, SidebarLink } from "@/app/components/ui/sidebar";
-import {
-  IconArrowLeft,
-  IconBrandTabler,
-  IconSettings,
-  IconUserBolt,
-  IconCoffee,
-} from "@tabler/icons-react";
-import Link from "next/link";
-import { motion } from "framer-motion";
-import Image from "next/image";
-import { cn } from "@/app/lib/utils";
-
-import React, { useEffect, useRef, useState } from 'react';
-import { useSession } from "next-auth/react";
+import { useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
-import { get } from "http";
-import { useSearchParams } from "next/navigation";
-
 
 // Import MonacoEditor to avoid SSR issues
 const MonacoEditor = dynamic(() => import('@monaco-editor/react'), { ssr: false });
@@ -31,21 +14,9 @@ declare global {
   }
 }
 
-interface File {
-  filename: string;
-  contents: string;
-}
-
-interface Project {
-  project_name: string,
-  files: File[]
-}
-
 const Editor = () => {
-  const [files, setFiles] = useState<File[]>([
-    {
-      filename: 'Main.java',
-      contents: `import java.util.Scanner;
+  const [files, setFiles] = useState<{ [path: string]: string }>({
+    'Main.java': `import java.util.Scanner;
 
 public class Main {
     public static void main(String args[]) {
@@ -56,10 +27,7 @@ public class Main {
     }
 }
 `,
-    },
-    {
-      filename: 'CustomFileInputStream.java',
-      contents: `/*
+    'CustomFileInputStream.java': `/*
 CustomFileInputStream.java
 
 System.in is NOT natively supported for this WASM based Java compiler. To support user input through System.in, we pause the Java runtime, pipe user input to a file in the file system, and have System.in read from the file. This file configures System.in and runs the main method of Main.java. You may configure this file to handle System.in differently. When "Run Main.java" is clicked, it runs the main method of this file (which then runs the main method of Main.java).
@@ -139,8 +107,7 @@ public class CustomFileInputStream extends InputStream {
     }
 }
 `,
-    },
-  ]);
+  });
 
   const [activeFile, setActiveFile] = useState('Main.java');
   const [outputLines, setOutputLines] = useState<string[]>([]);
@@ -150,128 +117,9 @@ public class CustomFileInputStream extends InputStream {
 
   const [showSystemFiles, setShowSystemFiles] = useState(false);
 
-  const [sidebarWidth, setSidebarWidth] = useState(250); // Initial sidebar width
-  const isResizing = useRef(false);
-  const monacoEditorRef = useRef<any>(null);
 
-  const [open, setOpen] = useState(false);
-
-  const searchParams = useSearchParams();
-  const projectFromUrl = searchParams.get("project") ?? "";
-
-  const [signedIn, setSignedIn] = useState(false);
-  const [name, setName] = useState('');
-  const [project, setProject] = useState(projectFromUrl);
-  const [projectList, setProjectList] = useState<string[]>([]);
-
-  const { data: session } = useSession();
-
-  const saveProject = async () => {
-    try {
-      const response = await fetch('/api/student/save_files/post', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ project, files })
-      });
-
-    } catch (errors: any) {
-      console.log(errors);
-    }
-  }
-
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-
-    reader.onload = (e) => {
-      const contents = e.target?.result as string;
-      const newFile = {
-        filename: file.name,
-        contents,
-      };
-
-      // Add the uploaded file to files state
-      setFiles((prev) => [...prev, newFile]);
-
-      // Make the uploaded file active in the editor
-      setActiveFile(file.name);
-
-      // Optional: Automatically compile the uploaded file
-      // runCode(newFile);
-    };
-
-    reader.readAsText(file);
-  };
-
-
-  useEffect(() => {
-    if (session && session.user.role == 'student') {
-      setSignedIn(true);
-
-      const getStudentInfo = async () => {
-        const response = await fetch('/api/student/get_studentinfo/post', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        });
-
-        const data = await response.json();
-
-        setName(data.firstname + ' ' + data.lastname);
-      }
-      getStudentInfo();
-
-      const getProjectFiles = async () => {
-        const response = await fetch('/api/student/get_files/post', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ project_name: project })
-        });
-
-        const data = await response.json();
-        // console.log(data.project);
-
-        if (data.project) {
-          setFiles(data.project.files);
-        } else {
-          alert('Project not found');
-        }
-
-      }
-
-      getProjectFiles();
-
-      const getProjects = async () => {
-        const response = await fetch('/api/student/get_projectlist/post', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        });
-
-        const data = await response.json();
-
-        // console.log(data.java_project_names);
-
-        setProjectList(data.java_project_names);
-      }
-      getProjects();
-    }
-  }, []);
-
-  const convertToMonaco = (files: File[]) => {
-    var fileData: any = []
-    files.forEach(file => {
-      fileData[file.filename] = file.contents;
-    });
-    return fileData;
+  const showPreloadProgress = (preloadDone: number, preloadTotal: number) => {
+    console.log(`Percentage loaded ${(preloadDone * 100) / preloadTotal}`);
   }
 
   // load wasm compiler
@@ -283,7 +131,6 @@ public class CustomFileInputStream extends InputStream {
         // cheerpJUrl = cheerpJUrl.trim();
 
         const cheerpJUrl = 'https://cjrtnc.leaningtech.com/3.0/cj3loader.js';
-        // const cheerpJUrl = 'http://localhost:3000/studenthome/java/ide/cj3loader.js';
 
         if (!document.querySelector(`script[src="${cheerpJUrl}"]`)) {
           const script = document.createElement('script');
@@ -325,7 +172,7 @@ public class CustomFileInputStream extends InputStream {
           }
         }
       } catch (error) {
-        console.error('Error loading Java Compiler:', error);
+        console.error('Error loading CheerpJ:', error);
       }
     };
 
@@ -375,9 +222,9 @@ public class CustomFileInputStream extends InputStream {
     setOutputLines(['Compiling...']);
 
     const encoder = new TextEncoder();
-    files.forEach(({ filename, contents }) => {
-      const encodedContent = encoder.encode(contents);
-      window.cheerpjAddStringFile('/str/' + filename, encodedContent);
+    Object.entries(files).forEach(([path, content]) => {
+      const encodedContent = encoder.encode(content);
+      window.cheerpjAddStringFile('/str/' + path, encodedContent);
     });
 
     const originalConsoleLog = console.log;
@@ -390,7 +237,7 @@ public class CustomFileInputStream extends InputStream {
     };
 
     try {
-      const sourceFiles = files.map(file => '/str/' + file.filename);
+      const sourceFiles = Object.keys(files).map((path) => '/str/' + path);
       const classPath = '/app/tools.jar:/files/';
       const code = await window.cheerpjRunMain(
         'com.sun.tools.javac.Main',
@@ -430,54 +277,50 @@ public class CustomFileInputStream extends InputStream {
   };
 
   const handleEditorChange = (value: string | undefined) => {
-    if (!value) return;
-    setFiles(prev =>
-      prev.map(file =>
-        file.filename === activeFile
-          ? { ...file, contents: value }
-          : file
-      )
-    );
+    if (value === undefined) return;
+    setFiles({ ...files, [activeFile]: value });
   };
 
   const addFile = () => {
     let newFileName = 'Class.java';
     let counter = 1;
-    while (files.some(f => f.filename === newFileName)) {
+    while (files[newFileName]) {
       newFileName = `Class${counter}.java`;
       counter++;
     }
-    setFiles([...files, {
-      filename: newFileName,
-      contents: `public class ${newFileName.replace('.java', '')} {\n\n}`
-    }]);
+    setFiles({ ...files, [newFileName]: `public class ${newFileName.replace('.java', '')} {\n\n}` });
     setActiveFile(newFileName);
   };
 
   const removeFile = (fileName: string) => {
-    if (files.length === 1) return;
-    const newFiles = files.filter(f => f.filename !== fileName);
+    if (Object.keys(files).length === 1) return;
+    const newFiles = { ...files };
+    delete newFiles[fileName];
     setFiles(newFiles);
-    if (activeFile === fileName && newFiles.length > 0) {
-      setActiveFile(newFiles[0].filename);
+    if (activeFile === fileName) {
+      setActiveFile(Object.keys(newFiles)[0]);
     }
   };
 
   const renameFile = (oldFileName: string, newFileName: string) => {
-    if (files.some(f => f.filename === newFileName)) {
-      alert("A file with that name already exists.");
+    if (files[newFileName]) {
+      alert('A file with that name already exists.');
       return;
     }
-    const updatedFiles = files.map(f =>
-      f.filename === oldFileName
-        ? { ...f, filename: newFileName }
-        : f
-    );
+
+    const updatedFiles = { ...files };
+    updatedFiles[newFileName] = updatedFiles[oldFileName];
+    delete updatedFiles[oldFileName];
     setFiles(updatedFiles);
+
     if (activeFile === oldFileName) {
       setActiveFile(newFileName);
     }
   };
+
+  const [sidebarWidth, setSidebarWidth] = useState(250); // Initial sidebar width
+  const isResizing = useRef(false);
+  const monacoEditorRef = useRef<any>(null);
 
   const handleEditorDidMount = (editor: any) => {
     monacoEditorRef.current = editor;
@@ -493,7 +336,7 @@ public class CustomFileInputStream extends InputStream {
 
   const handleMouseMove = (e: MouseEvent) => {
     if (!isResizing.current) return;
-    const newWidth = e.clientX - 60;
+    const newWidth = e.clientX;
     setSidebarWidth(newWidth);
     e.preventDefault();
     // Call layout on the Monaco Editor instance
@@ -510,123 +353,12 @@ public class CustomFileInputStream extends InputStream {
     document.body.style.userSelect = 'auto';
   };
 
-  const Logo = () => {
-    return (
-      <Link
-        href="/"
-        className="font-normal flex space-x-2 items-center text-sm text-black py-1 relative z-20"
-      >
-        <div className="h-5 w-6 bg-black dark:bg-white rounded-br-lg rounded-tr-sm rounded-tl-lg rounded-bl-sm flex-shrink-0" />
-        <motion.span
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="font-medium text-black dark:text-white whitespace-pre"
-        >
-          SchoolNest
-        </motion.span>
-      </Link>
-    );
-  };
-  const LogoIcon = () => {
-    return (
-      <Link
-        href="#"
-        className="font-normal flex space-x-2 items-center text-sm text-black py-1 relative z-20"
-      >
-        <div className="h-5 w-6 bg-black dark:bg-white rounded-br-lg rounded-tr-sm rounded-tl-lg rounded-bl-sm flex-shrink-0" />
-      </Link>
-    );
-  };
-
-  const links = [
-    {
-      label: "Home",
-      href: "/studenthome/",
-      icon: (
-        <IconBrandTabler className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
-      ),
-    },
-    {
-      label: "Profile",
-      href: "#",
-      icon: (
-        <IconUserBolt className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
-      ),
-    },
-    {
-      label: "Account Settings",
-      href: "#",
-      icon: (
-        <IconSettings className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
-      ),
-    },
-    {
-      label: "Build Configuration",
-      href: "#",
-      icon: (
-        <IconCoffee className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
-      ),
-    },
-    {
-      label: "Logout",
-      href: "#",
-      icon: (
-        <IconArrowLeft className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
-      ),
-    },
-  ];
 
   return (
-    <div
-      className={cn(
-        "rounded-md flex flex-col md:flex-row bg-gray-100 dark:bg-neutral-800 w-full flex-1 border border-neutral-200 dark:border-neutral-700 overflow-hidden",
-        "h-screen" // for your use case, use `h-screen` instead of `h-[60vh]`
-      )}
-    >
-      <Sidebar open={open} setOpen={setOpen}>
-        <SidebarBody className="justify-between gap-10">
-          <div className="flex flex-col flex-1 overflow-y-auto overflow-x-hidden ml-1">
-            {/* <div className={`flex flex-col flex-1 overflow-y-auto overflow-x-hidden ${open ? "" : "items-center"}`}> */}
-
-            {open ? <Logo /> : <LogoIcon />}
-
-            <div className="mt-8 flex flex-col gap-2">
-              {links.map((link, idx) => (
-                <SidebarLink key={idx} link={link} />
-              ))}
-            </div>
-          </div>
-          <div>
-            {signedIn ?
-              <SidebarLink
-                link={{
-                  label: name,
-                  href: "#",
-                  icon: (
-                    <Image
-                      src="/sc_logo.png"
-                      className="h-7 w-7 flex-shrink-0 rounded-full"
-                      width={50}
-                      height={50}
-                      alt="Avatar"
-                    />
-                  ),
-                }} />
-              :
-              null
-            }
-
-          </div>
-        </SidebarBody>
-      </Sidebar>
-
+    <div className="flex h-screen">
+      {/* Sidebar */}
+      {/* <div className="min-w-[200px] max-w-[300px] border-r border-gray-300 p-2.5 bg-[#1E1E1E]"> */}
       <div className="border-r border-gray-300 p-2.5 bg-[#1E1E1E]" style={{ width: sidebarWidth }}>
-        <p
-          className='ml-2 font-mono '
-          style={{
-            fontFamily: 'monospace',
-          }}
-        >{project}</p>
         <ul>
           <li className="flex flex-row space-x-2 w-full mt-2">
             <button
@@ -637,23 +369,24 @@ public class CustomFileInputStream extends InputStream {
             </button>
           </li>
           {/* user's files */}
-          {files
-            .filter((file) => file.filename !== 'Main.java' && file.filename !== 'CustomFileInputStream.java')
-            .map((file) => (
-              <li key={file.filename} className="flex flex-row w-full mt-2">
+          {Object.keys(files)
+            .filter((fileName) => fileName !== 'Main.java' && fileName !== 'CustomFileInputStream.java')
+            .map((fileName) => (
+              <li key={fileName} className="flex flex-row w-full mt-2">
                 {/* <span>{fileName}</span> */}
                 <button
-                  className={`content-center cursor-pointer line-clamp-1 mr-2 px-2 ${activeFile === file.filename ? 'font-bold bg-gray-700 rounded-md' : 'font-normal'}`}
-                  onClick={() => setActiveFile(file.filename)}
+                  className={`content-center cursor-pointer line-clamp-1 mr-2 px-2 ${activeFile === fileName ? 'font-bold bg-gray-700 rounded-md' : 'font-normal'}`}
+
+                  onClick={() => setActiveFile(fileName)}
                 >
-                  {file.filename}
+                  {fileName}
                 </button>
                 <div className="ml-auto space-x-2 flex w-max">
                   <button
                     onClick={() => {
-                      const newFileName = prompt('Enter new file name', file.filename);
-                      if (newFileName && newFileName !== file.filename) {
-                        renameFile(file.filename, newFileName);
+                      const newFileName = prompt('Enter new file name', fileName);
+                      if (newFileName && newFileName !== fileName) {
+                        renameFile(fileName, newFileName);
                       }
                     }}
                     className="bg-stone-400 rounded-md p-1"
@@ -662,7 +395,7 @@ public class CustomFileInputStream extends InputStream {
                       <path fill-rule="evenodd" d="M14 4.182A4.136 4.136 0 0 1 16.9 3c1.087 0 2.13.425 2.899 1.182A4.01 4.01 0 0 1 21 7.037c0 1.068-.43 2.092-1.194 2.849L18.5 11.214l-5.8-5.71 1.287-1.31.012-.012Zm-2.717 2.763L6.186 12.13l2.175 2.141 5.063-5.218-2.141-2.108Zm-6.25 6.886-1.98 5.849a.992.992 0 0 0 .245 1.026 1.03 1.03 0 0 0 1.043.242L10.282 19l-5.25-5.168Zm6.954 4.01 5.096-5.186-2.218-2.183-5.063 5.218 2.185 2.15Z" clip-rule="evenodd" />
                     </svg>
                   </button>
-                  <button onClick={() => removeFile(file.filename)} className="bg-red-400 rounded-md p-1">
+                  <button onClick={() => removeFile(fileName)} className="bg-red-400 rounded-md p-1">
                     <svg className="dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
                       <path fill-rule="evenodd" d="M8.586 2.586A2 2 0 0 1 10 2h4a2 2 0 0 1 2 2v2h3a1 1 0 1 1 0 2v12a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V8a1 1 0 0 1 0-2h3V4a2 2 0 0 1 .586-1.414ZM10 6h4V4h-4v2Zm1 4a1 1 0 1 0-2 0v8a1 1 0 1 0 2 0v-8Zm4 0a1 1 0 1 0-2 0v8a1 1 0 1 0 2 0v-8Z" clip-rule="evenodd" />
                     </svg>
@@ -700,7 +433,7 @@ public class CustomFileInputStream extends InputStream {
                   <ul className="py-2 text-sm text-gray-700 dark:text-gray-200">
                     <li>
                       <button
-                        className={`text-xs line-clamp-1 block w-full text-center py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white ${activeFile === 'CustomFileInputStream.java' ? 'font-bold' : 'font-normal'
+                        className={`text-xs line-clamp-1 block w-full text-left text-center py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white ${activeFile === 'CustomFileInputStream.java' ? 'font-bold' : 'font-normal'
                           }`}
                         onClick={() => setActiveFile('CustomFileInputStream.java')}
                       >
@@ -719,34 +452,25 @@ public class CustomFileInputStream extends InputStream {
             Add File
           </button>
           <button className="rounded-md py-1 bg-red-400 font-medium" onClick={runCode} disabled={!cheerpjLoaded}>
-            Run File
+            Run Main.java
           </button>
-          <button className="rounded-md py-1 bg-blue-400 font-medium" onClick={saveProject} disabled={!cheerpjLoaded}>
-            Save Project
-          </button>
-          <label className="rounded-md py-1 px-4 bg-yellow-400 font-medium cursor-pointer inline-block text-center">
-            Load Files
-            <input
-                type="file"
-                accept=".java"
-                onChange={handleFileUpload}
-                disabled={!cheerpjLoaded}
-                className="hidden"
-            />
-          </label>
-          {!cheerpjLoaded && <div>Loading Java Compiler...</div>}
+          {!cheerpjLoaded && <div>Loading CheerpJ...</div>}
         </div>
       </div>
 
+      
       <div
         className="w-1 h-full bg-gray-500 cursor-col-resize"
         onMouseDown={handleMouseDown}
       />
+
+
+
       {/* monaco editor */}
       <div className="flex-1 flex flex-col min-w-0">
         <div className='bg-[#1E1E1E]'>
           <p
-            className='ml-2 font-mono '
+            className='ml-2 font-mono'
             style={{
               fontFamily: 'monospace',
             }}
@@ -758,9 +482,7 @@ public class CustomFileInputStream extends InputStream {
           <MonacoEditor
             language="java"
             theme="vs-dark"
-            value={
-              files.find((f) => f.filename === activeFile)?.contents ?? ""
-            }
+            value={files[activeFile]}
             onChange={handleEditorChange}
             options={{ automaticLayout: true }}
             onMount={handleEditorDidMount}

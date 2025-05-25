@@ -15,16 +15,18 @@ import {
   useTransform,
 } from "framer-motion";
 import Link from "next/link";
-import { useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 
 export const FloatingDock = ({
-  items,
-  desktopClassName,
-  mobileClassName,
-}: {
-  items: { title: string; icon: React.ReactNode; href: string }[];
-  desktopClassName?: string;
-  mobileClassName?: string;
+                                 items,
+                                 desktopClassName,
+                                 mobileClassName,
+                                 vertical
+                             }: {
+    items: { title: string; icon: React.ReactNode; href: string }[],
+    desktopClassName?: string,
+    mobileClassName?: string,
+    vertical?: boolean
 }) => {
   return (
     <>

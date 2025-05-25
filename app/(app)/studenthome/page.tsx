@@ -102,7 +102,7 @@ export default function Page() {
             icon: (
                 <IconBrandCpp className="h-full w-full text-neutral-500 dark:text-blue-500" />
             ),
-            href: "/studenthome/linux",
+            href: "/studenthome/cpp",
         },
         {
             title: "Linux Terminal",
@@ -237,7 +237,3 @@ export default function Page() {
     );
 
 }
-
-
-
-
