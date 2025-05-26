@@ -219,7 +219,7 @@ export default function Page() {
                 />
             </div>
 
-            <BentoGrid className="max-w-4x2 mx-auto md:auto-rows-[20rem] pb-4">
+            <BentoGrid className="max-w-4x1 mx-auto md:auto-rows-[20rem] pb-4">
                 {items.map((item, i) => (
                     <BentoGridItem
                         key={i}

@@ -7,6 +7,5 @@ async function main() {
                 `));
             };
             main();
-            var editor = document.getElementByID(ed);
-            var code = editor.getValue();
-            pyodide.runPython(code);
+            
+           

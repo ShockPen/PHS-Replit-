@@ -19,35 +19,9 @@ export async function POST(req: NextRequest, res: NextResponse<Data>) {
     const { firstname, lastname, age, grade, email, schoolname, password, gRecaptchaToken } = body;
 
     
-    // google recaptcha verification
-    if (!gRecaptchaToken) {
-        return NextResponse.json({ message: 'Recaptcha token missing' }, { status: 400 });
-    }
-
     const url = `secret=${secretKey}&response=${gRecaptchaToken}`;
 
     let resp;
-
-    try {
-        resp = await axios.post(
-            "https://www.google.com/recaptcha/api/siteverify",
-            url,
-            {
-                headers: {
-                    "Content-Type": "application/x-www-form-urlencoded; charset=utf-8",
-                }
-            }
-        );
-    } catch (error) {
-        return NextResponse.json({ message: 'Recaptcha verification failed' }, { status: 400 });
-    }
-
-    if (resp && resp.data?.success && resp.data?.score > 0.5) {
-    } else {
-        console.log("resp.data?.score", resp.data?.score);
-        return NextResponse.json({ message: 'Recaptcha verification failed' }, { status: 400 });
-    }
-    // google recaptcha verification
 
 
     if (!firstname || !lastname || !email || !password || !age || !grade || !schoolname) {

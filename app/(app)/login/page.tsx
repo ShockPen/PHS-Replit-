@@ -57,8 +57,7 @@ export default function Page() {
     if (session && session.user.role === "admin") {
         redirect("/dashboard");
     } else if (session && session.user.role === "student") {
-        redirect("/" + session.user.school_abbr);
-        // redirect("/studenthome");
+        redirect("/studenthome");
     } else if (session && session.user.role === "educator") {
         redirect("/" + session.user.school_abbr);
         // redirect("/educatorhome");

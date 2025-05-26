@@ -56,9 +56,9 @@ const testimonials = [
     },
     {
         quote:
-            "SchoolNest opens so quick! Whoever made it must be a genius...",
+            "I'm stupid and suck at cybersecurity",
         name: "Agneya",
-        title: "High School Senior",
+        title: "High School Senior", 
     },
 
 ];
