@@ -48,9 +48,9 @@
     "pyodide": "^0.27.6",
     "qrcode": "^1.5.4",
     "qss": "^3.0.0",
-    "react": "^19.1.0",
+    "react": "^18.3.1",
     "react-beautiful-dnd": "^13.1.1",
-    "react-dom": "^19.1.0",
+    "react-dom": "^18.3.1",
     "react-google-recaptcha-v3": "^1.10.1",
     "react-intersection-observer": "^9.14.1",
     "react-markdown": "^9.0.1",
@@ -64,7 +64,7 @@
     "uuid": "^10.0.0"
   },
   "devDependencies": {
-    "@opennextjs/cloudflare": "^0.6.5",
+    "@opennextjs/cloudflare": "^1.0.4",
     "@types/bcrypt": "^5.0.2",
     "@types/canvas-confetti": "^1.9.0",
     "@types/node": "^20",
