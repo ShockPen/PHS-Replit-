@@ -134,14 +134,14 @@ export default function NodeDashboard() {
         <div className="h-full p-4 flex flex-col justify-between overflow-hidden group-hover:scale-[1.02] transition-all duration-300">
             <div className="flex flex-row gap-2">
                 <Link
-                    href="/studenthome/Node/ide"
+                    href="/studenthome/node/ide"
                     className="w-1/2 border border-green-500/50 dark:border-green-400/50 text-green-600 dark:text-green-300 rounded-lg px-3 py-2 bg-green-50/50 dark:bg-green-900/20 hover:bg-green-100/80 dark:hover:bg-green-900/40 flex items-center gap-2 transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-green-500/20 text-sm font-medium group-hover:border-green-400/70"
                 >
                     <IconFileTypeJs className="h-4 w-4 flex-shrink-0" />
                     <span>Open Node IDE</span>
                 </Link>
                 <Link
-                    href="/studenthome/Node/debugger"
+                    href="/studenthome/node/debugger"
                     className="w-1/2 border border-green-500/50 dark:border-green-400/50 text-green-600 dark:text-green-300 rounded-lg px-3 py-2 bg-green-50/50 dark:bg-green-900/20 hover:bg-green-100/80 dark:hover:bg-green-900/40 flex items-center gap-2 transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-green-500/20 text-sm font-medium group-hover:border-green-400/70"
                 >
                     <IconDeviceLaptop className="h-4 w-4 flex-shrink-0" />
@@ -320,7 +320,7 @@ export default function NodeDashboard() {
                             <span className="text-green-600 dark:text-green-300 text-xs font-medium truncate flex-1">{course}</span>
                             <Button
                                 as={Link}
-                                href={`/studenthome/Node/classes/${i}`}
+                                href={`/studenthome/node/classes/${i}`}
                                 size="sm"
                                 className="bg-green-500 hover:bg-green-600 text-white transition-all duration-200 hover:scale-105 shadow-md hover:shadow-lg ml-2 flex-shrink-0 h-5 min-w-10 text-xs group-hover:bg-green-550"
                             >
@@ -332,7 +332,7 @@ export default function NodeDashboard() {
                 <div className="flex items-center justify-between pt-2 border-t border-green-300/30 dark:border-green-600/30 flex-shrink-0">
                     <p className="text-xs text-green-500 dark:text-green-400 font-medium">5 pending assignments</p>
                     <Link
-                        href="/studenthome/Node/assignments"
+                        href="/studenthome/node/assignments"
                         className="text-xs text-green-500 hover:text-green-600 dark:text-green-400 dark:hover:text-green-300 hover:underline transition-colors group-hover:text-green-400"
                     >
                         View all
@@ -368,7 +368,7 @@ export default function NodeDashboard() {
             </div>
             <Button
                 as={Link}
-                href="/studenthome/Node/repo"
+                href="/studenthome/node/repo"
                 className="w-full bg-neutral-800 hover:bg-neutral-700 text-green-400 hover:text-green-300 transition-all duration-200 hover:scale-105 border border-neutral-600/50 flex-shrink-0 group-hover:bg-neutral-750 group-hover:border-neutral-500/70"
                 size="sm"
             >
@@ -401,7 +401,7 @@ export default function NodeDashboard() {
             </div>
             <Button
                 as={Link}
-                href="/studenthome/Node/terminal"
+                href="/studenthome/node/terminal"
                 className="w-full bg-neutral-800 hover:bg-neutral-700 text-green-400 hover:text-green-300 transition-all duration-200 hover:scale-105 border border-neutral-600/50 flex-shrink-0 group-hover:bg-neutral-750 group-hover:border-neutral-500/70"
                 size="sm"
             >
@@ -518,22 +518,22 @@ export default function NodeDashboard() {
         {
             title: "Node IDE",
             icon: <IconFileTypeJs className="h-full w-full text-green-400" />,
-            href: "/studenthome/Node/terminal",
+            href: "/studenthome/node/terminal",
         },
         {
             title: "Debugger",
             icon: <IconDeviceLaptop className="h-full w-full text-green-400" />,
-            href: "/studenthome/Node/debugger",
+            href: "/studenthome/node/debugger",
         },
         {
             title: "Repository",
             icon: <IconBrandGithub className="h-full w-full text-green-400" />,
-            href: "/studenthome/Node/repo",
+            href: "/studenthome/node/repo",
         },
         {
             title: "Classes",
             icon: <IconChalkboard className="h-full w-full text-green-400" />,
-            href: "/studenthome/Node/classes",
+            href: "/studenthome/node/classes",
         },
     ];
 
