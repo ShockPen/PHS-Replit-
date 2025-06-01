@@ -26,7 +26,50 @@ import {
     IconFileCode
 } from "@tabler/icons-react";
 
-const ThemeSwitcher = () => {
+
+export default function Page() {
+    const { data: session } = useSession();
+    const [projectList, setProjectList] = useState<string[]>([]);
+    const [selectedFiles, setSelectedFiles] = useState([]);
+    const fileInputRef = useRef(null);
+    const [recentProjects, setRecentProjects] = useState([
+        { name: "Shopping Cart App", lastEdited: "3 days ago" },
+        { name: "Student Management System", lastEdited: "Yesterday" },
+        { name: "Library Management System", lastEdited: "1 week ago" },
+        { name: "Weather Forecast App", lastEdited: "5 days ago" },
+        { name: "Task Tracker Application", lastEdited: "2 days ago" },
+        { name: "Banking System Simulator", lastEdited: "4 days ago" },
+    ]);
+
+    useEffect(() => {
+        if (session?.user?.role === "student") {
+            const getProjects = async () => {
+                try {
+                    const response = await fetch("/api/student/get_projectlist/post", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+
+                    const data = await response.json();
+                    setProjectList(
+                        Array.isArray(data.java_project_names) ? data.java_project_names : []
+                    );
+                } catch (error) {
+                    console.error("Failed to fetch Java projects:", error);
+                    setProjectList([]);
+                }
+            };
+            getProjects();
+        }
+    }, [session]);
+
+    const ThemeSwitcher = () => {
     const { theme, setTheme } = useTheme();
     const [mounted, setMounted] = useState(false);
 
@@ -67,47 +110,27 @@ const ThemeSwitcher = () => {
     );
 };
 
-export default function JavaDashboard() {
-    const { data: session } = useSession();
-    const [projectList, setProjectList] = useState([]);
-    const [selectedFiles, setSelectedFiles] = useState([]);
-    const fileInputRef = useRef(null);
-    const [recentProjects, setRecentProjects] = useState([
-        { name: "Shopping Cart App", lastEdited: "3 days ago" },
-        { name: "Student Management System", lastEdited: "Yesterday" },
-        { name: "Library Management System", lastEdited: "1 week ago" },
-        { name: "Weather Forecast App", lastEdited: "5 days ago" },
-        { name: "Task Tracker Application", lastEdited: "2 days ago" },
-        { name: "Banking System Simulator", lastEdited: "4 days ago" },
-    ]);
+const createProject = async () => {
+        const response = await fetch('/api/student/create_java_project/post', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                template: "normal"
+            })
+        });
 
-    useEffect(() => {
-        if (session?.user?.role === "student") {
-            const getProjects = async () => {
-                try {
-                    const response = await fetch("/api/student/get_projectlist/post", {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
-                    });
+        const data = await response.json();
 
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
+        setProjectList([...projectList, data.project_name]);
 
-                    const data = await response.json();
-                    setProjectList(
-                        Array.isArray(data.java_project_names) ? data.java_project_names : []
-                    );
-                } catch (error) {
-                    console.error("Failed to fetch Java projects:", error);
-                    setProjectList([]);
-                }
-            };
-            getProjects();
-        }
-    }, [session]);
+        // if (data.error) {
+        //     console.log('Error creating project:', data.error);
+        // } else {
+        //     setProjectList([...projectList, data.project_name]);
+        // }
+    }
 
 
 
@@ -138,18 +161,22 @@ export default function JavaDashboard() {
             <div className="flex flex-row gap-2">
                 <Link
                     href="/studenthome/java/ide"
-                    className="w-1/2 border border-blue-500/50 dark:border-blue-400/50 text-blue-600 dark:text-blue-300 rounded-lg px-3 py-2 bg-blue-50/50 dark:bg-blue-900/20 hover:bg-blue-100/80 dark:hover:bg-blue-900/40 flex items-center gap-2 transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-blue-500/20 text-sm font-medium group-hover:border-blue-400/70"
+                    className="justify-center w-1/2 border border-blue-500/50 dark:border-blue-400/50 text-blue-600 dark:text-blue-300 rounded-lg px-3 py-2 bg-blue-50/50 dark:bg-blue-900/20 hover:bg-blue-100/80 dark:hover:bg-blue-900/40 flex items-center gap-2 transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-blue-500/20 text-sm font-medium group-hover:border-blue-400/70"
                 >
                     <IconCoffee className="h-4 w-4 flex-shrink-0" />
                     <span>Open Java IDE</span>
                 </Link>
                 <Link
                     href="/studenthome/java/debugger"
-                    className="w-1/2 border border-blue-500/50 dark:border-blue-400/50 text-blue-600 dark:text-blue-300 rounded-lg px-3 py-2 bg-blue-50/50 dark:bg-blue-900/20 hover:bg-blue-100/80 dark:hover:bg-blue-900/40 flex items-center gap-2 transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-blue-500/20 text-sm font-medium group-hover:border-blue-400/70"
+                    className="justify-center w-1/2 border border-blue-500/50 dark:border-blue-400/50 text-blue-600 dark:text-blue-300 rounded-lg px-3 py-2 bg-blue-50/50 dark:bg-blue-900/20 hover:bg-blue-100/80 dark:hover:bg-blue-900/40 flex items-center gap-2 transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-blue-500/20 text-sm font-medium group-hover:border-blue-400/70"
                 >
                     <IconDeviceLaptop className="h-4 w-4 flex-shrink-0" />
                     <span>Java Debugger</span>
                 </Link>
+                <button className="justify-center w-1/2 border border-blue-500/50 dark:border-blue-400/50 text-blue-600 dark:text-blue-300 rounded-lg px-3 py-2 bg-blue-50/50 dark:bg-blue-900/20 hover:bg-blue-100/80 dark:hover:bg-blue-900/40 flex items-center gap-2 transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-blue-500/20 text-sm font-medium group-hover:border-blue-400/70">
+                    <IconFileCode className="h-4 w-4 flex-shrink-0" />
+                    Create new project
+                </button>
             </div>
 
             {recentProjects.length > 0 && (
