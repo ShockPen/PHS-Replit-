@@ -712,7 +712,7 @@ public class CustomFileInputStream extends InputStream {
       >
         <Sidebar open={open} setOpen={setOpen}>
           <SidebarBody className="justify-between gap-10 bg-slate-900">
-            <div className="flex flex-col flex-1 overflow-y-auto overflow-x-hidden ml-1">
+            <div className="flex flex-col flex-1 overflow-y-auto overflow-x-hidden ml-1 mb-2 pb-6">
               {open ? <Logo /> : <LogoIcon />}
 
               <div className="mt-8 flex flex-col gap-2">
@@ -748,11 +748,12 @@ public class CustomFileInputStream extends InputStream {
             className="border-r border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 backdrop-blur-xl flex flex-col"
             style={{ width: sidebarWidth }}
         >
-          <div className="p-6 h-full flex flex-col overflow-hidden">
+          <div className="p-6 -mt-2 h-full flex flex-col overflow-hidden"> {/* moved up by -mt-4 */}
             {/* Project Header */}
-            <div className="mb-6 flex-shrink-0 font-bold flex items-center gap-2">
+            <div className="mb-4 flex-shrink-0 font-bold flex items-center gap-2"> {/* reduce bottom margin a bit */}
+              {/* SVG and "Java IDE" */}
               <svg
-                  className="w-5 h-5" // adjust size as needed
+                  className="w-5 h-5"
                   viewBox="0 0 4825 2550"
                   fill="none"
                   xmlns="http://www.w3.org/2000/svg"
@@ -798,82 +799,84 @@ public class CustomFileInputStream extends InputStream {
               Java IDE
             </div>
 
-          {/* Files Section */}
-            <div className="mb-6 flex-1 min-h-0 overflow-hidden">
-              <div className="flex items-center space-x-2 mb-4 flex-shrink-0">
-                <IconFileTypeJs className="h-4 w-4 text-blue-500" />
-                <h3 className="text-neutral-900 dark:text-white text-sm font-semibold">Files</h3>
+            {/* Files Section */}
+            <div
+                className="flex-1 overflow-y-auto space-y-2 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-blue-300 dark:scrollbar-thumb-blue-600 hover:scrollbar-thumb-blue-400 dark:hover:scrollbar-thumb-blue-500 scrollbar-thumb-rounded-full pb-4"
+                style={{ marginTop: '-12px' }} /* pull it up more */
+            >
+              {/* Main.java - Always first */}
+              <div className="relative group">
+                <button
+                    className={`w-full text-left px-4 py-3 rounded-lg transition-all duration-200 flex items-center space-x-3 border ${
+                        activeFile === "Main.java"
+                            ? "bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-700 shadow-sm"
+                            : "text-neutral-600 dark:text-neutral-400 hover:bg-neutral-50 dark:hover:bg-neutral-800 border-transparent hover:border-neutral-200 dark:hover:border-neutral-700"
+                    }`}
+                    onClick={() => setActiveFile("Main.java")}
+                >
+                  <div className="w-8 h-8 bg-gradient-to-br from-orange-400 to-red-500 rounded-lg flex items-center justify-center shadow-sm">
+                    <IconCode className="h-4 w-4 text-white" />
+                  </div>
+                  <div className="flex flex-col flex-1 min-w-0">
+                    <span className="font-mono text-sm font-medium truncate">Main.java</span>
+                    {activeFile === "Main.java" && (
+                        <span className="text-blue-500 dark:text-blue-400 text-xs">Entry point</span>
+                    )}
+                  </div>
+                </button>
               </div>
 
-              <div className="space-y-2 overflow-y-auto max-h-full scrollbar-thin scrollbar-track-transparent scrollbar-thumb-blue-300 dark:scrollbar-thumb-blue-600 hover:scrollbar-thumb-blue-400 dark:hover:scrollbar-thumb-blue-500 scrollbar-thumb-rounded-full">
-                {/* Main.java - Always first */}
-                <div className="relative group">
-                  <button
-                      className={`w-full text-left px-4 py-3 rounded-lg transition-all duration-200 flex items-center space-x-3 border ${
-                          activeFile === "Main.java"
-                              ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-700 shadow-sm'
-                              : 'text-neutral-600 dark:text-neutral-400 hover:bg-neutral-50 dark:hover:bg-neutral-800 border-transparent hover:border-neutral-200 dark:hover:border-neutral-700'
-                      }`}
-                      onClick={() => setActiveFile('Main.java')}
-                  >
-                    <div className="w-8 h-8 bg-gradient-to-br from-orange-400 to-red-500 rounded-lg flex items-center justify-center shadow-sm">
-                      <IconCode className="h-4 w-4 text-white" />
-                    </div>
-                    <div className="flex flex-col flex-1 min-w-0">
-                      <span className="font-mono text-sm font-medium truncate">Main.java</span>
-                      {activeFile === "Main.java" && (
-                          <span className="text-blue-500 dark:text-blue-400 text-xs">Entry point</span>
-                      )}
-                    </div>
-                  </button>
-                </div>
-
-                {/* Other Files */}
-                {files
-                    .filter((file) => file.filename !== 'Main.java' && file.filename !== 'CustomFileInputStream.java')
-                    .map((file) => (
-                        <div key={file.filename} className="relative group">
-                          <div className="flex items-center space-x-2">
-                            <button
-                                className={`flex-1 text-left px-4 py-3 rounded-lg transition-all duration-200 flex items-center space-x-3 border ${
-                                    activeFile === file.filename
-                                        ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-700 shadow-sm'
-                                        : 'text-neutral-600 dark:text-neutral-400 hover:bg-neutral-50 dark:hover:bg-neutral-800 border-transparent hover:border-neutral-200 dark:hover:border-neutral-700'
-                                }`}
-                                onClick={() => setActiveFile(file.filename)}
-                            >
-                              <div className="w-8 h-8 bg-gradient-to-br from-orange-400 to-red-500 rounded-lg flex items-center justify-center shadow-sm">
-                                <Code className="h-4 w-4 text-white" />
-                              </div>
-                              <span className="font-mono text-sm font-medium truncate flex-1">{file.filename}</span>
-                            </button>
-
-                            {/* Action Buttons */}
-                            <div className="flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                              <button
-                                  onClick={() => {
-                                    const newFileName = prompt('Enter new file name', file.filename);
-                                    if (newFileName && newFileName !== file.filename) {
-                                      renameFile(file.filename, newFileName);
-                                    }
-                                  }}
-                                  className="p-2 bg-neutral-100 dark:bg-neutral-800 hover:bg-blue-100 dark:hover:bg-blue-900/40 rounded-lg transition-all duration-200 border border-neutral-200 dark:border-neutral-700 hover:border-blue-300 dark:hover:border-blue-600"
-                                  title="Rename file"
-                              >
-                                <Edit3 className="w-3.5 h-3.5 text-neutral-500 dark:text-neutral-400 hover:text-blue-600 dark:hover:text-blue-400" />
-                              </button>
-                              <button
-                                  onClick={() => removeFile(file.filename)}
-                                  className="p-2 bg-neutral-100 dark:bg-neutral-800 hover:bg-red-100 dark:hover:bg-red-900/40 rounded-lg transition-all duration-200 border border-neutral-200 dark:border-neutral-700 hover:border-red-300 dark:hover:border-red-600"
-                                  title="Delete file"
-                              >
-                                <IconTrash className="w-3.5 h-3.5 text-neutral-500 dark:text-neutral-400 hover:text-red-600 dark:hover:text-red-400" />
-                              </button>
+              {/* Other Files */}
+              {files
+                  .filter(
+                      (file) =>
+                          file.filename !== "Main.java" &&
+                          file.filename !== "CustomFileInputStream.java"
+                  )
+                  .map((file) => (
+                      <div key={file.filename} className="relative group">
+                        <div className="flex items-center space-x-2">
+                          <button
+                              className={`flex-1 text-left px-4 py-3 rounded-lg transition-all duration-200 flex items-center space-x-3 border ${
+                                  activeFile === file.filename
+                                      ? "bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-700 shadow-sm"
+                                      : "text-neutral-600 dark:text-neutral-400 hover:bg-neutral-50 dark:hover:bg-neutral-800 border-transparent hover:border-neutral-200 dark:hover:border-neutral-700"
+                              }`}
+                              onClick={() => setActiveFile(file.filename)}
+                          >
+                            <div className="w-8 h-8 bg-gradient-to-br from-orange-400 to-red-500 rounded-lg flex items-center justify-center shadow-sm">
+                              <Code className="h-4 w-4 text-white" />
                             </div>
+                            <span className="font-mono text-sm font-medium truncate flex-1">
+                  {file.filename}
+                </span>
+                          </button>
+
+                          {/* Action Buttons */}
+                          <div className="flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                            <button
+                                onClick={() => {
+                                  const newFileName = prompt("Enter new file name", file.filename);
+                                  if (newFileName && newFileName !== file.filename) {
+                                    renameFile(file.filename, newFileName);
+                                  }
+                                }}
+                                className="p-2 bg-neutral-100 dark:bg-neutral-800 hover:bg-blue-100 dark:hover:bg-blue-900/40 rounded-lg transition-all duration-200 border border-neutral-200 dark:border-neutral-700 hover:border-blue-300 dark:hover:border-blue-600"
+                                title="Rename file"
+                            >
+                              <Edit3 className="w-3.5 h-3.5 text-neutral-500 dark:text-neutral-400 hover:text-blue-600 dark:hover:text-blue-400" />
+                            </button>
+                            <button
+                                onClick={() => removeFile(file.filename)}
+                                className="p-2 bg-neutral-100 dark:bg-neutral-800 hover:bg-red-100 dark:hover:bg-red-900/40 rounded-lg transition-all duration-200 border border-neutral-200 dark:border-neutral-700 hover:border-red-300 dark:hover:border-red-600"
+                                title="Delete file"
+                            >
+                              <IconTrash className="w-3.5 h-3.5 text-neutral-500 dark:text-neutral-400 hover:text-red-600 dark:hover:text-red-400" />
+                            </button>
                           </div>
                         </div>
-                    ))}
-              </div>
+                      </div>
+                  ))}
             </div>
 
             {/* Actions Section */}
