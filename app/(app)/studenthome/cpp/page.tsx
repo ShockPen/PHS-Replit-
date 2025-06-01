@@ -644,7 +644,7 @@ export default function CPPDashboard() {
         {
             title: "C++ IDE",
             icon: <IconBrandCpp className="h-full w-full text-purple-400" />,
-            href: "/studenthome/cpp/terminal",
+            href: "/studenthome/cpp/ide",
         },
         {
             title: "Debugger",

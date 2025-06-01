@@ -109,6 +109,8 @@ export default function JavaDashboard() {
         }
     }, [session]);
 
+
+
     const handleWheelEvent = useCallback(
         (e: React.WheelEvent<HTMLDivElement>) => {
             const target = e.target as HTMLElement;
@@ -248,11 +250,15 @@ export default function JavaDashboard() {
             </div>
 
             <Button
-                className="w-full border border-dashed border-blue-400/60 dark:border-blue-500/60 bg-blue-50/50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 hover:bg-blue-100/80 dark:hover:bg-blue-900/40 transition-all duration-200 hover:scale-105 flex-shrink-0 group-hover:border-blue-400/80 group-hover:bg-blue-75/60"
+                className="w-full border border-dashed border-blue-400/60 dark:border-blue-500/60 bg-blue-50/50 dark:bg-blue-900/20 text-blue-400 dark:text-blue-400 hover:bg-blue-100/80 dark:hover:bg-blue-900/40 transition-all duration-200 hover:scale-105 flex-shrink-0 group-hover:border-blue-400/80 group-hover:bg-blue-75/60"
                 size="sm"
             >
-                <IconPackages className="h-3 w-3 mr-2" />
-                <span className="font-medium text-xs">Manage Maven/Gradle</span>
+                <Link href="/studenthome/java/dependencies">
+                    <div className="flex items-center">
+                        <IconPackages className="h-3 w-3 mr-2" />
+                        <span className="font-medium text-xs">Manage Maven/Gradle</span>
+                    </div>
+                </Link>
             </Button>
         </div>
     );
@@ -516,7 +522,7 @@ export default function JavaDashboard() {
         {
             title: "Java IDE",
             icon: <IconCoffee className="h-full w-full text-blue-400" />,
-            href: "/studenthome/java/terminal",
+            href: "/studenthome/java/ide",
         },
         {
             title: "Debugger",

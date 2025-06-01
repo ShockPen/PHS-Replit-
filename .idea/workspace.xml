@@ -4,7 +4,25 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b81c8c27-8c15-4931-ae89-c670a04f9254" name="Changes" comment="version 2 with more pages but less functionality" />
+    <list default="true" id="b81c8c27-8c15-4931-ae89-c670a04f9254" name="Changes" comment="Say you can't sleep, Java, I know&#10;That's that me espresso">
+      <change afterPath="$PROJECT_DIR$/app/(app)/studenthome/cpp/ide/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/cpp/dependencies/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/cpp/dependencies/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/cpp/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/cpp/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/cpp/templates/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/cpp/templates/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/java/dependencies/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/java/dependencies/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/java/ide/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/java/ide/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/java/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/java/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/java/templates/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/java/templates/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/linux/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/linux/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/node/dependencies/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/node/dependencies/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/node/templates/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/node/templates/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/python/dependencies/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/python/dependencies/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/python/ide/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/python/ide/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/python/templates/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/python/templates/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -16,6 +34,7 @@
         <option value="package.json" />
         <option value="TypeScript File" />
         <option value="TypeScript JSX File" />
+        <option value="HTML File" />
       </list>
     </option>
   </component>
@@ -35,6 +54,7 @@
   }
 }</component>
   <component name="ProblemsViewState">
+    <option name="proportion" value="0.5467255" />
     <option name="selectedTabId" value="CurrentFile" />
   </component>
   <component name="ProjectColorInfo">{
@@ -47,6 +67,7 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+    "DefaultHtmlFileTemplate": "HTML File",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
     "git-widget-placeholder": "main",
@@ -61,7 +82,7 @@
     "nodejs_interpreter_path": "C:/Users/davee/AppData/Roaming/JetBrains/WebStorm2024.3/node/versions/22.15.0/node",
     "nodejs_package_manager_path": "npm",
     "settings.editor.selected.configurable": "configurable.group.tools",
-    "ts.external.directory.path": "C:\\Program Files\\JetBrains\\WebStorm 2024.3.2.1\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external",
+    "ts.external.directory.path": "C:\\Users\\davee\\WebstormProjects\\Rep-lite\\node_modules\\typescript\\lib",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
@@ -95,6 +116,10 @@
       <workItem from="1747316457598" duration="1800000" />
       <workItem from="1747395526188" duration="1010000" />
       <workItem from="1747411771507" duration="92396000" />
+      <workItem from="1748353006083" duration="492000" />
+      <workItem from="1748353543675" duration="306000" />
+      <workItem from="1748354742818" duration="20371000" />
+      <workItem from="1748529753419" duration="37466000" />
     </task>
     <task id="LOCAL-00001" summary="so many errors do not run">
       <option name="closed" value="true" />
@@ -112,7 +137,23 @@
       <option name="project" value="LOCAL" />
       <updated>1748352325156</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="fixing node's nodes">
+      <option name="closed" value="true" />
+      <created>1748353103181</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1748353103181</updated>
+    </task>
+    <task id="LOCAL-00004" summary="fixing node's nodes">
+      <option name="closed" value="true" />
+      <created>1748353183074</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1748353183074</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -132,7 +173,9 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="so many errors do not run" />
     <MESSAGE value="version 2 with more pages but less functionality" />
-    <option name="LAST_COMMIT_MESSAGE" value="version 2 with more pages but less functionality" />
+    <MESSAGE value="fixing node's nodes" />
+    <MESSAGE value="Say you can't sleep, Java, I know&#10;That's that me espresso" />
+    <option name="LAST_COMMIT_MESSAGE" value="Say you can't sleep, Java, I know&#10;That's that me espresso" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -140,7 +183,6 @@
         <line-breakpoint enabled="true" type="javascript">
           <url>file://$PROJECT_DIR$/app/(app)/studenthome/python/page.tsx</url>
           <line>641</line>
-          <properties lambdaOrdinal="-1" />
           <option name="timeStamp" value="6" />
         </line-breakpoint>
       </breakpoints>
