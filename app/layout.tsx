@@ -68,9 +68,8 @@ export default async function RootLayout({
   const session = await getServerSession(authOptions);
 
   return (
-    <html lang="en">
+    <html lang="en" className="dark" style={{ colorScheme: "dark" }}>
       <head>
-        {/* Google Analytics Tag */}
         <Script
           strategy="afterInteractive"
           src={`https://www.googletagmanager.com/gtag/js?id=G-3LZ78NQL76`}
@@ -91,14 +90,12 @@ export default async function RootLayout({
         />
       </head>
 
-
-      {/* <Analytics />
-      <SpeedInsights /> */}
-
       <GoogleAnalytics />
       <body className="bg-black">
         <GoogleCaptchaWrapper>
-          <Providers><Provider session={session}>{children}</Provider></Providers>
+          <Providers>
+            <Provider session={session}>{children}</Provider>
+          </Providers>
         </GoogleCaptchaWrapper>
       </body>
     </html>
