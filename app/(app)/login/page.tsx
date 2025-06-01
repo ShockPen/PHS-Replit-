@@ -59,8 +59,7 @@ export default function Page() {
     } else if (session && session.user.role === "student") {
         redirect("/studenthome");
     } else if (session && session.user.role === "educator") {
-        redirect("/" + session.user.school_abbr);
-        // redirect("/educatorhome");
+        redirect("/educatorhome");
     }
 
     const [email, setEmail] = useState("");

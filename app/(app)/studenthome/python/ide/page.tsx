@@ -25,11 +25,22 @@ import Script from 'next/script';
 
 const MonacoEditor = dynamic(() => import('@monaco-editor/react'), { ssr: false });
 
+interface File {
+  filename: string;
+  contents: string;
+}
+
+interface Project {
+  project_name: string,
+  files: File[]
+}
+
 export default function Page() {
     const [code, setCode] = useState('');
     const [pyodide, setPyodide] = useState<any>(null);
     const [result, setResult] = useState('');
     const [userInput, setUserInput] = useState('');
+    const [activeFile, setActiveFile] = useState('Main.java');
 
 
     useEffect(() => {
