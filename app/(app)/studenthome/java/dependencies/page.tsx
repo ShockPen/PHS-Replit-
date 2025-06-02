@@ -179,9 +179,9 @@ export default function Page() {
                         </h1>
 
                         <p className="text-xl text-neutral-300 max-w-2xl mx-auto leading-relaxed mb-8">
-                            Discover powerful Java libraries and frameworks to accelerate your development.
+                            Discover powerful Java libraries and frameworks to accelerate your development
                             {/* eslint-disable-next-line react/no-unescaped-entities */}
-                            Click "Use in IDE" to start implementing any dependency in your project.
+                            . Click "Use in IDE" to start implementing any dependency in your project.
                         </p>
 
                         <div className="flex items-center justify-center gap-4 text-sm text-neutral-400">
