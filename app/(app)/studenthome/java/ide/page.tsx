@@ -174,6 +174,11 @@ public class CustomFileInputStream extends InputStream {
   const [outputHeight, setOutputHeight] = useState(200); // initial height
   const isResizingOutput = useRef(false);
 
+  // GitHub functionality states
+  const [createdRepos, setCreatedRepos] = useState<
+      { owner: string; name: string }[]
+  >([]);
+
 
   const saveProject = async () => {
     try {
@@ -189,6 +194,8 @@ public class CustomFileInputStream extends InputStream {
       console.log(errors);
     }
   }
+
+  const [repoName, setRepoName] = React.useState("");
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -593,6 +600,13 @@ public class CustomFileInputStream extends InputStream {
     URL.revokeObjectURL(url);
   };
 
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("files", JSON.stringify(files));
+    }
+  }, [files]);
+
+
   const handleEditorDidMount = (editor: any) => {
     monacoEditorRef.current = editor;
   };
@@ -937,11 +951,11 @@ public class CustomFileInputStream extends InputStream {
 
                 <button
                     className="rounded-lg py-3 px-4 bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300 font-medium transition-all duration-200 border border-stone-200 dark:border-stone-700 hover:border-stone-300 dark:hover:border-stone-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 active:scale-[0.98]"
-                    onClick={saveProject}
+                    onClick={() => window.location.href = '/studenthome/java/repo'}
                     disabled={!cheerpjLoaded}
                 >
                   <IconBrandGithub className="w-4 h-4" />
-                  <span className="text-sm">Push/Pull</span>
+                  <span className="text-sm">Repo</span>
                 </button>
               </div>
 
