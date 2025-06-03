@@ -46,7 +46,7 @@ export default function Page() {
 
             verifyEmail();
         }
-    }, [value])
+    }, [value, emailReqSent, session?.user])
 
     if (!session?.user) {
         return (

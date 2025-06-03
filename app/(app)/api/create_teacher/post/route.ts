@@ -12,7 +12,10 @@ interface Data {
     message?: string;
 }
 
-export async function POST(req: NextRequest, res: NextResponse<Data>) {
+export async function POST(
+    req: NextRequest,
+    context: { params: Promise<Record<string, string>> }
+): Promise<NextResponse> {
     const secretKey = process.env.RECAPTCHA_SECRET_KEY;
 
     const body = await req.json();

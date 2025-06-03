@@ -7,21 +7,26 @@ import clientPromise from '@/app/lib/mongodb';
 import nodemailer from "nodemailer";
 import { emailTemplate } from '@/app/lib/emailTemplate';
 
-
 interface Data {
     message?: string;
 }
 
-export async function POST(req: NextRequest, res: NextResponse<Data>) {
+export async function POST(
+    req: NextRequest,
+    context: { params: Promise<Record<string, string>> }
+): Promise<NextResponse> {
+    // Create a mock response object for getServerSession
+    const mockRes = {
+        getHeader: () => null,
+        setHeader: () => {},
+        headers: new Headers(),
+    };
+
     const session = await getServerSession(
         req as unknown as NextApiRequest,
-        {
-            ...res,
-            getHeader: (name: string) => res.headers?.get(name),
-            setHeader: (name: string, value: string) => res.headers?.set(name, value),
-        } as unknown as NextApiResponse,
+        mockRes as unknown as NextApiResponse,
         authOptions
-    )
+    );
 
     if (!session || !session.user || !session.user.email) {
         return NextResponse.json({ message: 'Not authenticated.' }, { status: 401 });
@@ -29,12 +34,8 @@ export async function POST(req: NextRequest, res: NextResponse<Data>) {
 
     const email: string = session.user.email;
 
-
-
     // const body = await req.json()
     // const email: string = body.email;
-
-
 
     const client = await clientPromise;
     const db = client.db('schoolcentral');
@@ -67,7 +68,7 @@ export async function POST(req: NextRequest, res: NextResponse<Data>) {
         { upsert: true }
     );
 
-    // const transporter = nodemailer.createTransport({
+    // const transporter = nodemailer.createTransporter({
     //     service: "gmail",
     //     auth: {
     //         user: process.env.EMAIL_USER,

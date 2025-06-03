@@ -16,7 +16,10 @@ interface Data {
     message?: string;
 }
 
-export async function POST(req: NextRequest, res: NextResponse<Data>) {
+export async function POST(
+    req: NextRequest,
+    context: { params: Promise<Record<string, string>> }
+): Promise<NextResponse> {
     
     const client = await clientPromise;
     const db = client.db('schoolcentral');

@@ -8,10 +8,13 @@ export async function generateStaticParams() {
     }))
 }
 
-export default async function BlogPost({ params }: { params: { slug: string } }) {
+export default async function BlogPost({ params }: { params: Promise<{ slug: string }> }) {
+    // Await the params Promise
+    const resolvedParams = await params
+
     let post
     try {
-        post = await getPostBySlug(params.slug)
+        post = await getPostBySlug(resolvedParams.slug)
     } catch (error) {
         notFound()
     }

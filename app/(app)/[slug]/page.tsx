@@ -2,10 +2,7 @@
 // export const revalidate = 60;
 
 // This is a Server Component, as it handles server-side rendering
-export default async function Page({ params }: { params: { slug: string } }) {
-    // Fetch schedule data on the server side
-
-    
+export default async function Page({ params }: { params: Promise<{ slug: string }> }) {    // Fetch schedule data on the server side
 
     return (
         <>

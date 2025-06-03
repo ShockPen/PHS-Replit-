@@ -276,7 +276,7 @@ public class CustomFileInputStream extends InputStream {
       }
       getProjects();
     }
-  }, []);
+  }, [project, session]);
 
   const convertToMonaco = (files: File[]) => {
     var fileData: any = []
@@ -337,7 +337,7 @@ public class CustomFileInputStream extends InputStream {
 
     loadCheerpJ();
     setActiveFile('Main.java');
-  }, []);
+  }, [project, session]);
 
   const getInput = () => {
     return new Promise<string>((resolve) => {
@@ -604,7 +604,7 @@ public class CustomFileInputStream extends InputStream {
     if (typeof window !== "undefined") {
       localStorage.setItem("files", JSON.stringify(files));
     }
-  }, [files]);
+  }, [files, project, session]);
 
 
   const handleEditorDidMount = (editor: any) => {

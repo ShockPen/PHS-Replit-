@@ -1,28 +1,21 @@
-import type { NextApiRequest, NextApiResponse } from 'next';
 import { getServerSession } from 'next-auth';
-import { getSession } from 'next-auth/react';
 import { NextRequest, NextResponse } from "next/server";
-// import { authOptions } from '../../auth/[...nextauth]/route';
-import { authOptions } from '@/app/(app)/lib/auth';
+import { authOptions } from '@/lib/auth';
 import clientPromise from '@/app/lib/mongodb';
 import bcrypt from 'bcrypt';
-import axios from 'axios';
 
 interface Data {
     message?: string;
 }
 
-export async function POST(req: NextRequest, res: NextResponse<Data>) {
+export async function POST(
+    req: NextRequest,
+    context: { params: Promise<Record<string, string>> }
+): Promise<NextResponse> {
     const secretKey = process.env.RECAPTCHA_SECRET_KEY;
 
     const body = await req.json();
     const { firstname, lastname, age, grade, email, schoolname, password, gRecaptchaToken } = body;
-
-    
-    const url = `secret=${secretKey}&response=${gRecaptchaToken}`;
-
-    let resp;
-
 
     if (!firstname || !lastname || !email || !password || !age || !grade || !schoolname) {
         return NextResponse.json({ message: 'Missing required fields' }, { status: 400 });
