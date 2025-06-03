@@ -5,7 +5,7 @@ import { NextRequest, NextResponse } from "next/server";
 // import { authOptions } from '../../auth/[...nextauth]/route';
 import { authOptions } from '@/app/(app)/lib/auth';
 import clientPromise from '@/app/lib/mongodb';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import axios from 'axios';
 
 interface Data {

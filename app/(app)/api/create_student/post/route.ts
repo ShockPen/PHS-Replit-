@@ -2,7 +2,7 @@ import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from "next/server";
 import { authOptions } from '@/lib/auth';
 import clientPromise from '@/app/lib/mongodb';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 
 interface Data {
     message?: string;

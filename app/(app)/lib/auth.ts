@@ -4,7 +4,7 @@ import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { connectMongoDB } from "@/app/lib/mongodb2";
 import User from "@/app/models/user";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import clientPromise from "@/app/lib/mongodb";
 
 
