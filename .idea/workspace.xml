@@ -4,11 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b81c8c27-8c15-4931-ae89-c670a04f9254" name="Changes" comment="Netlify deployment V1 finally up and running">
+    <list default="true" id="b81c8c27-8c15-4931-ae89-c670a04f9254" name="Changes" comment="Bcrypt --&gt; Bcryptjs + YIPPEEEE we're going global">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(app)/api/create_student/post/route.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/api/create_student/post/route.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(app)/api/create_teacher/post/route.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/api/create_teacher/post/route.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(app)/lib/auth.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/lib/auth.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/cpp/ide/index.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/cpp/ide/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/cpp/ide/page.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
     </list>
@@ -114,7 +113,7 @@
       <workItem from="1748529753419" duration="43039000" />
       <workItem from="1748790751923" duration="23597000" />
       <workItem from="1748898044840" duration="6083000" />
-      <workItem from="1748905803657" duration="4539000" />
+      <workItem from="1748905803657" duration="10070000" />
     </task>
     <task id="LOCAL-00001" summary="so many errors do not run">
       <option name="closed" value="true" />
@@ -180,7 +179,15 @@
       <option name="project" value="LOCAL" />
       <updated>1748918958313</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="Bcrypt --&gt; Bcryptjs + YIPPEEEE we're going global">
+      <option name="closed" value="true" />
+      <created>1748920042898</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1748920042898</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -216,7 +223,8 @@
     <MESSAGE value="Say you can't sleep, Java, I know&#10;That's that me espresso" />
     <MESSAGE value="you scroll me right round Java right round" />
     <MESSAGE value="Netlify deployment V1 finally up and running" />
-    <option name="LAST_COMMIT_MESSAGE" value="Netlify deployment V1 finally up and running" />
+    <MESSAGE value="Bcrypt --&gt; Bcryptjs + YIPPEEEE we're going global" />
+    <option name="LAST_COMMIT_MESSAGE" value="Bcrypt --&gt; Bcryptjs + YIPPEEEE we're going global" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
