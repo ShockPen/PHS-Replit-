@@ -928,7 +928,7 @@ public class CustomFileInputStream extends InputStream {
                   <span className="text-sm">Load</span>
                   <input
                       type="file"
-                      accept=".java"
+                      accept=".py"
                       onChange={handleFileUpload}
                       disabled={!cheerpjLoaded}
                       className="hidden"

@@ -87,7 +87,7 @@ export default function Page() {
             icon: (
                 <IconFileTypeJs className="h-full w-full text-neutral-500 dark:text-blue-300" />
             ),
-            href: "/studenthome/linux",
+            href: "/studenthome/node",
         },
 
         {
