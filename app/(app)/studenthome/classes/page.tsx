@@ -496,7 +496,6 @@ const GitHubClassroomDashboard: React.FC = () => {
             // Now fetch repositories and assignments for this simulated user
             await simulateFetchUserRepos(simulatedUsername);
 
-            // Redirect to GitHub Classroom/Repo after simulated login and data fetch
             let redirectUrl;
             if (isTeacher) {
                 redirectUrl = `https://classroom.github.com/organizations/${organizationName}/classrooms`;
