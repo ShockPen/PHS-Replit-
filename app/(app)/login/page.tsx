@@ -13,43 +13,7 @@ import { Input } from "@nextui-org/input";
 import { Button } from "@nextui-org/button";
 import { Spinner } from "@nextui-org/react";
 import Link from "next/link";
-import { IconBrandGoogleFilled } from "@tabler/icons-react";
-
-// export const metadata: Metadata = {
-//     title: "Login to SchoolNest",
-//     description: "SchoolNest Secure Login Page. Login to your SchoolNest Account.",
-//     keywords: [
-//         "school schedules",
-//         "educator tools",
-//         "programming tools",
-//         "class period tracker",
-//         "club management",
-//         "event management",
-//         "browser code compiler",
-//         "education technology",
-//         "school productivity",
-//         "schoolnest",
-//         "schoolcentral",
-//     ],
-//     authors: [{ name: "Agneya Tharun", url: "https://agneya.me" }],
-//     openGraph: {
-//         title: "SchoolNest: Where Education Takes Flight",
-//         description: "Organize your school day effortlessly with SchoolNest: free schedule tracking, club management, event scheduling, and a built-in code compiler.",
-//         url: "https://schoolnest.org",
-//         images: [
-//             {
-//                 url: "https://schoolnest.org/new_sn_site.png",
-//                 alt: "SchoolNest Schedule Site",
-//             },
-//         ],
-//     },
-//     twitter: {
-//         card: "summary_large_image",
-//         title: "SchoolNest: Where Education Takes Flight",
-//         description: "Organize your school day effortlessly with SchoolNest: free schedule tracking, club management, event scheduling, and a built-in code compiler.",
-//         images: ["https://schoolnest.org/new_sn_site.png"],
-//     },
-// };
+import { IconBrandGoogleFilled, IconBrandGithub } from "@tabler/icons-react";
 
 export default function Page() {
     const { data: session } = useSession();
@@ -75,29 +39,6 @@ export default function Page() {
     const togglePasswordVisibility = () => {
         setShowPassword((prev) => !prev);
     };
-
-    // const handleRegister = async () => {
-    //     if (!email || !schoolAbbr || !password) {
-    //         alert("Please fill in all fields");
-    //         return;
-    //     }
-    //     try {
-    //         await fetch("/api/auth2/register", {
-    //             method: "POST",
-    //             headers: {
-    //                 "Content-Type": "application/json",
-    //             },
-    //             body: JSON.stringify({
-    //                 email,
-    //                 school_abbr: schoolAbbr,
-    //                 password: password,
-    //             }),
-    //         });
-
-    //     } catch (error) {
-    //         console.error(error);
-    //     }
-    // }
 
     const handleLogin = async (e?: React.FormEvent) => {
         // Prevent default form submission if event exists
@@ -239,14 +180,23 @@ export default function Page() {
 
                         </div>
 
-                        {/* <Button
+                        <Button
                             variant="bordered"
                             className="w-full flex items-center justify-center gap-2"
                             onPress={() => signIn("google", { callbackUrl: "/auth-callback" })}
                         >
                             <IconBrandGoogleFilled size={20} />
                             Sign in with Google
-                        </Button> */}
+                        </Button>
+
+                        <Button
+                            variant="bordered"
+                            className="w-full flex items-center justify-center gap-2"
+                            onPress={() => signIn("github", { callbackUrl: "/studenthome" })} // optional redirect path
+                        >
+                            <IconBrandGithub className="w-5 h-5" />
+                            Sign in with GitHub
+                        </Button>
 
                         {signInPressed && (<div className="text-center mt-4"><Spinner /></div>)}
                     </form>

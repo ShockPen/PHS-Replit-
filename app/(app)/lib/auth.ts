@@ -4,7 +4,7 @@ import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { connectMongoDB } from "@/app/lib/mongodb2";
 import User from "@/app/models/user";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import clientPromise from "@/app/lib/mongodb";
 
 
@@ -84,7 +84,7 @@ export const authOptions: NextAuthOptions = {
           const existingUser = await usersCollection.findOne({ 
             email: user.email 
           });
-          
+
           if (!existingUser) {
             // This is a new user, mark them for onboarding
             (user as ExtendedUser).isNewUser = true;
@@ -112,6 +112,7 @@ export const authOptions: NextAuthOptions = {
                   ...(existingUser.googleId ? {} : { googleId: user.id }),
                 }
               }
+
             );
             
             // Set role and school_abbr from existing user
@@ -128,7 +129,7 @@ export const authOptions: NextAuthOptions = {
       
       return true;
     },
-    
+
     async session({ session, token }) {
       if (session.user) {
         session.user.role = token.role as string;

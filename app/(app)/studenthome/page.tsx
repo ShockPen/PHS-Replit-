@@ -44,7 +44,7 @@ export default function Page() {
             }
             getProjects();
         }
-    }, []);
+    }, [session]);
 
     const createProject = async () => {
         const response = await fetch('/api/student/create_java_project/post', {

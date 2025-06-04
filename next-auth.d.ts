@@ -1,8 +1,8 @@
-//// filepath: /c:/Users/agney/Documents/ScheduleApp/frontend/types/next-auth.d.ts
 import { DefaultSession } from "next-auth";
 
 declare module "next-auth" {
     interface Session {
+        accessToken?: string;
         user: {
             _id: string;
             name?: string | null;
@@ -19,8 +19,11 @@ declare module "next-auth" {
         school_abbr?: string | null;
         isNewUser?: boolean;
     }
+}
 
+declare module "next-auth/jwt" {
     interface JWT {
+        accessToken?: string;
         role?: string | null;
         school_abbr?: string | null;
         isNewUser?: boolean;

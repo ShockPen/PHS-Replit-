@@ -174,6 +174,11 @@ public class CustomFileInputStream extends InputStream {
   const [outputHeight, setOutputHeight] = useState(200); // initial height
   const isResizingOutput = useRef(false);
 
+  // GitHub functionality states
+  const [createdRepos, setCreatedRepos] = useState<
+      { owner: string; name: string }[]
+  >([]);
+
 
   const saveProject = async () => {
     try {
@@ -189,6 +194,8 @@ public class CustomFileInputStream extends InputStream {
       console.log(errors);
     }
   }
+
+  const [repoName, setRepoName] = React.useState("");
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -269,7 +276,7 @@ public class CustomFileInputStream extends InputStream {
       }
       getProjects();
     }
-  }, []);
+  }, [project, session]);
 
   const convertToMonaco = (files: File[]) => {
     var fileData: any = []
@@ -330,7 +337,7 @@ public class CustomFileInputStream extends InputStream {
 
     loadCheerpJ();
     setActiveFile('Main.java');
-  }, []);
+  }, [project, session]);
 
   const getInput = () => {
     return new Promise<string>((resolve) => {
@@ -592,6 +599,13 @@ public class CustomFileInputStream extends InputStream {
 
     URL.revokeObjectURL(url);
   };
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("files", JSON.stringify(files));
+    }
+  }, [files, project, session]);
+
 
   const handleEditorDidMount = (editor: any) => {
     monacoEditorRef.current = editor;
@@ -937,11 +951,11 @@ public class CustomFileInputStream extends InputStream {
 
                 <button
                     className="rounded-lg py-3 px-4 bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300 font-medium transition-all duration-200 border border-stone-200 dark:border-stone-700 hover:border-stone-300 dark:hover:border-stone-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 active:scale-[0.98]"
-                    onClick={saveProject}
+                    onClick={() => window.location.href = '/studenthome/java/repo'}
                     disabled={!cheerpjLoaded}
                 >
                   <IconBrandGithub className="w-4 h-4" />
-                  <span className="text-sm">Push/Pull</span>
+                  <span className="text-sm">Repo</span>
                 </button>
               </div>
 
@@ -964,74 +978,74 @@ public class CustomFileInputStream extends InputStream {
             onMouseDown={handleMouseDown}
         />
         {/* monaco editor */}
-      <div className="flex-1 flex flex-col min-w-0">
-        <div className='bg-[#1E1E1E]'>
-          <p
-            className='ml-2 font-mono '
-            style={{
-              fontFamily: 'monospace',
-            }}
-          >
-            {activeFile}
-          </p>
-        </div>
-        <div className="flex-1">
-          <MonacoEditor
-            language="java"
-            theme="vs-dark"
-            value={
-              files.find((f) => f.filename === activeFile)?.contents ?? ""
-            }
-            onChange={handleEditorChange}
-            options={{ automaticLayout: true }}
-            onMount={handleEditorDidMount}
-          />
-        </div>
-        {/* Output */}
-        <div
-            style={{
-              height: '5px',
-              cursor: 'row-resize',
-              backgroundColor: '#ccc',
-            }}
-        />
-
-        <div
-          style={{
-            height: '200px',
-            borderTop: '1px solid #ccc',
-            backgroundColor: '#1e1e1e',
-            color: 'white',
-            fontFamily: 'monospace',
-            padding: '10px',
-            overflowY: 'auto',
-          }}
-          ref={outputRef}
-        >
-          {outputLines.map((line, index) => (
-            <div key={index}>{line}</div>
-
-          ))}
-          {/* Input Field */}
-          <div style={{ display: 'flex' }}>
-            &gt;&nbsp;
-            <input
-              type="text"
-              ref={inputFieldRef}
-              disabled
-              style={{
-                width: '100%',
-                backgroundColor: 'transparent',
-                color: 'white',
-                border: 'none',
-                outline: 'none',
-                fontFamily: 'monospace',
-              }}
+        <div className="flex-1 flex flex-col min-w-0">
+          <div className='bg-[#1E1E1E]'>
+            <p
+                className='ml-2 font-mono '
+                style={{
+                  fontFamily: 'monospace',
+                }}
+            >
+              {activeFile}
+            </p>
+          </div>
+          <div className="flex-1">
+            <MonacoEditor
+                language="java"
+                theme="vs-dark"
+                value={
+                    files.find((f) => f.filename === activeFile)?.contents ?? ""
+                }
+                onChange={handleEditorChange}
+                options={{ automaticLayout: true }}
+                onMount={handleEditorDidMount}
             />
+          </div>
+          {/* Output */}
+          <div
+              style={{
+                height: '5px',
+                cursor: 'row-resize',
+                backgroundColor: '#ccc',
+              }}
+          />
+
+          <div
+              style={{
+                height: '200px',
+                borderTop: '1px solid #ccc',
+                backgroundColor: '#1e1e1e',
+                color: 'white',
+                fontFamily: 'monospace',
+                padding: '10px',
+                overflowY: 'auto',
+              }}
+              ref={outputRef}
+          >
+            {outputLines.map((line, index) => (
+                <div key={index}>{line}</div>
+
+            ))}
+            {/* Input Field */}
+            <div style={{ display: 'flex' }}>
+              &gt;&nbsp;
+              <input
+                  type="text"
+                  ref={inputFieldRef}
+                  disabled
+                  style={{
+                    width: '100%',
+                    backgroundColor: 'transparent',
+                    color: 'white',
+                    border: 'none',
+                    outline: 'none',
+                    fontFamily: 'monospace',
+                  }}
+              />
+            </div>
           </div>
         </div>
       </div>
-    </div>
   );
 };
 

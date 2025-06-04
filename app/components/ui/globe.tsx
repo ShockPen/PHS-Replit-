@@ -163,7 +163,7 @@ export function Globe({ globeConfig, data }: WorldProps) {
         });
       startAnimation();
     }
-  }, [globeData]);
+  }, [globeData, _buildData, _buildMaterial]);
 
   const startAnimation = () => {
     if (!globeRef.current || !globeData) return;
@@ -222,7 +222,7 @@ export function Globe({ globeConfig, data }: WorldProps) {
     return () => {
       clearInterval(interval);
     };
-  }, [globeRef.current, globeData]);
+  }, [globeRef.current, globeData, _buildData, _buildMaterial]);
 
   return (
     <>

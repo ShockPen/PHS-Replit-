@@ -29,7 +29,7 @@ export default function Page() {
 
     const handleUseDepedency = (dependencyName: string | number | boolean) => {
         // Navigate to IDE with the dependency parameter
-        router.push(`/studenthome/java/ide?dependency=${encodeURIComponent(dependencyName)}`);
+        router.push(`/studenthome/cpp/ide?dependency=${encodeURIComponent(dependencyName)}`);
     };
 
     class DependencyCard extends React.Component<{ title: any, description: any, icon: any, color: string }> {
@@ -78,41 +78,41 @@ export default function Page() {
             icon: (
                 <IconCoffee className="h-full w-full text-blue-500 dark:text-blue-300" />
             ),
-            href: "/studenthome/java",
+            href: "/studenthome/cpp",
         },
         {
-            title: "Java IDE",
+            title: "C++ IDE",
             icon: (
                 <IconFileCode className="h-full w-full text-blue-500 dark:text-blue-300" />
             ),
-            href: "/studenthome/java/ide",
+            href: "/studenthome/cpp/ide",
         },
         {
             title: "Templates",
             icon: (
                 <IconTemplate className="h-full w-full text-blue-500 dark:text-blue-300" />
             ),
-            href: "/studenthome/java/templates",
+            href: "/studenthome/cpp/templates",
         },
         {
             title: "Classes",
             icon: (
                 <IconSchool className="h-full w-full text-blue-500 dark:text-blue-300" />
             ),
-            href: "/studenthome/java/classes",
+            href: "/studenthome/classes",
         },
     ];
 
     const dependencies = [
         {
             title: "JUnit 5",
-            description: "Modern testing framework for Java with powerful annotations, assertions, and test lifecycle management. Perfect for unit testing and test-driven development.",
+            description: "Modern testing framework for C++ with powerful annotations, assertions, and test lifecycle management. Perfect for unit testing and test-driven development.",
             icon: <IconTestPipe className="h-6 w-6" />,
             color: "green",
         },
         {
             title: "Jackson",
-            description: "High-performance JSON processor for Java. Seamlessly convert between Java objects and JSON with powerful data binding capabilities.",
+            description: "High-performance JSON processor for C++. Seamlessly convert between C++ objects and JSON with powerful data binding capabilities.",
             icon: <IconFileBroken className="h-6 w-6" />,
             color: "blue",
         },
@@ -124,13 +124,13 @@ export default function Page() {
         },
         {
             title: "Hibernate",
-            description: "Object-relational mapping framework that simplifies database interactions using Java objects with powerful caching and query capabilities.",
+            description: "Object-relational mapping framework that simplifies database interactions using C++ objects with powerful caching and query capabilities.",
             icon: <IconDatabase className="h-6 w-6" />,
             color: "orange",
         },
         {
             title: "Apache Commons",
-            description: "Comprehensive collection of reusable Java utilities covering collections, file operations, string manipulation, and much more.",
+            description: "Comprehensive collection of reusable C++ utilities covering collections, file operations, string manipulation, and much more.",
             icon: <IconBrandGithub className="h-6 w-6" />,
             color: "yellow",
         },
@@ -142,13 +142,13 @@ export default function Page() {
         },
         {
             title: "Log4j",
-            description: "Flexible and configurable logging framework with multiple output destinations, log levels, and performance optimizations for Java applications.",
+            description: "Flexible and configurable logging framework with multiple output destinations, log levels, and performance optimizations for C++ applications.",
             icon: <IconFileText className="h-6 w-6" />,
             color: "red",
         },
         {
             title: "Gson",
-            description: "Google's JSON library for Java offering simple APIs for JSON serialization and deserialization with support for generics and custom serializers.",
+            description: "Google's JSON library for C++ offering simple APIs for JSON serialization and deserialization with support for generics and custom serializers.",
             icon: <IconTableColumn className="h-6 w-6" />,
             color: "pink",
         },
@@ -171,15 +171,15 @@ export default function Page() {
                     <div className="max-w-4xl mx-auto text-center">
                         <div className="inline-flex items-center gap-2 bg-blue-500/10 border border-blue-500/20 rounded-full px-4 py-2 mb-6">
                             <Code className="h-4 w-4 text-blue-400" />
-                            <span className="text-sm text-blue-300 font-medium">Java Development</span>
+                            <span className="text-sm text-blue-300 font-medium">C++ Development</span>
                         </div>
 
                         <h1 className="text-5xl md:text-7xl font-bold bg-gradient-to-b from-white via-blue-100 to-blue-400 bg-clip-text text-transparent mb-6">
-                            Java Dependencies
+                            C++ Dependencies
                         </h1>
 
                         <p className="text-xl text-neutral-300 max-w-2xl mx-auto leading-relaxed mb-8">
-                            Discover powerful Java libraries and frameworks to accelerate your development.
+                            Discover powerful C++ libraries and frameworks to accelerate your development.
                             {/* eslint-disable-next-line react/no-unescaped-entities */}
                             Click "Use in IDE" to start implementing any dependency in your project.
                         </p>

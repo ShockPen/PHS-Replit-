@@ -13,16 +13,12 @@ interface Data {
     message?: string;
 }
 
-export async function POST(req: NextRequest, res: NextResponse<Data>) {
-    const session = await getServerSession(
-        req as unknown as NextApiRequest,
-        {
-            ...res,
-            getHeader: (name: string) => res.headers?.get(name),
-            setHeader: (name: string, value: string) => res.headers?.set(name, value),
-        } as unknown as NextApiResponse,
-        authOptions
-    )
+export async function POST(
+    req: NextRequest,
+    context: { params: Promise<Record<string, string>> }
+): Promise<NextResponse> {
+    const session = await getServerSession(authOptions);
+
 
     if (session?.user.role !== 'student') {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

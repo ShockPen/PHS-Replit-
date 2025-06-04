@@ -1,3 +1,5 @@
+
+////Onboarding students and resitering them
 //// filepath: /c:/Users/agney/Documents/ScheduleApp/frontend/app/(app)/onboarding/page.tsx
 "use client";
 

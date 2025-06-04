@@ -1,7 +1,6 @@
 "use client";
 
-
-
+//CPP Homepage
 
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import { useSession } from "next-auth/react";
@@ -426,7 +425,7 @@ export default function CPPDashboard() {
                             <span className="text-purple-600 dark:text-purple-300 text-xs font-medium truncate flex-1">{course}</span>
                             <Button
                                 as={Link}
-                                href={`/studenthome/cpp/classes/${i}`}
+                                href={`/studenthome/classes/${i}`}
                                 size="sm"
                                 className="bg-purple-500 hover:bg-purple-600 text-white transition-all duration-200 hover:scale-105 shadow-md hover:shadow-lg ml-2 flex-shrink-0 h-5 min-w-10 text-xs group-hover:bg-purple-550"
                             >
@@ -659,7 +658,7 @@ export default function CPPDashboard() {
         {
             title: "Classes",
             icon: <IconChalkboard className="h-full w-full text-purple-400" />,
-            href: "/studenthome/cpp/classes",
+            href: "/studenthome/classes",
         },
     ];
 

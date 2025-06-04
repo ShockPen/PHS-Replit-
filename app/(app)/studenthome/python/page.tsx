@@ -1,5 +1,6 @@
 "use client";
 
+//Python Homepage
 
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import { useSession } from "next-auth/react";
@@ -347,7 +348,7 @@ export default function PythonDashboard() {
                             <span className="text-orange-600 dark:text-orange-300 text-xs font-medium truncate flex-1">{course}</span>
                             <Button
                                 as={Link}
-                                href={`/studenthome/python/classes/${i}`}
+                                href={`/studenthome/classes/${i}`}
                                 size="sm"
                                 className="bg-orange-500 hover:bg-orange-600 text-white transition-all duration-200 hover:scale-105 shadow-md hover:shadow-lg ml-2 flex-shrink-0 h-5 min-w-10 text-xs group-hover:bg-orange-550"
                             >
@@ -566,7 +567,7 @@ export default function PythonDashboard() {
         {
             title: "Classes",
             icon: <IconChalkboard className="h-full w-full text-orange-400" />,
-            href: "/studenthome/python/classes",
+            href: "/studenthome/classes",
         },
     ];
 

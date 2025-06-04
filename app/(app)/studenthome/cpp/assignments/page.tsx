@@ -1,5 +1,7 @@
 "use client";
 
+//Should track the assignments of students
+
 import { BackgroundLines } from "@/app/components/ui/background-lines";
 import {
     IconCoffee,

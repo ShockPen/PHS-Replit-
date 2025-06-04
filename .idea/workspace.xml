@@ -4,9 +4,32 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b81c8c27-8c15-4931-ae89-c670a04f9254" name="Changes" comment="Say you can't sleep, Java, I know&#10;That's that me espresso">
+    <list default="true" id="b81c8c27-8c15-4931-ae89-c670a04f9254" name="Changes" comment="classpage works v1 (login, ui, dynamicism fix required)">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/java/ide/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/java/ide/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/[slug]/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/[slug]/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/api/auth/[...nextauth]/route.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/api/auth/[...nextauth]/route.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/api/create_student/post/route.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/api/create_student/post/route.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/api/create_teacher/post/route.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/api/create_teacher/post/route.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/api/github/callback/route.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/api/github/callback/route.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/api/github/create-repo/route.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/api/github/create-repo/route.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/api/github/login/route.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/api/github/login/route.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/api/github/pull/route.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/api/github/pull/route.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/login/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/login/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/onboarding/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/onboarding/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/cpp/assignments/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/cpp/assignments/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/cpp/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/cpp/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/java/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/java/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/node/assignments/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/node/assignments/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/node/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/node/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/python/assignments/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/python/assignments/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/python/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/python/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/lib/emailTemplate.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/lib/emailTemplate.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/auth.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/auth.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/utils.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/utils.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/next-auth.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/next-auth.d.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -17,9 +40,11 @@
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="package.json" />
-        <option value="TypeScript File" />
-        <option value="TypeScript JSX File" />
         <option value="HTML File" />
+        <option value="JavaScript File" />
+        <option value="tsconfig.json" />
+        <option value="TypeScript JSX File" />
+        <option value="TypeScript File" />
       </list>
     </option>
   </component>
@@ -50,27 +75,28 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "DefaultHtmlFileTemplate": "HTML File",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "main",
-    "ignore.virus.scanning.warn.message": "true",
-    "last_opened_file_path": "C:/Users/davee/WebstormProjects/Rep-lite/app/(app)/studenthome",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.standard": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.standard": "",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_interpreter_path": "C:/Users/davee/AppData/Roaming/JetBrains/WebStorm2024.3/node/versions/22.15.0/node",
-    "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "configurable.group.tools",
-    "ts.external.directory.path": "C:\\Users\\davee\\WebstormProjects\\Rep-lite\\node_modules\\typescript\\lib",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;DefaultHtmlFileTemplate&quot;: &quot;HTML File&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/davee/WebstormProjects/Rep-lite/app/(app)/studenthome&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.standard&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.standard&quot;: &quot;&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_interpreter_path&quot;: &quot;C:/Users/davee/AppData/Roaming/JetBrains/WebStorm2024.3/node/versions/22.15.0/node&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;run.code.analysis.last.selected.profile&quot;: &quot;pProject Default&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;configurable.group.tools&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;C:\\Users\\davee\\WebstormProjects\\Rep-lite\\node_modules\\typescript\\lib&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\davee\WebstormProjects\Rep-lite\app\(app)\studenthome" />
@@ -104,7 +130,11 @@
       <workItem from="1748353006083" duration="492000" />
       <workItem from="1748353543675" duration="306000" />
       <workItem from="1748354742818" duration="20371000" />
-      <workItem from="1748529753419" duration="39743000" />
+      <workItem from="1748529753419" duration="43039000" />
+      <workItem from="1748790751923" duration="23597000" />
+      <workItem from="1748898044840" duration="6083000" />
+      <workItem from="1748905803657" duration="23826000" />
+      <workItem from="1749001341347" duration="10444000" />
     </task>
     <task id="LOCAL-00001" summary="so many errors do not run">
       <option name="closed" value="true" />
@@ -154,7 +184,63 @@
       <option name="project" value="LOCAL" />
       <updated>1748747809674</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="you scroll me right round Java right round">
+      <option name="closed" value="true" />
+      <created>1748749740943</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1748749740943</updated>
+    </task>
+    <task id="LOCAL-00008" summary="Netlify deployment V1 finally up and running">
+      <option name="closed" value="true" />
+      <created>1748918958313</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1748918958313</updated>
+    </task>
+    <task id="LOCAL-00009" summary="Bcrypt --&gt; Bcryptjs + YIPPEEEE we're going global">
+      <option name="closed" value="true" />
+      <created>1748920042898</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1748920042898</updated>
+    </task>
+    <task id="LOCAL-00010" summary="C++ ide works but cannot interact with code (scanner etc invalid)">
+      <option name="closed" value="true" />
+      <created>1748956993047</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1748956993047</updated>
+    </task>
+    <task id="LOCAL-00011" summary="classpage test v1">
+      <option name="closed" value="true" />
+      <created>1749001236808</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1749001236808</updated>
+    </task>
+    <task id="LOCAL-00012" summary="classpage works v1 (login, ui, dynamicism fix required)">
+      <option name="closed" value="true" />
+      <created>1749008784268</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1749008784268</updated>
+    </task>
+    <task id="LOCAL-00013" summary="classpage works v1 (login, ui, dynamicism fix required)">
+      <option name="closed" value="true" />
+      <created>1749008843965</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1749008843965</updated>
+    </task>
+    <option name="localTasksCounter" value="14" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -188,14 +274,20 @@
     <MESSAGE value="version 2 with more pages but less functionality" />
     <MESSAGE value="fixing node's nodes" />
     <MESSAGE value="Say you can't sleep, Java, I know&#10;That's that me espresso" />
-    <option name="LAST_COMMIT_MESSAGE" value="Say you can't sleep, Java, I know&#10;That's that me espresso" />
+    <MESSAGE value="you scroll me right round Java right round" />
+    <MESSAGE value="Netlify deployment V1 finally up and running" />
+    <MESSAGE value="Bcrypt --&gt; Bcryptjs + YIPPEEEE we're going global" />
+    <MESSAGE value="C++ ide works but cannot interact with code (scanner etc invalid)" />
+    <MESSAGE value="classpage test v1" />
+    <MESSAGE value="classpage works v1 (login, ui, dynamicism fix required)" />
+    <option name="LAST_COMMIT_MESSAGE" value="classpage works v1 (login, ui, dynamicism fix required)" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" type="javascript">
           <url>file://$PROJECT_DIR$/app/(app)/studenthome/python/page.tsx</url>
-          <line>641</line>
+          <line>642</line>
           <option name="timeStamp" value="6" />
         </line-breakpoint>
       </breakpoints>
