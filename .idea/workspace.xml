@@ -4,12 +4,27 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b81c8c27-8c15-4931-ae89-c670a04f9254" name="Changes" comment="Bcrypt --&gt; Bcryptjs + YIPPEEEE we're going global">
+    <list default="true" id="b81c8c27-8c15-4931-ae89-c670a04f9254" name="Changes" comment="C++ ide works but cannot interact with code (scanner etc invalid)">
+      <change afterPath="$PROJECT_DIR$/app/(app)/studenthome/classes/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/cpp/ide/index.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/cpp/ide/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/cpp/ide/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/cpp/classes/page.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/cpp/dependencies/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/cpp/dependencies/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/cpp/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/cpp/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/cpp/templates/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/cpp/templates/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/java/classes/page.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/java/dependencies/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/java/dependencies/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/java/ide/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/java/ide/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/java/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/java/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/java/repo/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/java/repo/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/java/templates/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/java/templates/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/node/classes/page.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/node/dependencies/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/node/dependencies/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/node/templates/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/node/templates/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/python/classes/page.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/python/dependencies/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/python/dependencies/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/python/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/python/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/python/templates/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/python/templates/page.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -20,11 +35,11 @@
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="package.json" />
-        <option value="TypeScript JSX File" />
         <option value="HTML File" />
         <option value="JavaScript File" />
         <option value="tsconfig.json" />
         <option value="TypeScript File" />
+        <option value="TypeScript JSX File" />
       </list>
     </option>
   </component>
@@ -113,7 +128,7 @@
       <workItem from="1748529753419" duration="43039000" />
       <workItem from="1748790751923" duration="23597000" />
       <workItem from="1748898044840" duration="6083000" />
-      <workItem from="1748905803657" duration="10070000" />
+      <workItem from="1748905803657" duration="23476000" />
     </task>
     <task id="LOCAL-00001" summary="so many errors do not run">
       <option name="closed" value="true" />
@@ -187,7 +202,15 @@
       <option name="project" value="LOCAL" />
       <updated>1748920042898</updated>
     </task>
-    <option name="localTasksCounter" value="10" />
+    <task id="LOCAL-00010" summary="C++ ide works but cannot interact with code (scanner etc invalid)">
+      <option name="closed" value="true" />
+      <created>1748956993047</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1748956993047</updated>
+    </task>
+    <option name="localTasksCounter" value="11" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -224,7 +247,8 @@
     <MESSAGE value="you scroll me right round Java right round" />
     <MESSAGE value="Netlify deployment V1 finally up and running" />
     <MESSAGE value="Bcrypt --&gt; Bcryptjs + YIPPEEEE we're going global" />
-    <option name="LAST_COMMIT_MESSAGE" value="Bcrypt --&gt; Bcryptjs + YIPPEEEE we're going global" />
+    <MESSAGE value="C++ ide works but cannot interact with code (scanner etc invalid)" />
+    <option name="LAST_COMMIT_MESSAGE" value="C++ ide works but cannot interact with code (scanner etc invalid)" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

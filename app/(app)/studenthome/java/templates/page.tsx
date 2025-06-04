@@ -99,7 +99,7 @@ export default function Page() {
             icon: (
                 <IconSchool className="h-full w-full text-blue-500 dark:text-blue-300" />
             ),
-            href: "/studenthome/java/classes",
+            href: "/studenthome/classes",
         },
     ];
 

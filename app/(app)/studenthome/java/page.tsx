@@ -351,7 +351,7 @@ const createProject = async () => {
                             <span className="text-blue-600 dark:text-blue-300 text-xs font-medium truncate flex-1">{course}</span>
                             <Button
                                 as={Link}
-                                href={`/studenthome/java/classes/${i}`}
+                                href={`/studenthome/classes/${i}`}
                                 size="sm"
                                 className="bg-blue-500 hover:bg-blue-600 text-white transition-all duration-200 hover:scale-105 shadow-md hover:shadow-lg ml-2 flex-shrink-0 h-5 min-w-10 text-xs group-hover:bg-blue-550"
                             >
@@ -564,7 +564,7 @@ const createProject = async () => {
         {
             title: "Classes",
             icon: <IconChalkboard className="h-full w-full text-blue-400" />,
-            href: "/studenthome/java/classes",
+            href: "/studenthome/classes",
         },
     ];
 

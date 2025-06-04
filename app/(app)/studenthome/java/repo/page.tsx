@@ -416,7 +416,7 @@ public class Main {
             icon: (
                 <IconGitBranch className="h-full w-full text-blue-400 dark:text-blue-300" />
             ),
-            href: "/studenthome/java/classes",
+            href: "/studenthome/classes",
         },
         {
             title: "Terminal",

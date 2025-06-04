@@ -978,74 +978,74 @@ public class CustomFileInputStream extends InputStream {
             onMouseDown={handleMouseDown}
         />
         {/* monaco editor */}
-      <div className="flex-1 flex flex-col min-w-0">
-        <div className='bg-[#1E1E1E]'>
-          <p
-            className='ml-2 font-mono '
-            style={{
-              fontFamily: 'monospace',
-            }}
-          >
-            {activeFile}
-          </p>
-        </div>
-        <div className="flex-1">
-          <MonacoEditor
-            language="java"
-            theme="vs-dark"
-            value={
-              files.find((f) => f.filename === activeFile)?.contents ?? ""
-            }
-            onChange={handleEditorChange}
-            options={{ automaticLayout: true }}
-            onMount={handleEditorDidMount}
-          />
-        </div>
-        {/* Output */}
-        <div
-            style={{
-              height: '5px',
-              cursor: 'row-resize',
-              backgroundColor: '#ccc',
-            }}
-        />
-
-        <div
-          style={{
-            height: '200px',
-            borderTop: '1px solid #ccc',
-            backgroundColor: '#1e1e1e',
-            color: 'white',
-            fontFamily: 'monospace',
-            padding: '10px',
-            overflowY: 'auto',
-          }}
-          ref={outputRef}
-        >
-          {outputLines.map((line, index) => (
-            <div key={index}>{line}</div>
-
-          ))}
-          {/* Input Field */}
-          <div style={{ display: 'flex' }}>
-            &gt;&nbsp;
-            <input
-              type="text"
-              ref={inputFieldRef}
-              disabled
-              style={{
-                width: '100%',
-                backgroundColor: 'transparent',
-                color: 'white',
-                border: 'none',
-                outline: 'none',
-                fontFamily: 'monospace',
-              }}
+        <div className="flex-1 flex flex-col min-w-0">
+          <div className='bg-[#1E1E1E]'>
+            <p
+                className='ml-2 font-mono '
+                style={{
+                  fontFamily: 'monospace',
+                }}
+            >
+              {activeFile}
+            </p>
+          </div>
+          <div className="flex-1">
+            <MonacoEditor
+                language="java"
+                theme="vs-dark"
+                value={
+                    files.find((f) => f.filename === activeFile)?.contents ?? ""
+                }
+                onChange={handleEditorChange}
+                options={{ automaticLayout: true }}
+                onMount={handleEditorDidMount}
             />
+          </div>
+          {/* Output */}
+          <div
+              style={{
+                height: '5px',
+                cursor: 'row-resize',
+                backgroundColor: '#ccc',
+              }}
+          />
+
+          <div
+              style={{
+                height: '200px',
+                borderTop: '1px solid #ccc',
+                backgroundColor: '#1e1e1e',
+                color: 'white',
+                fontFamily: 'monospace',
+                padding: '10px',
+                overflowY: 'auto',
+              }}
+              ref={outputRef}
+          >
+            {outputLines.map((line, index) => (
+                <div key={index}>{line}</div>
+
+            ))}
+            {/* Input Field */}
+            <div style={{ display: 'flex' }}>
+              &gt;&nbsp;
+              <input
+                  type="text"
+                  ref={inputFieldRef}
+                  disabled
+                  style={{
+                    width: '100%',
+                    backgroundColor: 'transparent',
+                    color: 'white',
+                    border: 'none',
+                    outline: 'none',
+                    fontFamily: 'monospace',
+                  }}
+              />
+            </div>
           </div>
         </div>
       </div>
-    </div>
   );
 };
 
