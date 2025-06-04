@@ -1,5 +1,7 @@
 "use client";
 
+// Node Homepage
+
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { useTheme } from "next-themes";

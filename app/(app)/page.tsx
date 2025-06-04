@@ -21,26 +21,26 @@ const testimonials = [
     {
         quote:
             "Getting information about school clubs or announcements has never been easier with SchoolNest's simple, easy-to-use website that displays literally all the information you'll ever need in any school day",
-        name: "Allen",
+        name: "Ekansh Dave",
         title: "High School Sophomore",
     },
     {
         quote:
             "Using SchoolNest has drastically reduced the chaos during transition times",
-        name: "Aanshi",
+        name: "Rachel Kang",
         title: "High School Junior",
     },
     {
         quote:
             "I think [SchoolNest] is a valuable tool for both students and educators to allow us to keep track of the pace of a period... it helps me keep myself organized and pace my class and provide an authentic structure to the way I teach my class.",
-        name: "Mr. McMullen",
+        name: "Mr. Cooper",
         title: "10th Grade English teacher",
     },
     {
         quote:
             "Students and teachers rely on SchoolNest daily—it's the backbone of our school schedule.",
-        name: "Brandon",
-        title: "High School Junior",
+        name: "Samuel Adeniyi-Hones",
+        title: "High School Sophomore",
     },
     {
         quote:

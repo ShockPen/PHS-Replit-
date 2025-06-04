@@ -5,6 +5,7 @@ export interface EmailTemplateParams {
     content: string;
 }
 
+//Email if they create an email-us section for feedback
 export const emailTemplate = ({ subject, content }: EmailTemplateParams): string => {
     return `
     <!DOCTYPE html>

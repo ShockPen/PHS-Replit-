@@ -4,14 +4,15 @@ import { getSession } from 'next-auth/react';
 import { NextRequest, NextResponse } from "next/server";
 // import { authOptions } from '../../auth/[...nextauth]/route';
 import { authOptions } from '@/app/(app)/lib/auth';
-import clientPromise from '@/app/lib/mongodb';
-import bcrypt from 'bcryptjs';
+import clientPromise from '@/app/lib/mongodb'; //Student database tracking
+import bcrypt from 'bcryptjs'; //Security for password hashing
 import axios from 'axios';
 
 interface Data {
     message?: string;
 }
 
+//Accepts a request and sends out a NextResponse for Next to interpret
 export async function POST(
     req: NextRequest,
     context: { params: Promise<Record<string, string>> }
