@@ -1,44 +1,28 @@
 "use client";
 
-import { BackgroundLines } from "@/app/components/ui/background-lines";
-import {
-    IconHome,
-    IconCoffee,
-    IconFileCode,
-    IconTemplate,
-    IconSchool,
-    IconGitBranch,
-    IconGitCommit,
-    IconGitMerge,
-    IconGitPullRequest,
-    IconCloudUpload,
-    IconCloudDownload,
-    IconFolderPlus,
-    IconGitFork,
-    IconHistory,
-    IconSettings,
-    IconTrash,
-    IconCopy,
-    IconBrandGithub,
-    IconUpload,
-    IconFileDownload
-} from "@tabler/icons-react";
-import { FloatingNav } from "@/app/components/ui/floating-navbar";
-import { Button, Link } from "@nextui-org/react";
+import React, { useState, useEffect, useRef } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useSession } from 'next-auth/react';
+
+// Assuming these are custom components you have
+import { Link, Button, Tooltip } from "@nextui-org/react";
 import { BentoGrid, BentoGridItem } from "@/app/components/ui/bento-grid";
-import { GitBranch, Play, Upload, Download, FileText, Folder, Code } from "lucide-react";
-import React, { useEffect, useState, useRef } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useSession } from "next-auth/react";
+import { BackgroundLines } from "@/app/components/ui/background-lines";
+import { FloatingNav } from "@/app/components/ui/floating-navbar";
+// Assuming these are your icon imports
+import {
+    IconHome, IconCoffee, IconTemplate, IconFileCode, IconUpload, IconFileDownload,
+    IconFolderPlus, IconCloudUpload, IconCopy, IconCloudDownload, IconGitCommit,
+    IconGitMerge, IconHistory, IconGitBranch, IconGitFork, IconGitPullRequest, IconPlayerPlayFilled
+} from '@tabler/icons-react';
+
+// For conceptual toast notifications, you'd need to install and configure react-toastify
+// import { toast } from 'react-toastify';
+// import 'react-toastify/dist/ReactToastify.css';
 
 interface File {
     filename: string;
     contents: string;
-}
-
-interface Project {
-    project_name: string,
-    files: File[]
 }
 
 export default function Page() {
@@ -46,7 +30,7 @@ export default function Page() {
     const searchParams = useSearchParams();
     const { data: session } = useSession();
 
-    // State from IDE integration
+    // State for IDE integration
     const [files, setFiles] = useState<File[]>([
         {
             filename: 'Main.java',
@@ -62,141 +46,199 @@ public class Main {
 }`,
         }
     ]);
-
     const [activeFile, setActiveFile] = useState('Main.java');
     const [signedIn, setSignedIn] = useState(false);
     const [name, setName] = useState('');
     const [project, setProject] = useState(searchParams.get("project") ?? "");
     const [projectList, setProjectList] = useState<string[]>([]);
-    const [repoName, setRepoName] = useState("");
     const [createdRepos, setCreatedRepos] = useState<{ owner: string; name: string }[]>([]);
+
+    // Loading states for UI feedback
+    const [isSavingProject, setIsSavingProject] = useState(false);
+    const [isCreatingRepo, setIsCreatingRepo] = useState(false);
+    const [isPushing, setIsPushing] = useState(false);
+    const [isCloning, setIsCloning] = useState(false); // New loading state for clone
+
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     // Initialize session and load project data
     useEffect(() => {
-        if (session && session.user.role == 'student') {
-            setSignedIn(true);
+        const loadInitialData = async () => {
+            if (session?.user?.role === 'student') {
+                setSignedIn(true);
 
-            const getStudentInfo = async () => {
-                const response = await fetch('/api/student/get_studentinfo/post', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                });
-                const data = await response.json();
-                setName(data.firstname + ' ' + data.lastname);
-            }
-            getStudentInfo();
-
-            const getProjectFiles = async () => {
-                if (project) {
-                    const response = await fetch('/api/student/get_files/post', {
+                // Fetch student info
+                try {
+                    const studentInfoResponse = await fetch('/api/student/get_studentinfo/post', {
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({ project_name: project })
+                        headers: { 'Content-Type': 'application/json' }
                     });
-                    const data = await response.json();
-                    if (data.project) {
-                        setFiles(data.project.files);
+                    const studentInfoData = await studentInfoResponse.json();
+                    setName(studentInfoData.firstname + ' ' + studentInfoData.lastname);
+                } catch (error) {
+                    console.error('Failed to fetch student info:', error);
+                    // toast.error('Failed to load student information.');
+                }
+
+                // Fetch project files if a project is selected
+                if (project) {
+                    try {
+                        const filesResponse = await fetch('/api/student/get_files/post', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ project_name: project })
+                        });
+                        const filesData = await filesResponse.json();
+                        if (filesData.project) {
+                            setFiles(filesData.project.files);
+                            // Set active file to the first file if exists, or default
+                            if (filesData.project.files.length > 0) {
+                                setActiveFile(filesData.project.files[0].filename);
+                            }
+                        }
+                    } catch (error) {
+                        console.error('Failed to fetch project files:', error);
+                        // toast.error('Failed to load project files.');
                     }
                 }
-            }
-            getProjectFiles();
 
-            const getProjects = async () => {
-                const response = await fetch('/api/student/get_projectlist/post', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                });
-                const data = await response.json();
-                setProjectList(data.java_project_names);
+                // Fetch project list
+                try {
+                    const projectListResponse = await fetch('/api/student/get_projectlist/post', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+                    const projectListData = await projectListResponse.json();
+                    setProjectList(projectListData.java_project_names);
+                } catch (error) {
+                    console.error('Failed to fetch project list:', error);
+                    // toast.error('Failed to load project list.');
+                }
+            } else {
+                setSignedIn(false); // If not a student or no session, ensure signedIn is false
             }
-            getProjects();
-        }
-    }, [session, project]);
+        };
 
-    // Save project functionality from IDE
+        loadInitialData();
+    }, [session, project]); // Dependencies for re-running effect
+
+    // Save project functionality
     const saveProject = async () => {
+        setIsSavingProject(true);
         try {
             const response = await fetch('/api/student/save_files/post', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ project, files })
             });
             if (response.ok) {
+                // toast.success('Project saved successfully!');
                 alert('Project saved successfully!');
-            }
-        } catch (errors: any) {
-            console.log(errors);
-            alert('Error saving project');
-        }
-    }
-
-    // GitHub functionality from IDE
-    const createRepo = async (repoName: string) => {
-        const res = await fetch("/api/github/create-repo", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                name: repoName.trim(),
-                description: "Created via Schoolnest Repository Manager",
-                isPrivate: true,
-            }),
-        });
-
-        const data = await res.json();
-
-        if (!res.ok) {
-            if (data.error?.errors?.some((e: any) => e.message.includes("already exists"))) {
-                alert("Repository name already exists. Please choose a different name.");
             } else {
-                alert("Failed to create repo: " + (data.error?.message || data.error));
+                const errorData = await response.json();
+                console.error('Error saving project:', errorData);
+                // toast.error(`Error saving project: ${errorData.message || 'Unknown error'}`);
+                alert(`Error saving project: ${errorData.message || 'Unknown error'}`);
             }
-            return null;
+        } catch (error) {
+            console.error('Network or unexpected error saving project:', error);
+            // toast.error('Error saving project. Please check your connection.');
+            alert('Error saving project. Please check your connection.');
+        } finally {
+            setIsSavingProject(false);
         }
+    };
 
-        alert(`Repo "${repoName}" created successfully!`);
-        return data;
+    // GitHub functionality
+    const createRepo = async (repoName: string) => {
+        setIsCreatingRepo(true);
+        try {
+            const res = await fetch("/api/github/create-repo", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    name: repoName.trim(),
+                    description: "Created via Schoolnest Repository Manager",
+                    isPrivate: true,
+                }),
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                if (data.error?.errors?.some((e: any) => e.message.includes("already exists"))) {
+                    // toast.error("Repository name already exists. Please choose a different name.");
+                    alert("Repository name already exists. Please choose a different name.");
+                } else {
+                    // toast.error("Failed to create repo: " + (data.error?.message || data.error));
+                    alert("Failed to create repo: " + (data.error?.message || data.error));
+                }
+                return null;
+            }
+
+            // toast.success(`Repo "${repoName}" created successfully!`);
+            alert(`Repo "${repoName}" created successfully!`);
+            return data;
+        } catch (error) {
+            console.error('Network or unexpected error creating repo:', error);
+            // toast.error('Error creating repository. Please try again.');
+            alert('Error creating repository. Please try again.');
+            return null;
+        } finally {
+            setIsCreatingRepo(false);
+        }
     };
 
     const handlePush = async (owner: string, repo: string) => {
-        const file = files.find((f) => f.filename === activeFile);
-        if (!file) {
-            alert("No file selected.");
+        setIsPushing(true);
+        const fileToPush = files.find((f) => f.filename === activeFile);
+
+        if (!fileToPush) {
+            // toast.error("No file selected or active file not found for push.");
+            alert("No file selected or active file not found for push.");
+            setIsPushing(false);
             return;
         }
 
-        const res = await fetch("/api/github/push", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `token ${session?.accessToken}`,
-            },
-            body: JSON.stringify({
-                owner,
-                repo,
-                path: file.filename,
-                content: file.contents,
-                message: "Schoolnest Repository Manager Commit",
-            }),
-        });
+        try {
+            const res = await fetch("/api/github/push", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `token ${session?.accessToken}`, // Ensure accessToken is handled securely
+                },
+                body: JSON.stringify({
+                    owner,
+                    repo,
+                    path: fileToPush.filename,
+                    content: fileToPush.contents,
+                    message: "Schoolnest Repository Manager Commit",
+                }),
+            });
 
-        if (!res.ok) {
-            const errorData = await res.json();
-            alert("Push failed: " + (errorData.error || "Unknown error"));
-        } else {
-            alert("File pushed successfully!");
+            if (!res.ok) {
+                const errorData = await res.json();
+                // toast.error("Push failed: " + (errorData.error || "Unknown error"));
+                alert("Push failed: " + (errorData.error || "Unknown error"));
+            } else {
+                // toast.success("File pushed successfully!");
+                alert("File pushed successfully!");
+            }
+        } catch (error) {
+            console.error('Network or unexpected error during push:', error);
+            // toast.error('Error pushing file. Please check your connection.');
+            alert('Error pushing file. Please check your connection.');
+        } finally {
+            setIsPushing(false);
         }
     };
 
     const handleCreateAndPush = async () => {
+        if (files.length === 0) {
+            alert("No files to push. Please upload or create files first.");
+            return;
+        }
+
         let chosenRepo: { owner: string; name: string } | null = null;
 
         if (createdRepos.length > 0) {
@@ -217,23 +259,25 @@ public class Main {
         }
 
         if (!chosenRepo) {
-            const repoName = prompt("Enter new repository name:");
-            if (!repoName || repoName.trim() === "") {
+            const repoNameInput = prompt("Enter new repository name:");
+            if (!repoNameInput || repoNameInput.trim() === "") {
                 alert("Repository name is required.");
                 return;
             }
 
-            const newRepo = await createRepo(repoName);
+            const newRepo = await createRepo(repoNameInput); // Use the loading state here
             if (!newRepo) return;
 
             chosenRepo = { owner: newRepo.owner.login, name: newRepo.name };
             setCreatedRepos((prev) => [...prev, chosenRepo!]);
         }
 
-        await handlePush(chosenRepo.owner, chosenRepo.name);
+        if (chosenRepo) {
+            await handlePush(chosenRepo.owner, chosenRepo.name); // Use the loading state here
+        }
     };
 
-    // File upload functionality from IDE
+    // File upload functionality
     const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
         if (!file) return;
@@ -245,9 +289,19 @@ public class Main {
                 filename: file.name,
                 contents,
             };
-            setFiles((prev) => [...prev, newFile]);
+            setFiles((prev) => {
+                // Replace existing file or add new one
+                const existingFileIndex = prev.findIndex(f => f.filename === newFile.filename);
+                if (existingFileIndex > -1) {
+                    const updatedFiles = [...prev];
+                    updatedFiles[existingFileIndex] = newFile;
+                    return updatedFiles;
+                }
+                return [...prev, newFile];
+            });
             setActiveFile(file.name);
             alert(`File "${file.name}" uploaded successfully!`);
+            // toast.success(`File "${file.name}" uploaded successfully!`);
         };
         reader.readAsText(file);
     };
@@ -259,6 +313,7 @@ public class Main {
         const otherFiles = totalFiles - javaFiles;
         const totalLines = files.reduce((acc, file) => acc + file.contents.split('\n').length, 0);
         const avgLinesPerFile = totalFiles > 0 ? Math.round(totalLines / totalFiles) : 0;
+        const fileTypes = [...new Set(files.map(f => f.filename.split('.').pop()?.toLowerCase() || 'unknown'))];
 
         return {
             totalFiles,
@@ -266,163 +321,181 @@ public class Main {
             otherFiles,
             totalLines,
             avgLinesPerFile,
-            fileTypes: [...new Set(files.map(f => f.filename.split('.').pop()?.toLowerCase() || 'unknown'))]
+            fileTypes
         };
     };
 
     const fileStats = getFileStats();
 
-    const handleGitOperation = (operationName: string) => {
+    const handleGitOperation = async (operationName: string) => {
         switch (operationName) {
             case "Clone Repository":
+                setIsCloning(true);
                 const cloneUrl = prompt("Enter repository URL to clone:");
                 if (cloneUrl) {
+                    // This would typically involve a backend call to clone the repo
+                    // For now, it's a placeholder:
                     alert(`Cloning ${cloneUrl}... This would be implemented with backend integration.`);
+                    // toast.info(`Cloning ${cloneUrl}... (Backend integration needed)`);
                 }
+                setIsCloning(false);
                 break;
             case "Create Repository":
                 const newRepoName = prompt("Enter repository name:");
-                if (newRepoName) {
-                    createRepo(newRepoName).then(repo => {
-                        if (repo) {
-                            setCreatedRepos(prev => [...prev, { owner: repo.owner.login, name: repo.name }]);
-                        }
-                    });
+                if (newRepoName && newRepoName.trim() !== "") {
+                    const repo = await createRepo(newRepoName); // Await createRepo
+                    if (repo) {
+                        setCreatedRepos(prev => [...prev, { owner: repo.owner.login, name: repo.name }]);
+                    }
+                } else {
+                    alert("Repository name cannot be empty.");
                 }
                 break;
             case "Push Changes":
                 if (files.length === 0) {
                     alert("No files to push. Please upload or create files first.");
+                    // toast.warn("No files to push. Please upload or create files first.");
                     return;
                 }
-                handleCreateAndPush();
+                await handleCreateAndPush();
                 break;
             case "Save Project":
-                saveProject();
+                await saveProject();
                 break;
             case "Upload File":
                 fileInputRef.current?.click();
                 break;
-            default:
+            // Other git operations would similarly involve backend calls or local logic
+            case "Pull Changes":
+            case "Commit Changes":
+            case "Merge Branches":
+            case "Rebase":
+            case "Create Branch":
+            case "Fork Repository":
+            case "Pull Request":
                 router.push(`/studenthome/git/terminal?operation=${encodeURIComponent(operationName)}`);
+                break;
+            default:
+                alert(`Operation "${operationName}" not implemented directly here.`);
+            // toast.info(`Operation "${operationName}" not implemented directly here.`);
         }
     };
 
-    class GitOperationCard extends React.Component<{
-        title: any,
-        description: any,
-        icon: any,
-        color: string,
-        command?: string,
-        isSpecial?: boolean
-    }> {
-        static defaultProps = {color: "blue", isSpecial: false}
+    // Converted to functional component for better React practice
+    const GitOperationCard = ({
+                                  title,
+                                  description,
+                                  icon,
+                                  color = "blue",
+                                  command,
+                                  isSpecial,
+                                  isLoading = false // New prop for loading state
+                              }: {
+        title: string;
+        description: string;
+        icon: React.ReactNode;
+        color?: string;
+        command?: string;
+        isSpecial?: boolean;
+        isLoading?: boolean;
+    }) => {
+        return (
+            <div className={`w-full h-full bg-black border border-${color}-500/30 rounded-xl shadow-xl hover:shadow-2xl hover:shadow-${color}-500/20 transition-all duration-300 hover:scale-[1.02] overflow-hidden hover:border-${color}-400/50`}>
+                <div className="p-6 h-full flex flex-col">
+                    {/* Header */}
+                    <div className={`flex items-center gap-3 mb-4 text-${color}-400`}>
+                        {icon}
+                        <h3 className={`text-lg font-semibold text-${color}-300`}>{title}</h3>
+                    </div>
 
-        render() {
-            let {title, description, icon, color, command, isSpecial} = this.props;
-            return (
-                <div className={`w-full h-full bg-black border border-${color}-500/30 rounded-xl shadow-xl hover:shadow-2xl hover:shadow-${color}-500/20 transition-all duration-300 hover:scale-[1.02] overflow-hidden hover:border-${color}-400/50`}>
-                    <div className="p-6 h-full flex flex-col">
-                        {/* Header */}
-                        <div className={`flex items-center gap-3 mb-4 text-${color}-400`}>
-                            {icon}
-                            <h3 className={`text-lg font-semibold text-${color}-300`}>{title}</h3>
+                    {/* Description */}
+                    <p className="text-sm text-blue-200 leading-relaxed mb-4 flex-1">
+                        {description}
+                    </p>
+
+                    {/* Command */}
+                    {command && (
+                        <div className="bg-gray-900/70 rounded-lg p-3 border border-blue-500/30 mb-4">
+                            <code className="text-xs text-cyan-400 font-mono">{command}</code>
                         </div>
+                    )}
 
-                        {/* Description */}
-                        <p className="text-sm text-blue-200 leading-relaxed mb-4 flex-1">
-                            {description}
-                        </p>
-
-                        {/* Command */}
-                        {command && (
-                            <div className="bg-gray-900/70 rounded-lg p-3 border border-blue-500/30 mb-4">
-                                <code className="text-xs text-cyan-400 font-mono">{command}</code>
-                            </div>
-                        )}
-
-                        {/* Dynamic file info for special operations */}
-                        {isSpecial && (
-                            <div className={`bg-${color}-900/20 rounded-lg p-3 border border-${color}-500/30 mb-4`}>
-                                <div className="space-y-2">
-                                    <div className="grid grid-cols-2 gap-2 text-xs">
-                                        <div className={`text-${color}-300`}>
-                                            <span className="font-medium">Total Files:</span> {fileStats.totalFiles}
-                                        </div>
-                                        <div className={`text-${color}-300`}>
-                                            <span className="font-medium">Java Files:</span> {fileStats.javaFiles}
-                                        </div>
-                                        <div className={`text-${color}-300`}>
-                                            <span className="font-medium">Total Lines:</span> {fileStats.totalLines}
-                                        </div>
-                                        <div className={`text-${color}-300`}>
-                                            <span className="font-medium">Avg Lines:</span> {fileStats.avgLinesPerFile}
-                                        </div>
+                    {/* Dynamic file info for special operations */}
+                    {isSpecial && (
+                        <div className={`bg-${color}-900/20 rounded-lg p-3 border border-${color}-500/30 mb-4`}>
+                            <div className="space-y-2">
+                                <div className="grid grid-cols-2 gap-2 text-xs">
+                                    <div className={`text-${color}-300`}>
+                                        <span className="font-medium">Total Files:</span> {fileStats.totalFiles}
                                     </div>
-                                    {fileStats.totalFiles > 0 && (
-                                        <>
-                                            <div className={`text-xs text-${color}-300`}>
-                                                <span className="font-medium">File Types:</span> {fileStats.fileTypes.join(', ')}
-                                            </div>
-                                            <div className={`text-xs text-${color}-400 max-h-16 overflow-y-auto`}>
-                                                <span className="font-medium">Files:</span> {files.map(f => f.filename).join(', ')}
-                                            </div>
-                                        </>
-                                    )}
+                                    <div className={`text-${color}-300`}>
+                                        <span className="font-medium">Java Files:</span> {fileStats.javaFiles}
+                                    </div>
+                                    <div className={`text-${color}-300`}>
+                                        <span className="font-medium">Total Lines:</span> {fileStats.totalLines}
+                                    </div>
+                                    <div className={`text-${color}-300`}>
+                                        <span className="font-medium">Avg Lines:</span> {fileStats.avgLinesPerFile}
+                                    </div>
                                 </div>
+                                {fileStats.totalFiles > 0 && (
+                                    <>
+                                        <div className={`text-xs text-${color}-300`}>
+                                            <span className="font-medium">File Types:</span> {fileStats.fileTypes.join(', ')}
+                                        </div>
+                                        <div className={`text-xs text-${color}-400 max-h-16 overflow-y-auto`}>
+                                            <span className="font-medium">Files:</span> {files.map(f => f.filename).join(', ')}
+                                        </div>
+                                    </>
+                                )}
                             </div>
-                        )}
-
-                        {/* Execute Button */}
-                        <div className="mt-auto pt-4 border-t border-blue-500/20">
-                            <Button
-                                onClick={() => handleGitOperation(title)}
-                                className={`w-full bg-gradient-to-r from-${color}-600 to-${color}-800 hover:from-${color}-500 hover:to-${color}-700 text-white font-medium rounded-lg px-4 py-2.5 transition-all duration-200 flex items-center justify-center gap-2 shadow-lg hover:shadow-${color}-500/25 border border-${color}-500/30`}
-                            >
-                                <Play className="h-4 w-4"/>
-                                Execute
-                            </Button>
                         </div>
+                    )}
+
+                    {/* Execute Button */}
+                    <div className="mt-auto pt-4 border-t border-blue-500/20">
+                        <Button
+                            onClick={() => handleGitOperation(title)}
+                            disabled={isLoading} // Disable button when loading
+                            className={`w-full bg-gradient-to-r from-${color}-600 to-${color}-800 hover:from-${color}-500 hover:to-${color}-700 text-white font-medium rounded-lg px-4 py-2.5 transition-all duration-200 flex items-center justify-center gap-2 shadow-lg hover:shadow-${color}-500/25 border border-${color}-500/30`}
+                        >
+                            {isLoading ? (
+                                <span className="animate-spin h-4 w-4 border-2 border-current border-r-transparent rounded-full"></span>
+                            ) : (
+                                <IconPlayerPlayFilled className="h-4 w-4"/>
+                            )}
+                            {isLoading ? 'Executing...' : 'Execute'}
+                        </Button>
                     </div>
                 </div>
-            );
-        }
-    }
+            </div>
+        );
+    };
 
     const links = [
         {
             title: "Home",
-            icon: (
-                <IconHome className="h-full w-full text-blue-400 dark:text-blue-300" />
-            ),
+            icon: <IconHome className="h-full w-full text-blue-400 dark:text-blue-300" />,
             href: "/studenthome",
         },
         {
             title: "Dashboard",
-            icon: (
-                <IconCoffee className="h-full w-full text-blue-400 dark:text-blue-300" />
-            ),
+            icon: <IconCoffee className="h-full w-full text-blue-400 dark:text-blue-300" />,
             href: "/studenthome/java",
         },
         {
             title: "Java IDE",
-            icon: (
-                <IconTemplate className="h-full w-full text-blue-400 dark:text-blue-300" />
-            ),
+            icon: <IconTemplate className="h-full w-full text-blue-400 dark:text-blue-300" />,
             href: "/studenthome/java/ide",
         },
         {
             title: "Classes",
-            icon: (
-                <IconGitBranch className="h-full w-full text-blue-400 dark:text-blue-300" />
-            ),
+            icon: <IconGitBranch className="h-full w-full text-blue-400 dark:text-blue-300" />,
             href: "/studenthome/classes",
         },
         {
             title: "Terminal",
-            icon: (
-                <IconFileCode className="h-full w-full text-blue-400 dark:text-blue-300" />
-            ),
+            icon: <IconFileCode className="h-full w-full text-blue-400 dark:text-blue-300" />,
             href: "/studenthome/linux",
         },
     ];
@@ -435,6 +508,7 @@ public class Main {
             color: "blue",
             command: `Upload via file picker • Current: ${fileStats.totalFiles} files`,
             isSpecial: true,
+            isLoading: false, // Upload doesn't have a long loading state typically
         },
         {
             title: "Save Project",
@@ -443,6 +517,7 @@ public class Main {
             color: "green",
             command: `Save ${fileStats.totalFiles} files to server storage`,
             isSpecial: true,
+            isLoading: isSavingProject,
         },
         {
             title: "Create Repository",
@@ -451,6 +526,7 @@ public class Main {
             color: "purple",
             command: `Create new GitHub repo for ${fileStats.totalFiles} files`,
             isSpecial: true,
+            isLoading: isCreatingRepo,
         },
         {
             title: "Push Changes",
@@ -459,6 +535,7 @@ public class Main {
             color: "orange",
             command: `git push ${fileStats.totalFiles} files with ${fileStats.totalLines} lines`,
             isSpecial: true,
+            isLoading: isPushing,
         },
         {
             title: "Clone Repository",
@@ -466,6 +543,7 @@ public class Main {
             icon: <IconCopy className="h-6 w-6" />,
             color: "cyan",
             command: "git clone <repository-url>",
+            isLoading: isCloning,
         },
         {
             title: "Pull Changes",
@@ -518,9 +596,9 @@ public class Main {
         },
     ];
 
-    const items = gitOperations.map((operation, index) => ({
-        title: "",
-        description: "",
+    const items = gitOperations.map((operation) => ({
+        title: "", // Title is used in GitOperationCard's header, not directly here
+        description: "", // Description is used in GitOperationCard's header, not directly here
         header: <GitOperationCard {...operation} />,
         className: "md:col-span-1",
         icon: null,
@@ -534,14 +612,16 @@ public class Main {
                 ref={fileInputRef}
                 onChange={handleFileUpload}
                 style={{ display: 'none' }}
-                accept=".java,.txt,.js,.py,.cpp,.c,.h,.css,.html,.json,.xml,.md"
+                accept=".java,.txt,.js,.py,.cpp,.c,.h,.css,.html,.json,.xml,.md" // Consider expanding for more code types
             />
+            {/* <ToastContainer position="bottom-right" autoClose={3000} hideProgressBar={false} newestOnTop={false} closeOnClick rtl={false} pauseOnFocusLoss draggable pauseOnHover theme="dark" /> */}
+
             <div className="min-h-screen w-full bg-black relative flex flex-col items-center antialiased">
                 {/* Hero Section */}
                 <BackgroundLines className="flex items-center justify-center w-full flex-col px-4 py-20 bg-black">
                     <div className="max-w-4xl mx-auto text-center">
                         <div className="inline-flex items-center gap-2 bg-blue-500/10 border border-blue-500/30 rounded-full px-4 py-2 mb-6">
-                            <GitBranch className="h-4 w-4 text-blue-400" />
+                            <IconGitBranch className="h-4 w-4 text-blue-400" />
                             <span className="text-sm text-blue-300 font-medium">Version Control</span>
                         </div>
 
@@ -574,14 +654,12 @@ public class Main {
                                         <div className="text-cyan-300">File Types</div>
                                     </div>
                                 </div>
-                                {signedIn && (
-                                    <div className="mt-3 pt-3 border-t border-blue-500/20 text-center">
-                                        <p className="text-sm text-blue-300">
-                                            Welcome, <span className="text-blue-400 font-medium">{name}</span>
-                                            {project && <> • Project: <span className="text-green-400 font-medium">{project}</span></>}
-                                        </p>
-                                    </div>
-                                )}
+                                <div className="mt-3 pt-3 border-t border-blue-500/20 text-center">
+                                    <p className="text-sm text-blue-300">
+                                        Welcome, <span className="text-blue-400 font-medium">{name}</span>
+                                        {project && <> • Project: <span className="text-green-400 font-medium">{project}</span></>}
+                                    </p>
+                                </div>
                             </div>
                         )}
 
