@@ -4,30 +4,33 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b81c8c27-8c15-4931-ae89-c670a04f9254" name="Changes" comment="classpage works v1 (login, ui, dynamicism fix required)">
+    <list default="true" id="b81c8c27-8c15-4931-ae89-c670a04f9254" name="Changes" comment="Terminal V1 full-setup is in deployment">
+      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/(app)/api/terminal/route.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/(app)/api/terminal/ws/route.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/components/auto-terminal.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/components/enhanced-terminal.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/components/real-terminal.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/components/ui/badge.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/components/ui/button.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/components/ui/card.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/components/ui/switch.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/components/ui/tabs.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/components/working-terminal.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/components/enhanced-terminal.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/command-parser.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/mock-filesystem.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/terminal-client.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/terminal-server.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/middleware.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/scripts/seed-packages.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/scripts/setup-terminal.sql" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/scripts/start-terminal-server.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/scripts/system-info.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/server.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/terminal.d.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(app)/[slug]/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/[slug]/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(app)/api/auth/[...nextauth]/route.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/api/auth/[...nextauth]/route.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(app)/api/create_student/post/route.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/api/create_student/post/route.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(app)/api/create_teacher/post/route.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/api/create_teacher/post/route.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(app)/api/github/callback/route.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/api/github/callback/route.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(app)/api/github/create-repo/route.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/api/github/create-repo/route.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(app)/api/github/login/route.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/api/github/login/route.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(app)/api/github/pull/route.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/api/github/pull/route.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(app)/login/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/login/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(app)/onboarding/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/onboarding/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(app)/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/cpp/assignments/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/cpp/assignments/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/cpp/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/cpp/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/java/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/java/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/node/assignments/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/node/assignments/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/node/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/node/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/python/assignments/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/python/assignments/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/python/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/python/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/lib/emailTemplate.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/lib/emailTemplate.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/auth.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/auth.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/utils.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/utils.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/next-auth.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/next-auth.d.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/linux/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/linux/page.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
     </list>
@@ -41,10 +44,10 @@
       <list>
         <option value="package.json" />
         <option value="HTML File" />
-        <option value="JavaScript File" />
         <option value="tsconfig.json" />
         <option value="TypeScript JSX File" />
         <option value="TypeScript File" />
+        <option value="JavaScript File" />
       </list>
     </option>
   </component>
@@ -66,6 +69,7 @@
   <component name="ProblemsViewState">
     <option name="proportion" value="0.5467255" />
     <option name="selectedTabId" value="CurrentFile" />
+    <option name="showPreview" value="true" />
   </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 5
@@ -75,36 +79,39 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;DefaultHtmlFileTemplate&quot;: &quot;HTML File&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/davee/WebstormProjects/Rep-lite/app/(app)/studenthome&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.standard&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.standard&quot;: &quot;&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_interpreter_path&quot;: &quot;C:/Users/davee/AppData/Roaming/JetBrains/WebStorm2024.3/node/versions/22.15.0/node&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;run.code.analysis.last.selected.profile&quot;: &quot;pProject Default&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;configurable.group.tools&quot;,
-    &quot;ts.external.directory.path&quot;: &quot;C:\\Users\\davee\\WebstormProjects\\Rep-lite\\node_modules\\typescript\\lib&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "DefaultHtmlFileTemplate": "HTML File",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "main",
+    "ignore.virus.scanning.warn.message": "true",
+    "last_opened_file_path": "C:/Users/davee/WebstormProjects/Rep-lite/app/(app)/studenthome",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.standard": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.standard": "",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_interpreter_path": "node",
+    "nodejs_package_manager_path": "npm",
+    "run.code.analysis.last.selected.profile": "pProject Default",
+    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable",
+    "ts.external.directory.path": "C:\\Users\\davee\\WebstormProjects\\Rep-lite\\node_modules\\typescript\\lib",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\davee\WebstormProjects\Rep-lite\app\(app)\studenthome" />
       <recent name="C:\Users\davee\WebstormProjects\Rep-lite\app\(app)\studenthome\linux\public" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
-      <recent name="C:\Users\davee\WebstormProjects\Rep-lite\app\(app)\studenthome\python" />
-      <recent name="C:\Users\davee\WebstormProjects\Rep-lite\app\(app)\studenthome\linux\app" />
+      <recent name="C:\Users\davee\WebstormProjects\Rep-lite" />
+      <recent name="C:\Users\davee\WebstormProjects\Rep-lite\app\(app)\api\terminal\ws" />
+      <recent name="C:\Users\davee\WebstormProjects\Rep-lite\" />
+      <recent name="C:\Users\davee\WebstormProjects\Rep-lite\app\components" />
+      <recent name="C:\Users\davee\WebstormProjects\Rep-lite\app\(app)\studenthome\app\components" />
     </key>
   </component>
   <component name="SharedIndexes">
@@ -134,7 +141,11 @@
       <workItem from="1748790751923" duration="23597000" />
       <workItem from="1748898044840" duration="6083000" />
       <workItem from="1748905803657" duration="23826000" />
-      <workItem from="1749001341347" duration="10444000" />
+      <workItem from="1749001341347" duration="10744000" />
+      <workItem from="1749036135487" duration="11911000" />
+      <workItem from="1749064407008" duration="13751000" />
+      <workItem from="1749099989844" duration="14101000" />
+      <workItem from="1749154969245" duration="6455000" />
     </task>
     <task id="LOCAL-00001" summary="so many errors do not run">
       <option name="closed" value="true" />
@@ -240,11 +251,32 @@
       <option name="project" value="LOCAL" />
       <updated>1749008843965</updated>
     </task>
-    <option name="localTasksCounter" value="14" />
+    <task id="LOCAL-00014" summary="last minute fixes + comments to explain API and other parts of the site">
+      <option name="closed" value="true" />
+      <created>1749012343797</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1749012343797</updated>
+    </task>
+    <task id="LOCAL-00015" summary="small fixes before i commit fully the full code">
+      <option name="closed" value="true" />
+      <created>1749094890801</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1749094890801</updated>
+    </task>
+    <option name="localTasksCounter" value="16" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+    <option name="exactExcludedFiles">
+      <list>
+        <option value="$PROJECT_DIR$/server.js" />
+      </list>
+    </option>
   </component>
   <component name="Vcs.Log.Tabs.Properties">
     <option name="TAB_STATES">
@@ -280,7 +312,9 @@
     <MESSAGE value="C++ ide works but cannot interact with code (scanner etc invalid)" />
     <MESSAGE value="classpage test v1" />
     <MESSAGE value="classpage works v1 (login, ui, dynamicism fix required)" />
-    <option name="LAST_COMMIT_MESSAGE" value="classpage works v1 (login, ui, dynamicism fix required)" />
+    <MESSAGE value="last minute fixes + comments to explain API and other parts of the site" />
+    <MESSAGE value="small fixes before i commit fully the full code" />
+    <option name="LAST_COMMIT_MESSAGE" value="small fixes before i commit fully the full code" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
