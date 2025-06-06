@@ -552,7 +552,7 @@ export default function PythonDashboard() {
         {
             title: "Python IDE",
             icon: <IconBrandPython className="h-full w-full text-orange-400" />,
-            href: "/studenthome/python/terminal",
+            href: "/studenthome/python/ide",
         },
         {
             title: "Debugger",
