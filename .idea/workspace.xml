@@ -4,21 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b81c8c27-8c15-4931-ae89-c670a04f9254" name="Changes" comment="Terminal V1 full-setup is in deployment">
-      <change afterPath="$PROJECT_DIR$/app/(app)/studenthome/python/ide/components/Console.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/(app)/studenthome/python/ide/components/Editor.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/(app)/studenthome/python/ide/components/FileBrowser.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/(app)/studenthome/python/ide/components/Toolbar.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/(app)/studenthome/python/ide/layout.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/(app)/studenthome/python/ide/pyodide/index.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/(app)/studenthome/python/ide/utils/localStorage.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/(app)/studenthome/python/ide/utils/runPython.ts" afterDir="false" />
+    <list default="true" id="b81c8c27-8c15-4931-ae89-c670a04f9254" name="Changes" comment="Python v0.1">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/python/ide/compiler.js" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/python/ide/compiler.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/python/ide/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/python/ide/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/components/ui/sidebar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/components/ui/sidebar.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -252,7 +241,15 @@
       <option name="project" value="LOCAL" />
       <updated>1749094890801</updated>
     </task>
-    <option name="localTasksCounter" value="16" />
+    <task id="LOCAL-00016" summary="Python v0.1">
+      <option name="closed" value="true" />
+      <created>1749278430154</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1749278430154</updated>
+    </task>
+    <option name="localTasksCounter" value="17" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -294,7 +291,8 @@
     <MESSAGE value="classpage works v1 (login, ui, dynamicism fix required)" />
     <MESSAGE value="last minute fixes + comments to explain API and other parts of the site" />
     <MESSAGE value="small fixes before i commit fully the full code" />
-    <option name="LAST_COMMIT_MESSAGE" value="small fixes before i commit fully the full code" />
+    <MESSAGE value="Python v0.1" />
+    <option name="LAST_COMMIT_MESSAGE" value="Python v0.1" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -303,6 +301,18 @@
           <url>file://$PROJECT_DIR$/app/(app)/studenthome/python/page.tsx</url>
           <line>642</line>
           <option name="timeStamp" value="6" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/app/(app)/studenthome/python/ide/page.tsx</url>
+          <line>433</line>
+          <properties lambdaOrdinal="-1" />
+          <option name="timeStamp" value="12" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/app/(app)/studenthome/python/ide/page.tsx</url>
+          <line>159</line>
+          <properties lambdaOrdinal="-1" />
+          <option name="timeStamp" value="13" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
