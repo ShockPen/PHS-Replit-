@@ -5,32 +5,18 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b81c8c27-8c15-4931-ae89-c670a04f9254" name="Changes" comment="Terminal V1 full-setup is in deployment">
-      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/(app)/api/terminal/route.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/(app)/api/terminal/ws/route.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/components/auto-terminal.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/components/enhanced-terminal.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/components/real-terminal.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/components/ui/badge.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/components/ui/button.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/components/ui/card.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/components/ui/switch.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/components/ui/tabs.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/components/working-terminal.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/components/enhanced-terminal.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/command-parser.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/mock-filesystem.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/terminal-client.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/terminal-server.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/middleware.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/scripts/seed-packages.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/scripts/setup-terminal.sql" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/scripts/start-terminal-server.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/scripts/system-info.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/server.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/terminal.d.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/(app)/studenthome/python/ide/components/Console.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/(app)/studenthome/python/ide/components/Editor.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/(app)/studenthome/python/ide/components/FileBrowser.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/(app)/studenthome/python/ide/components/Toolbar.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/(app)/studenthome/python/ide/layout.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/(app)/studenthome/python/ide/pyodide/index.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/(app)/studenthome/python/ide/utils/localStorage.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/(app)/studenthome/python/ide/utils/runPython.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/linux/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/linux/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/python/ide/compiler.js" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/python/ide/compiler.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/python/ide/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/python/ide/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/components/ui/sidebar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/components/ui/sidebar.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
     </list>
@@ -45,9 +31,9 @@
         <option value="package.json" />
         <option value="HTML File" />
         <option value="tsconfig.json" />
-        <option value="TypeScript JSX File" />
-        <option value="TypeScript File" />
         <option value="JavaScript File" />
+        <option value="TypeScript File" />
+        <option value="TypeScript JSX File" />
       </list>
     </option>
   </component>
@@ -69,7 +55,6 @@
   <component name="ProblemsViewState">
     <option name="proportion" value="0.5467255" />
     <option name="selectedTabId" value="CurrentFile" />
-    <option name="showPreview" value="true" />
   </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 5
@@ -79,28 +64,28 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "DefaultHtmlFileTemplate": "HTML File",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "main",
-    "ignore.virus.scanning.warn.message": "true",
-    "last_opened_file_path": "C:/Users/davee/WebstormProjects/Rep-lite/app/(app)/studenthome",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.standard": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.standard": "",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_interpreter_path": "node",
-    "nodejs_package_manager_path": "npm",
-    "run.code.analysis.last.selected.profile": "pProject Default",
-    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable",
-    "ts.external.directory.path": "C:\\Users\\davee\\WebstormProjects\\Rep-lite\\node_modules\\typescript\\lib",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;DefaultHtmlFileTemplate&quot;: &quot;HTML File&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/davee/WebstormProjects/Rep-lite/app/(app)/studenthome&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.standard&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.standard&quot;: &quot;&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_interpreter_path&quot;: &quot;node&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;run.code.analysis.last.selected.profile&quot;: &quot;pProject Default&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;C:\\Users\\davee\\WebstormProjects\\Rep-lite\\node_modules\\typescript\\lib&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\davee\WebstormProjects\Rep-lite\app\(app)\studenthome" />
@@ -272,11 +257,6 @@
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
-    <option name="exactExcludedFiles">
-      <list>
-        <option value="$PROJECT_DIR$/server.js" />
-      </list>
-    </option>
   </component>
   <component name="Vcs.Log.Tabs.Properties">
     <option name="TAB_STATES">
