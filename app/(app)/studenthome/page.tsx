@@ -4,7 +4,6 @@ import { BentoGrid, BentoGridItem } from "@/app/components/ui/bento-grid";
 import { BackgroundLines } from "@/app/components/ui/background-lines";
 import {
     IconCoffee,
-    IconBrandTypescript,
     IconFileTypeJs,
     IconBrandPython,
     IconBrandCpp,
@@ -18,7 +17,6 @@ import {
     IconTableColumn,
 } from "@tabler/icons-react";
 import { FloatingNav } from "@/app/components/ui/floating-navbar";
-import { use } from "react";
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { Link } from "@nextui-org/react";
@@ -135,7 +133,7 @@ export default function Page() {
         return (
             <div className="my-auto h-full">
                 <div className="flex flex-col space-y-1">
-                    <Link href="/studenthome/generateclubqrcode">
+                    <Link href="https://docs.google.com/forms/d/e/1FAIpQLSc2VbDwtGp-3FsalWVi9Wxt8o8xafUXx6y0ip_Ro1z7QL_LbQ/viewform">
                         <button
                             className="border rounded-md px-4 py-2 mt-1 text-black dark:text-white bg-neutral-300 dark:bg-blue-800"
                         >
