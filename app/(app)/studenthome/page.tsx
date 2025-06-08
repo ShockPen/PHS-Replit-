@@ -131,7 +131,7 @@ export default function Page() {
         );
     }
 
-    function GenerateClubMeetingQRCode() {
+    function FeedbackForm() {
         return (
             <div className="my-auto h-full">
                 <div className="flex flex-col space-y-1">
@@ -139,7 +139,7 @@ export default function Page() {
                         <button
                             className="border rounded-md px-4 py-2 mt-1 text-black dark:text-white bg-neutral-300 dark:bg-blue-800"
                         >
-                            Generate Club Meeting Attendance QR Code
+                            Give Feedback to the Schoolnest SCYBER Dev Team in order to help us improve the site!
                         </button>
                     </Link>
                 </div>
@@ -165,7 +165,7 @@ export default function Page() {
         {
             title: "Your Clubs",
             description: "Discover the beauty of thoughtful and functional design.",
-            header: <GenerateClubMeetingQRCode />,
+            header: <FeedbackForm />,
             className: "md:col-span-1",
             icon: <IconSignature className="h-4 w-4 text-neutral-500" />,
         },

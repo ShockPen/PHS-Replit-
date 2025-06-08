@@ -24,12 +24,13 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { cn } from "@/app/lib/utils";
-
-import React, { useEffect, useRef, useState } from 'react';
+import JSZip from "jszip";
+import { saveAs } from "file-saver"; // Also install file-saver
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { useSession } from "next-auth/react";
 import dynamic from 'next/dynamic';
 import { get } from "http";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import {Code, Edit3, Play, Trash2} from "lucide-react";
 
 // Import MonacoEditor to avoid SSR issues
@@ -52,6 +53,22 @@ interface Project {
   project_name: string,
   files: File[]
 }
+
+// In-memory storage for demonstration (replace with localStorage in real environment)
+const memoryStorage = {
+  getItem: (key: string) => {
+    // In real environment: return localStorage.getItem(key);
+    return null; // Simulated for demo
+  },
+  setItem: (key: string, value: string) => {
+    // In real environment: localStorage.setItem(key, value);
+    console.log(`Would save to localStorage: ${key}`, JSON.parse(value));
+  },
+  removeItem: (key: string) => {
+    // In real environment: localStorage.removeItem(key);
+    console.log(`Would remove from localStorage: ${key}`);
+  }
+};
 
 const Editor = () => {
   const [files, setFiles] = useState<File[]>([
@@ -165,6 +182,7 @@ public class CustomFileInputStream extends InputStream {
   const monacoEditorRef = useRef<any>(null);
   const [open, setOpen] = useState(false);
   const searchParams = useSearchParams();
+  const router = useRouter();
   const projectFromUrl = searchParams.get("project") ?? "";
   const [signedIn, setSignedIn] = useState(false);
   const [name, setName] = useState('');
@@ -174,53 +192,218 @@ public class CustomFileInputStream extends InputStream {
   const [outputHeight, setOutputHeight] = useState(200); // initial height
   const isResizingOutput = useRef(false);
 
+  // Save management states
+  const [isSavedToLocalStorage, setIsSavedToLocalStorage] = useState(true);
+  const [isSavedToDatabase, setIsSavedToDatabase] = useState(true);
+  const [lastLocalStorageSave, setLastLocalStorageSave] = useState<string>("");
+
   // GitHub functionality states
   const [createdRepos, setCreatedRepos] = useState<
       { owner: string; name: string }[]
   >([]);
 
+  // Save to localStorage (excluding CustomFileInputStream.java)
+  const saveToLocalStorage = useCallback(() => {
+    const filesToSave = files.filter(f => f.filename !== 'CustomFileInputStream.java');
+    const saveData = {
+      project,
+      files: filesToSave,
+      timestamp: new Date().toISOString(),
+      activeFile
+    };
 
+    const saveKey = `java_project_${project}`;
+    memoryStorage.setItem(saveKey, JSON.stringify(saveData));
+
+    setIsSavedToLocalStorage(true);
+    setLastLocalStorageSave(new Date().toISOString());
+
+    // Show success message
+    setOutputLines(prev => [...prev, `✓ Project saved to local storage at ${new Date().toLocaleTimeString()}`]);
+  }, [files, project, activeFile]);
+
+  // Load from localStorage
+  const loadFromLocalStorage = useCallback(() => {
+    const saveKey = `java_project_${project}`;
+    const savedData = memoryStorage.getItem(saveKey);
+
+    if (savedData) {
+      try {
+        const parsedData = JSON.parse(savedData);
+        if (parsedData.files && Array.isArray(parsedData.files)) {
+          // Add CustomFileInputStream.java back to the loaded files
+          const customFileInputStream = files.find(f => f.filename === 'CustomFileInputStream.java');
+          const loadedFiles = [...parsedData.files];
+          if (customFileInputStream) {
+            loadedFiles.push(customFileInputStream);
+          }
+
+          setFiles(loadedFiles);
+          if (parsedData.activeFile) {
+            setActiveFile(parsedData.activeFile);
+          }
+          setLastLocalStorageSave(parsedData.timestamp || "");
+          setIsSavedToLocalStorage(true);
+
+          setOutputLines(prev => [...prev, `✓ Project loaded from local storage (saved: ${new Date(parsedData.timestamp).toLocaleTimeString()})`]);
+          return true;
+        }
+      } catch (error) {
+        console.error('Error loading from localStorage:', error);
+      }
+    }
+    return false;
+  }, [project, files]);
+
+  // Save to database (existing function, modified to update save status)
   const saveProject = async () => {
     try {
+      const filteredFiles = files.filter(file => file.filename !== 'CustomFileInputStream.java');
+
+      // Save locally in localStorage for cross-page access
+      localStorage.setItem('projectFiles', JSON.stringify(filteredFiles));
+      localStorage.setItem('projectData', JSON.stringify(project));
+
       const response = await fetch('/api/student/save_files/post', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ project, files })
+        body: JSON.stringify({ project, files: filteredFiles })
       });
 
+      if (response.ok) {
+        const fileCount = filteredFiles.length;
+        const totalLines = filteredFiles.reduce((acc, file) => acc + file.contents.split('\n').length, 0);
+
+        setIsSavedToDatabase(true);
+        setOutputLines(prev => [
+          ...prev,
+          `✓ Project saved at ${new Date().toLocaleTimeString()} | Files: ${fileCount} | Total Lines: ${totalLines}`
+        ]);
+      } else {
+        const error = await response.json();
+        throw new Error(error?.error || 'Database save failed');
+      }
     } catch (errors: any) {
       console.log(errors);
+      setOutputLines(prev => [
+        ...prev,
+        `✗ Failed to save to database: ${errors.message}`
+      ]);
     }
-  }
+  };
+
+  // Handle navigation to Git page
+  const handleGitNavigation = async () => {
+    try {
+      // First save to database
+      await saveProject();
+
+      // Then navigate to git page
+      router.push('/studenthome/java/repo');
+    } catch (error) {
+      console.error('Error saving before navigation:', error);
+      setOutputLines(prev => [...prev, `✗ Error saving before navigation: ${error}`]);
+    }
+  };
+
+  // Check if project has unsaved changes
+  const hasUnsavedChanges = useCallback(() => {
+    return !isSavedToLocalStorage || !isSavedToDatabase;
+  }, [isSavedToLocalStorage, isSavedToDatabase]);
+
+  // Handle beforeunload event
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (hasUnsavedChanges()) {
+        e.preventDefault();
+        e.returnValue = 'You have unsaved changes. Are you sure you want to leave?';
+        return 'You have unsaved changes. Are you sure you want to leave?';
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [hasUnsavedChanges]);
+
+  // Mark as unsaved when files change
+  useEffect(() => {
+    // Don't mark as unsaved on initial load or when loading from storage
+    if (files.length > 0 && lastLocalStorageSave) {
+      setIsSavedToLocalStorage(false);
+      setIsSavedToDatabase(false);
+    }
+  }, [files, activeFile]);
+
+  // Auto-save to localStorage every 30 seconds if there are changes
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (!isSavedToLocalStorage && files.length > 0) {
+        saveToLocalStorage();
+        setOutputLines(prev => [...prev, `⚡ Auto-saved to local storage at ${new Date().toLocaleTimeString()}`]);
+      }
+    }, 30000); // 30 seconds
+
+    return () => clearInterval(interval);
+  }, [isSavedToLocalStorage, saveToLocalStorage, files]);
 
   const [repoName, setRepoName] = React.useState("");
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    const reader = new FileReader();
+    // Handle .zip file upload
+    if (file.name.endsWith(".zip")) {
+      try {
+        const zip = await JSZip.loadAsync(file);
+        const filesArray: { filename: string; contents: string }[] = [];
 
-    reader.onload = (e) => {
-      const contents = e.target?.result as string;
-      const newFile = {
-        filename: file.name,
-        contents,
+        // Iterate through all entries in the zip
+        await Promise.all(
+            Object.keys(zip.files).map(async (filename) => {
+              const zipEntry = zip.files[filename];
+
+              if (!zipEntry.dir) {
+                const content = await zipEntry.async("string");
+                filesArray.push({ filename, contents: content });
+              }
+            })
+        );
+
+        // Set the files to state
+        setFiles((prev) => [...prev, ...filesArray]);
+
+        if (filesArray.length > 0) {
+          setActiveFile(filesArray[0].filename);
+        }
+
+      } catch (err) {
+        console.error("Failed to read zip file:", err);
+        alert("Failed to open ZIP file.");
+      }
+
+    } else {
+      // Handle plain file
+      const reader = new FileReader();
+
+      reader.onload = (e) => {
+        const contents = e.target?.result as string;
+        const newFile = {
+          filename: file.name,
+          contents,
+        };
+
+        setFiles((prev) => [...prev, newFile]);
+        setActiveFile(file.name);
       };
 
-      // Add the uploaded file to files state
-      setFiles((prev) => [...prev, newFile]);
-
-      // Make the uploaded file active in the editor
-      setActiveFile(file.name);
-
-      // Optional: Automatically compile the uploaded file
-      // runCode(newFile);
-    };
-
-    reader.readAsText(file);
+      reader.readAsText(file);
+    }
   };
 
   useEffect(() => {
@@ -254,13 +437,18 @@ public class CustomFileInputStream extends InputStream {
 
         if (data.project) {
           setFiles(data.project.files);
+          setIsSavedToDatabase(true);
         } else {
-          alert('Project not found');
+          // Try to load from localStorage if database doesn't have the project
+          if (!loadFromLocalStorage()) {
+            alert('Project not found');
+          }
         }
-
       }
 
-      getProjectFiles();
+      if (project) {
+        getProjectFiles();
+      }
 
       const getProjects = async () => {
         const response = await fetch('/api/student/get_projectlist/post', {
@@ -276,7 +464,7 @@ public class CustomFileInputStream extends InputStream {
       }
       getProjects();
     }
-  }, [project, session]);
+  }, [project, session, loadFromLocalStorage]);
 
   const convertToMonaco = (files: File[]) => {
     var fileData: any = []
@@ -313,22 +501,6 @@ public class CustomFileInputStream extends InputStream {
             }
           };
           document.body.appendChild(script);
-        } else {
-          if (window.cheerpjInit) {
-            await window.cheerpjInit({
-              status: 'none',
-              natives: {
-                async Java_CustomFileInputStream_getCurrentInputString() {
-                  let input = await getInput();
-                  return input;
-                },
-                async Java_CustomFileInputStream_clearCurrentInputString() {
-                  clearInput();
-                },
-              },
-            });
-            setCheerpjLoaded(true);
-          }
         }
       } catch (error) {
         console.error('Error loading Java Compiler:', error);
@@ -580,32 +752,34 @@ public class CustomFileInputStream extends InputStream {
     }
   };
 
-  const handleExport = () => {
-    const file = files.find(f => f.filename === activeFile);
-    if (!file) {
-      alert("No file selected.");
-      return;
+  const handleExport = async () => {
+    const zip = new JSZip();
+
+    const filesToExport = files.filter(file => file.filename !== 'CustomFileInputStream.java');
+
+    if (filesToExport.length === 1) {
+      // Single file, download directly
+      const file = filesToExport[0];
+      const blob = new Blob([file.contents], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = file.filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } else {
+      // Multiple files, export as ZIP
+      filesToExport.forEach(file => {
+        zip.file(file.filename, file.contents);
+      });
+
+      const blob = await zip.generateAsync({ type: "blob" });
+      saveAs(blob, "project-files.zip");
     }
-
-    const blob = new Blob([file.contents], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = file.filename; // dynamic based on the open file
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-
-    URL.revokeObjectURL(url);
   };
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      localStorage.setItem("files", JSON.stringify(files));
-    }
-  }, [files, project, session]);
-
 
   const handleEditorDidMount = (editor: any) => {
     monacoEditorRef.current = editor;
@@ -758,295 +932,295 @@ public class CustomFileInputStream extends InputStream {
           </SidebarBody>
         </Sidebar>
 
-        <div
-            className="border-r border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 backdrop-blur-xl flex flex-col"
-            style={{ width: sidebarWidth }}
-        >
-          <div className="p-6 -mt-2 h-full flex flex-col overflow-hidden"> {/* moved up by -mt-4 */}
-            {/* Project Header */}
-            <div className="mb-4 flex-shrink-0 font-bold flex items-center gap-2"> {/* reduce bottom margin a bit */}
-              {/* SVG and "Java IDE" */}
-              <svg
-                  className="w-5 h-5"
-                  viewBox="0 0 4825 2550"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-              >
-                <path fillRule="evenodd" clipRule="evenodd" d="M2088 114L850.672 1226H2265.67L2088 114Z" fill="url(#paint0_linear_0_1)" />
-                <path d="M2300.53 1373H851L2475.94 2535L2300.53 1373Z" fill="url(#paint1_linear_0_1)" />
-                <path d="M2476 2535L2300.5 1373L1740.5 2009L2476 2535Z" fill="url(#paint2_linear_0_1)" />
-                <path d="M1232 0H456L531.5 1008L713 1155.5L1591.5 367L1232 0Z" fill="url(#paint3_linear_0_1)" />
-                <path d="M-1.65747e-05 813L331.001 28.9998L371.002 687.5L-1.65747e-05 813Z" fill="url(#paint4_linear_0_1)" />
-                <path d="M4824.5 108.5H2233L2526 1850.5L4824.5 108.5Z" fill="url(#paint5_linear_0_1)" />
-                <path d="M2639.5 2549.5L2566 2025.5L2980.5 1713L3935.5 2394L2639.5 2549.5Z" fill="url(#paint6_linear_0_1)" />
-                <defs>
-                  <linearGradient id="paint0_linear_0_1" x1="1444.15" y1="192.913" x2="1444.15" y2="1152.86" gradientUnits="userSpaceOnUse">
-                    <stop stopColor="#4E60FF" />
-                    <stop offset="1" stopColor="#789FFF" />
-                  </linearGradient>
-                  <linearGradient id="paint1_linear_0_1" x1="1663.47" y1="1373" x2="1663.47" y2="2535" gradientUnits="userSpaceOnUse">
-                    <stop stopColor="#ADD0FF" />
-                    <stop offset="0.802885" stopColor="#DDFFF4" />
-                  </linearGradient>
-                  <linearGradient id="paint2_linear_0_1" x1="2112.03" y1="1376.56" x2="2112.03" y2="2533.98" gradientUnits="userSpaceOnUse">
-                    <stop stopColor="#CDFFF3" />
-                    <stop offset="1" stopColor="white" />
-                  </linearGradient>
-                  <linearGradient id="paint3_linear_0_1" x1="932.25" y1="82" x2="932.25" y2="1079.5" gradientUnits="userSpaceOnUse">
-                    <stop stopColor="#4E60FF" />
-                    <stop offset="1" stopColor="#789FFF" />
-                  </linearGradient>
-                  <linearGradient id="paint4_linear_0_1" x1="315.128" y1="26.1583" x2="168.856" y2="843.229" gradientUnits="userSpaceOnUse">
-                    <stop stopColor="#ADD0FF" />
-                    <stop offset="0.802885" stopColor="#DDFFF4" />
-                  </linearGradient>
-                  <linearGradient id="paint5_linear_0_1" x1="3186.25" y1="-66" x2="3186.25" y2="1850.5" gradientUnits="userSpaceOnUse">
-                    <stop stopColor="#ADD0FF" />
-                    <stop offset="0.802885" stopColor="#DDFFF4" />
-                  </linearGradient>
-                  <linearGradient id="paint6_linear_0_1" x1="3140.39" y1="1772.36" x2="3140.39" y2="2494.48" gradientUnits="userSpaceOnUse">
-                    <stop stopColor="#4E60FF" />
-                    <stop offset="1" stopColor="#789FFF" />
-                  </linearGradient>
-                </defs>
-              </svg>
-              Java IDE
-            </div>
-
-            {/* Files Section */}
-            <div
-                className="flex-1 overflow-y-auto space-y-2 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-blue-300 dark:scrollbar-thumb-blue-600 hover:scrollbar-thumb-blue-400 dark:hover:scrollbar-thumb-blue-500 scrollbar-thumb-rounded-full pb-4"
-                style={{ marginTop: '-12px' }} /* pull it up more */
-            >
-              {/* Main.java - Always first */}
-              <div className="relative group">
-                <button
-                    className={`w-full text-left px-4 py-3 rounded-lg transition-all duration-200 flex items-center space-x-3 border ${
-                        activeFile === "Main.java"
-                            ? "bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-700 shadow-sm"
-                            : "text-neutral-600 dark:text-neutral-400 hover:bg-neutral-50 dark:hover:bg-neutral-800 border-transparent hover:border-neutral-200 dark:hover:border-neutral-700"
-                    }`}
-                    onClick={() => setActiveFile("Main.java")}
+          <div
+              className="border-r border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 backdrop-blur-xl flex flex-col"
+              style={{ width: sidebarWidth }}
+          >
+            <div className="p-6 -mt-2 h-full flex flex-col overflow-hidden"> {/* moved up by -mt-4 */}
+              {/* Project Header */}
+              <div className="mb-4 flex-shrink-0 font-bold flex items-center gap-2"> {/* reduce bottom margin a bit */}
+                {/* SVG and "Java IDE" */}
+                <svg
+                    className="w-5 h-5"
+                    viewBox="0 0 4825 2550"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
                 >
-                  <div className="w-8 h-8 bg-gradient-to-br from-orange-400 to-red-500 rounded-lg flex items-center justify-center shadow-sm">
-                    <IconCode className="h-4 w-4 text-white" />
-                  </div>
-                  <div className="flex flex-col flex-1 min-w-0">
-                    <span className="font-mono text-sm font-medium truncate">Main.java</span>
-                    {activeFile === "Main.java" && (
-                        <span className="text-blue-500 dark:text-blue-400 text-xs">Entry point</span>
-                    )}
-                  </div>
-                </button>
+                  <path fillRule="evenodd" clipRule="evenodd" d="M2088 114L850.672 1226H2265.67L2088 114Z" fill="url(#paint0_linear_0_1)" />
+                  <path d="M2300.53 1373H851L2475.94 2535L2300.53 1373Z" fill="url(#paint1_linear_0_1)" />
+                  <path d="M2476 2535L2300.5 1373L1740.5 2009L2476 2535Z" fill="url(#paint2_linear_0_1)" />
+                  <path d="M1232 0H456L531.5 1008L713 1155.5L1591.5 367L1232 0Z" fill="url(#paint3_linear_0_1)" />
+                  <path d="M-1.65747e-05 813L331.001 28.9998L371.002 687.5L-1.65747e-05 813Z" fill="url(#paint4_linear_0_1)" />
+                  <path d="M4824.5 108.5H2233L2526 1850.5L4824.5 108.5Z" fill="url(#paint5_linear_0_1)" />
+                  <path d="M2639.5 2549.5L2566 2025.5L2980.5 1713L3935.5 2394L2639.5 2549.5Z" fill="url(#paint6_linear_0_1)" />
+                  <defs>
+                    <linearGradient id="paint0_linear_0_1" x1="1444.15" y1="192.913" x2="1444.15" y2="1152.86" gradientUnits="userSpaceOnUse">
+                      <stop stopColor="#4E60FF" />
+                      <stop offset="1" stopColor="#789FFF" />
+                    </linearGradient>
+                    <linearGradient id="paint1_linear_0_1" x1="1663.47" y1="1373" x2="1663.47" y2="2535" gradientUnits="userSpaceOnUse">
+                      <stop stopColor="#ADD0FF" />
+                      <stop offset="0.802885" stopColor="#DDFFF4" />
+                    </linearGradient>
+                    <linearGradient id="paint2_linear_0_1" x1="2112.03" y1="1376.56" x2="2112.03" y2="2533.98" gradientUnits="userSpaceOnUse">
+                      <stop stopColor="#CDFFF3" />
+                      <stop offset="1" stopColor="white" />
+                    </linearGradient>
+                    <linearGradient id="paint3_linear_0_1" x1="932.25" y1="82" x2="932.25" y2="1079.5" gradientUnits="userSpaceOnUse">
+                      <stop stopColor="#4E60FF" />
+                      <stop offset="1" stopColor="#789FFF" />
+                    </linearGradient>
+                    <linearGradient id="paint4_linear_0_1" x1="315.128" y1="26.1583" x2="168.856" y2="843.229" gradientUnits="userSpaceOnUse">
+                      <stop stopColor="#ADD0FF" />
+                      <stop offset="0.802885" stopColor="#DDFFF4" />
+                    </linearGradient>
+                    <linearGradient id="paint5_linear_0_1" x1="3186.25" y1="-66" x2="3186.25" y2="1850.5" gradientUnits="userSpaceOnUse">
+                      <stop stopColor="#ADD0FF" />
+                      <stop offset="0.802885" stopColor="#DDFFF4" />
+                    </linearGradient>
+                    <linearGradient id="paint6_linear_0_1" x1="3140.39" y1="1772.36" x2="3140.39" y2="2494.48" gradientUnits="userSpaceOnUse">
+                      <stop stopColor="#4E60FF" />
+                      <stop offset="1" stopColor="#789FFF" />
+                    </linearGradient>
+                  </defs>
+                </svg>
+                Java IDE
               </div>
-
-              {/* Other Files */}
-              {files
-                  .filter(
-                      (file) =>
-                          file.filename !== "Main.java" &&
-                          file.filename !== "CustomFileInputStream.java"
-                  )
-                  .map((file) => (
-                      <div key={file.filename} className="relative group">
-                        <div className="flex items-center space-x-2">
-                          <button
-                              className={`flex-1 text-left px-4 py-3 rounded-lg transition-all duration-200 flex items-center space-x-3 border ${
-                                  activeFile === file.filename
-                                      ? "bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-700 shadow-sm"
-                                      : "text-neutral-600 dark:text-neutral-400 hover:bg-neutral-50 dark:hover:bg-neutral-800 border-transparent hover:border-neutral-200 dark:hover:border-neutral-700"
-                              }`}
-                              onClick={() => setActiveFile(file.filename)}
-                          >
-                            <div className="w-8 h-8 bg-gradient-to-br from-orange-400 to-red-500 rounded-lg flex items-center justify-center shadow-sm">
-                              <Code className="h-4 w-4 text-white" />
+  
+              {/* Files Section */}
+              <div
+                  className="flex-1 overflow-y-auto space-y-2 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-blue-300 dark:scrollbar-thumb-blue-600 hover:scrollbar-thumb-blue-400 dark:hover:scrollbar-thumb-blue-500 scrollbar-thumb-rounded-full pb-4"
+                  style={{ marginTop: '-12px' }} /* pull it up more */
+              >
+                {/* Main.java - Always first */}
+                <div className="relative group">
+                  <button
+                      className={`w-full text-left px-4 py-3 rounded-lg transition-all duration-200 flex items-center space-x-3 border ${
+                          activeFile === "Main.java"
+                              ? "bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-700 shadow-sm"
+                              : "text-neutral-600 dark:text-neutral-400 hover:bg-neutral-50 dark:hover:bg-neutral-800 border-transparent hover:border-neutral-200 dark:hover:border-neutral-700"
+                      }`}
+                      onClick={() => setActiveFile("Main.java")}
+                  >
+                    <div className="w-8 h-8 bg-gradient-to-br from-orange-400 to-red-500 rounded-lg flex items-center justify-center shadow-sm">
+                      <IconCode className="h-4 w-4 text-white" />
+                    </div>
+                    <div className="flex flex-col flex-1 min-w-0">
+                      <span className="font-mono text-sm font-medium truncate">Main.java</span>
+                      {activeFile === "Main.java" && (
+                          <span className="text-blue-500 dark:text-blue-400 text-xs">Entry point</span>
+                      )}
+                    </div>
+                  </button>
+                </div>
+  
+                {/* Other Files */}
+                {files
+                    .filter(
+                        (file) =>
+                            file.filename !== "Main.java" &&
+                            file.filename !== "CustomFileInputStream.java"
+                    )
+                    .map((file) => (
+                        <div key={file.filename} className="relative group">
+                          <div className="flex items-center space-x-2">
+                            <button
+                                className={`flex-1 text-left px-4 py-3 rounded-lg transition-all duration-200 flex items-center space-x-3 border ${
+                                    activeFile === file.filename
+                                        ? "bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-700 shadow-sm"
+                                        : "text-neutral-600 dark:text-neutral-400 hover:bg-neutral-50 dark:hover:bg-neutral-800 border-transparent hover:border-neutral-200 dark:hover:border-neutral-700"
+                                }`}
+                                onClick={() => setActiveFile(file.filename)}
+                            >
+                              <div className="w-8 h-8 bg-gradient-to-br from-orange-400 to-red-500 rounded-lg flex items-center justify-center shadow-sm">
+                                <Code className="h-4 w-4 text-white" />
+                              </div>
+                              <span className="font-mono text-sm font-medium truncate flex-1">
+                    {file.filename}
+                  </span>
+                            </button>
+  
+                            {/* Action Buttons */}
+                            <div className="flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                              <button
+                                  onClick={() => {
+                                    const newFileName = prompt("Enter new file name", file.filename);
+                                    if (newFileName && newFileName !== file.filename) {
+                                      renameFile(file.filename, newFileName);
+                                    }
+                                  }}
+                                  className="p-2 bg-neutral-100 dark:bg-neutral-800 hover:bg-blue-100 dark:hover:bg-blue-900/40 rounded-lg transition-all duration-200 border border-neutral-200 dark:border-neutral-700 hover:border-blue-300 dark:hover:border-blue-600"
+                                  title="Rename file"
+                              >
+                                <Edit3 className="w-3.5 h-3.5 text-neutral-500 dark:text-neutral-400 hover:text-blue-600 dark:hover:text-blue-400" />
+                              </button>
+                              <button
+                                  onClick={() => removeFile(file.filename)}
+                                  className="p-2 bg-neutral-100 dark:bg-neutral-800 hover:bg-red-100 dark:hover:bg-red-900/40 rounded-lg transition-all duration-200 border border-neutral-200 dark:border-neutral-700 hover:border-red-300 dark:hover:border-red-600"
+                                  title="Delete file"
+                              >
+                                <IconTrash className="w-3.5 h-3.5 text-neutral-500 dark:text-neutral-400 hover:text-red-600 dark:hover:text-red-400" />
+                              </button>
                             </div>
-                            <span className="font-mono text-sm font-medium truncate flex-1">
-                  {file.filename}
-                </span>
-                          </button>
-
-                          {/* Action Buttons */}
-                          <div className="flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                            <button
-                                onClick={() => {
-                                  const newFileName = prompt("Enter new file name", file.filename);
-                                  if (newFileName && newFileName !== file.filename) {
-                                    renameFile(file.filename, newFileName);
-                                  }
-                                }}
-                                className="p-2 bg-neutral-100 dark:bg-neutral-800 hover:bg-blue-100 dark:hover:bg-blue-900/40 rounded-lg transition-all duration-200 border border-neutral-200 dark:border-neutral-700 hover:border-blue-300 dark:hover:border-blue-600"
-                                title="Rename file"
-                            >
-                              <Edit3 className="w-3.5 h-3.5 text-neutral-500 dark:text-neutral-400 hover:text-blue-600 dark:hover:text-blue-400" />
-                            </button>
-                            <button
-                                onClick={() => removeFile(file.filename)}
-                                className="p-2 bg-neutral-100 dark:bg-neutral-800 hover:bg-red-100 dark:hover:bg-red-900/40 rounded-lg transition-all duration-200 border border-neutral-200 dark:border-neutral-700 hover:border-red-300 dark:hover:border-red-600"
-                                title="Delete file"
-                            >
-                              <IconTrash className="w-3.5 h-3.5 text-neutral-500 dark:text-neutral-400 hover:text-red-600 dark:hover:text-red-400" />
-                            </button>
                           </div>
                         </div>
-                      </div>
-                  ))}
-            </div>
-
-            {/* Actions Section */}
-            <div className="space-y-4 flex-shrink-0">
-              <div className="flex  items-center space-x-2 mb-4">
-                <Play className="h-4 w-4 text-blue-500" />
-                <h3 className="text-neutral-900 dark:text-white text-sm font-semibold">Actions</h3>
+                    ))}
               </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <button
-                    className="rounded-lg py-3 px-4 bg-blue-100 dark:bg-blue-800 hover:bg-blue-200 dark:hover:bg-blue-700 text-blue-700 dark:text-blue-300 font-medium transition-all duration-200 border border-blue-200 dark:border-blue-700 hover:border-blue-300 dark:hover:border-blue-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 active:scale-[0.98]"
-                    onClick={addFile}
-                    disabled={!cheerpjLoaded}
-                >
-                  <IconFileDownload className="w-4 h-4" />
-                  <span className="text-sm">Add File</span>
-                </button>
-
-                <button
-                    className="rounded-lg py-3 px-4 bg-green-100 dark:bg-green-800 hover:bg-green-200 dark:hover:bg-green-700 text-green-700 dark:text-green-300 font-medium transition-all duration-200 border border-green-200 dark:border-green-700 hover:border-green-300 dark:hover:border-green-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 active:scale-[0.98]"
-                    onClick={runCode}
-                    disabled={!cheerpjLoaded}
-                >
-                  <IconPlayerPlayFilled className="w-4 h-4" />
-                  <span className="text-sm">Run File</span>
-                </button>
-
-                <button
-                    className="rounded-lg py-3 px-4 bg-purple-100 dark:bg-purple-800 hover:bg-purple-200 dark:hover:bg-purple-700 text-purple-700 dark:text-purple-300 font-medium transition-all duration-200 border border-purple-200 dark:border-purple-700 hover:border-purple-300 dark:hover:border-purple-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 active:scale-[0.98]"
-                    onClick={handleExport}
-                    disabled={!cheerpjLoaded}
-                >
-                  <IconFolderDown className="w-4 h-4" />
-                  <span className="text-sm">Export</span>
-                </button>
-
-                <button
-                    className="rounded-lg py-3 px-4 bg-red-100 dark:bg-red-800 hover:bg-red-200 dark:hover:bg-red-700 text-red-700 dark:text-red-300 font-medium transition-all duration-200 border border-red-200 dark:border-red-700 hover:border-red-300 dark:hover:border-red-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 active:scale-[0.98]"
-                    onClick={saveProject}
-                    disabled={!cheerpjLoaded}
-                >
-                  <IconCloudUpload className="w-4 h-4" />
-                  <span className="text-sm">Save</span>
-                </button>
-
-                <label className="rounded-lg py-3 px-4 bg-orange-100 dark:bg-orange-800 hover:bg-orange-200 dark:hover:bg-orange-700 text-orange-700 dark:text-orange-300 font-medium cursor-pointer transition-all duration-200 border border-orange-200 dark:border-orange-700 hover:border-orange-300 dark:hover:border-orange-600 disabled:opacity-50 flex items-center justify-center space-x-2 active:scale-[0.98]">
-                  <IconUpload className="w-4 h-4" />
-                  <span className="text-sm">Load</span>
-                  <input
-                      type="file"
-                      accept=".py"
-                      onChange={handleFileUpload}
+  
+              {/* Actions Section */}
+              <div className="space-y-4 flex-shrink-0">
+                <div className="flex  items-center space-x-2 mb-4">
+                  <Play className="h-4 w-4 text-blue-500" />
+                  <h3 className="text-neutral-900 dark:text-white text-sm font-semibold">Actions</h3>
+                </div>
+  
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                      className="rounded-lg py-3 px-4 bg-blue-100 dark:bg-blue-800 hover:bg-blue-200 dark:hover:bg-blue-700 text-blue-700 dark:text-blue-300 font-medium transition-all duration-200 border border-blue-200 dark:border-blue-700 hover:border-blue-300 dark:hover:border-blue-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 active:scale-[0.98]"
+                      onClick={addFile}
                       disabled={!cheerpjLoaded}
-                      className="hidden"
-                  />
-                </label>
-
-                <button
-                    className="rounded-lg py-3 px-4 bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300 font-medium transition-all duration-200 border border-stone-200 dark:border-stone-700 hover:border-stone-300 dark:hover:border-stone-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 active:scale-[0.98]"
-                    onClick={() => window.location.href = '/studenthome/java/repo'}
-                    disabled={!cheerpjLoaded}
-                >
-                  <IconBrandGithub className="w-4 h-4" />
-                  <span className="text-sm">Repo</span>
-                </button>
-              </div>
-
-              {/* Loading State */}
-              {!cheerpjLoaded && (
-                  <div className="mt-4 p-4 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg">
-                    <div className="flex items-center space-x-3">
-                      <IconLoader className="h-4 w-4 text-blue-500 animate-spin" />
-                      <span className="text-neutral-600 dark:text-neutral-400 text-sm font-medium">Loading Java Compiler...</span>
+                  >
+                    <IconFileDownload className="w-4 h-4" />
+                    <span className="text-sm">Add File</span>
+                  </button>
+  
+                  <button
+                      className="rounded-lg py-3 px-4 bg-green-100 dark:bg-green-800 hover:bg-green-200 dark:hover:bg-green-700 text-green-700 dark:text-green-300 font-medium transition-all duration-200 border border-green-200 dark:border-green-700 hover:border-green-300 dark:hover:border-green-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 active:scale-[0.98]"
+                      onClick={runCode}
+                      disabled={!cheerpjLoaded}
+                  >
+                    <IconPlayerPlayFilled className="w-4 h-4" />
+                    <span className="text-sm">Run File</span>
+                  </button>
+  
+                  <button
+                      className="rounded-lg py-3 px-4 bg-purple-100 dark:bg-purple-800 hover:bg-purple-200 dark:hover:bg-purple-700 text-purple-700 dark:text-purple-300 font-medium transition-all duration-200 border border-purple-200 dark:border-purple-700 hover:border-purple-300 dark:hover:border-purple-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 active:scale-[0.98]"
+                      onClick={handleExport}
+                      disabled={!cheerpjLoaded}
+                  >
+                    <IconFolderDown className="w-4 h-4" />
+                    <span className="text-sm">Export</span>
+                  </button>
+  
+                  <button
+                      className="rounded-lg py-3 px-4 bg-red-100 dark:bg-red-800 hover:bg-red-200 dark:hover:bg-red-700 text-red-700 dark:text-red-300 font-medium transition-all duration-200 border border-red-200 dark:border-red-700 hover:border-red-300 dark:hover:border-red-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 active:scale-[0.98]"
+                      onClick={saveProject}
+                      disabled={!cheerpjLoaded}
+                  >
+                    <IconCloudUpload className="w-4 h-4" />
+                    <span className="text-sm">Save</span>
+                  </button>
+  
+                  <label className="rounded-lg py-3 px-4 bg-orange-100 dark:bg-orange-800 hover:bg-orange-200 dark:hover:bg-orange-700 text-orange-700 dark:text-orange-300 font-medium cursor-pointer transition-all duration-200 border border-orange-200 dark:border-orange-700 hover:border-orange-300 dark:hover:border-orange-600 disabled:opacity-50 flex items-center justify-center space-x-2 active:scale-[0.98]">
+                    <IconUpload className="w-4 h-4" />
+                    <span className="text-sm">Load</span>
+                    <input
+                        type="file"
+                        accept=".java"
+                        onChange={handleFileUpload}
+                        disabled={!cheerpjLoaded}
+                        className="hidden"
+                    />
+                  </label>
+  
+                  <button
+                      className="rounded-lg py-3 px-4 bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300 font-medium transition-all duration-200 border border-stone-200 dark:border-stone-700 hover:border-stone-300 dark:hover:border-stone-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 active:scale-[0.98]"
+                      onClick={() => window.location.href = '/studenthome/java/repo'}
+                      disabled={!cheerpjLoaded}
+                  >
+                    <IconBrandGithub className="w-4 h-4" />
+                    <span className="text-sm">Repo</span>
+                  </button>
+                </div>
+  
+                {/* Loading State */}
+                {!cheerpjLoaded && (
+                    <div className="mt-4 p-4 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg">
+                      <div className="flex items-center space-x-3">
+                        <IconLoader className="h-4 w-4 text-blue-500 animate-spin" />
+                        <span className="text-neutral-600 dark:text-neutral-400 text-sm font-medium">Loading Java Compiler...</span>
+                      </div>
                     </div>
-                  </div>
-              )}
+                )}
+              </div>
             </div>
           </div>
-        </div>
-
-        {/* Resizer */}
-        <div
-            className="w-1 h-full bg-neutral-300 dark:bg-neutral-600 cursor-col-resize hover:bg-blue-500 dark:hover:bg-blue-500 transition-all duration-200"
-            onMouseDown={handleMouseDown}
-        />
-        {/* monaco editor */}
-        <div className="flex-1 flex flex-col min-w-0">
-          <div className='bg-[#1E1E1E]'>
-            <p
-                className='ml-2 font-mono '
-                style={{
-                  fontFamily: 'monospace',
-                }}
-            >
-              {activeFile}
-            </p>
-          </div>
-          <div className="flex-1">
-            <MonacoEditor
-                language="java"
-                theme="vs-dark"
-                value={
-                    files.find((f) => f.filename === activeFile)?.contents ?? ""
-                }
-                onChange={handleEditorChange}
-                options={{ automaticLayout: true }}
-                onMount={handleEditorDidMount}
-            />
-          </div>
-          {/* Output */}
+  
+          {/* Resizer */}
           <div
-              style={{
-                height: '5px',
-                cursor: 'row-resize',
-                backgroundColor: '#ccc',
-              }}
+              className="w-1 h-full bg-neutral-300 dark:bg-neutral-600 cursor-col-resize hover:bg-blue-500 dark:hover:bg-blue-500 transition-all duration-200"
+              onMouseDown={handleMouseDown}
           />
-
-          <div
-              style={{
-                height: '200px',
-                borderTop: '1px solid #ccc',
-                backgroundColor: '#1e1e1e',
-                color: 'white',
-                fontFamily: 'monospace',
-                padding: '10px',
-                overflowY: 'auto',
-              }}
-              ref={outputRef}
-          >
-            {outputLines.map((line, index) => (
-                <div key={index}>{line}</div>
-
-            ))}
-            {/* Input Field */}
-            <div style={{ display: 'flex' }}>
-              &gt;&nbsp;
-              <input
-                  type="text"
-                  ref={inputFieldRef}
-                  disabled
+          {/* monaco editor */}
+          <div className="flex-1 flex flex-col min-w-0">
+            <div className='bg-[#1E1E1E]'>
+              <p
+                  className='ml-2 font-mono '
                   style={{
-                    width: '100%',
-                    backgroundColor: 'transparent',
-                    color: 'white',
-                    border: 'none',
-                    outline: 'none',
                     fontFamily: 'monospace',
                   }}
+              >
+                {activeFile}
+              </p>
+            </div>
+            <div className="flex-1">
+              <MonacoEditor
+                  language="java"
+                  theme="vs-dark"
+                  value={
+                      files.find((f) => f.filename === activeFile)?.contents ?? ""
+                  }
+                  onChange={handleEditorChange}
+                  options={{ automaticLayout: true }}
+                  onMount={handleEditorDidMount}
               />
+            </div>
+            {/* Output */}
+            <div
+                style={{
+                  height: '5px',
+                  cursor: 'row-resize',
+                  backgroundColor: '#ccc',
+                }}
+            />
+  
+            <div
+                style={{
+                  height: '200px',
+                  borderTop: '1px solid #ccc',
+                  backgroundColor: '#1e1e1e',
+                  color: 'white',
+                  fontFamily: 'monospace',
+                  padding: '10px',
+                  overflowY: 'auto',
+                }}
+                ref={outputRef}
+            >
+              {outputLines.map((line, index) => (
+                  <div key={index}>{line}</div>
+  
+              ))}
+              {/* Input Field */}
+              <div style={{ display: 'flex' }}>
+                &gt;&nbsp;
+                <input
+                    type="text"
+                    ref={inputFieldRef}
+                    disabled
+                    style={{
+                      width: '100%',
+                      backgroundColor: 'transparent',
+                      color: 'white',
+                      border: 'none',
+                      outline: 'none',
+                      fontFamily: 'monospace',
+                    }}
+                />
+              </div>
             </div>
           </div>
         </div>
-      </div>
-  );
-};
-
-export default Editor;
+    );
+  };
+  
+  export default Editor;
