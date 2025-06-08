@@ -12,10 +12,10 @@ import { Autocomplete, AutocompleteItem } from "@nextui-org/react";
 import Link from "next/link";
 import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
 import { Spinner } from "@nextui-org/react";
-
 import { Button } from "@nextui-org/react";
 import { signIn } from "next-auth/react";
 import { IconBrandGoogleFilled } from "@tabler/icons-react";
+import { useRouter } from "next/navigation";
 
 type School = {
     key: string,
@@ -26,55 +26,107 @@ type School = {
 
 export default function Page() {
     const [message, setMessage] = useState('');
-    const [schools, setSchools] = useState(Array<School>());
+    const [schools, setSchools] = useState<Array<School>>([]);
     const [loading, setLoading] = useState(false);
+    const [selectedSchool, setSelectedSchool] = useState<string>('');
+    const router = useRouter();
 
     const { executeRecaptcha } = useGoogleReCaptcha();
 
     const createAccount = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        setLoading(true);
 
         if (!executeRecaptcha) {
             console.log("Recaptcha not ready");
+            setLoading(false);
+            setMessage("Recaptcha not ready. Please try again.");
             return;
         }
 
         const form = e.currentTarget;
-        const gRecaptchaToken = await executeRecaptcha("create_teacher");
-        const formData = new FormData(form);
-        formData.append("gRecaptchaToken", gRecaptchaToken);
-        const data = Object.fromEntries(formData.entries());
-        console.log(data);
 
-        const response = await fetch("/api/create_teacher/post", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(data),
-        });
+        try {
+            const gRecaptchaToken = await executeRecaptcha("create_teacher");
+            const formData = new FormData(form);
 
-        const responseMessage = await response.json();
-        setMessage(responseMessage.message);
-        setLoading(false);
+            // Add the selected school to the form data
+            if (selectedSchool) {
+                formData.set('schoolname', selectedSchool);
+            }
 
-        // clear the form
+            formData.append("gRecaptchaToken", gRecaptchaToken);
+            const data = Object.fromEntries(formData.entries());
+            console.log('Form data:', data);
+
+            const response = await fetch("/api/create_teacher/post", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(data),
+            });
+
+            const responseMessage = await response.json();
+            console.log('Response:', responseMessage);
+
+            setMessage(responseMessage.message);
+
+            // Check if account creation was successful
+            if (response.ok && responseMessage.success) {
+                setMessage("Account created successfully! Redirecting...");
+
+                // Sign in the user automatically after successful registration
+                const signInResult = await signIn('credentials', {
+                    email: data.email as string,
+                    password: data.password as string,
+                    redirect: false,
+                });
+
+                if (signInResult?.ok) {
+                    // Redirect to educator home after successful sign in
+                    setTimeout(() => {
+                        router.push('/educatorhome');
+                    }, 1000);
+                } else {
+                    setMessage("Account created but auto-login failed. Please login manually.");
+                    setTimeout(() => {
+                        router.push('/login');
+                    }, 2000);
+                }
+            } else {
+                setMessage(responseMessage.message || "Registration failed. Please try again.");
+            }
+        } catch (error) {
+            console.error('Registration error:', error);
+            setMessage("An error occurred during registration. Please try again.");
+        } finally {
+            setLoading(false);
+        }
+
+        // Clear the form
         form.reset();
-
+        setSelectedSchool('');
     };
 
     useEffect(() => {
         const getSchools = async () => {
-            const response = await fetch('/api/get_schools/post', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
+            try {
+                const response = await fetch('/api/get_schools/post', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
 
-            const data = await response.json();
-            console.log(data);
-            setSchools(data.schools);
+                const data = await response.json();
+                console.log('Schools data:', data);
+                if (data.schools) {
+                    setSchools(data.schools);
+                }
+            } catch (error) {
+                console.error('Error fetching schools:', error);
+            }
         }
 
         getSchools();
@@ -85,8 +137,6 @@ export default function Page() {
             <HomeHeader />
 
             <div className="flex flex-col gap-x-4 min-h-screen w-full pb-8 md:flex-row justify-center bg-slate-100 dark:bg-neutral-950">
-
-
                 <div className="my-auto flex flex-col">
                     <div className="max-w-md w-full mx-auto rounded-none md:rounded-2xl p-4 mt-4 md:p-8 shadow-input bg-white dark:bg-black">
                         <h2 className="font-bold text-xl text-neutral-800 dark:text-neutral-200">
@@ -120,24 +170,20 @@ export default function Page() {
                                 <Label htmlFor="email">Email Address (Doubles as Username)</Label>
                                 <Input id="email" name="email" placeholder="agneya@gmail.com" type="email" required />
                             </LabelInputContainer>
-                            {/* <LabelInputContainer className="mb-4">
-                                <Label htmlFor="schoolname">School Name</Label>
-                                <Input id="schoolname" name="schoolname" placeholder="Poolesville High School" type="text" required/>
-                            </LabelInputContainer> */}
                             <LabelInputContainer className="mb-4">
-                                <Label htmlFor="email">School</Label>
+                                <Label htmlFor="schoolname">School</Label>
                                 <Autocomplete
                                     isVirtualized
                                     className="w-full mb-4 text-black dark:text-white"
                                     defaultItems={schools}
                                     placeholder="Search for a School"
-                                    id="schoolname"
-                                    name="schoolname"
+                                    onSelectionChange={(key) => {
+                                        if (key) {
+                                            setSelectedSchool(key as string);
+                                        }
+                                    }}
+                                    isRequired
                                 >
-                                    {/* {(school) =>
-                                        <AutocompleteItem key={school.abbr} textValue={school.abbr + ": " + school.name}>{school.abbr}: {school.name} @ {school.address}</AutocompleteItem>
-                                    } */}
-
                                     {(school) =>
                                         <AutocompleteItem key={school.abbr} textValue={school.abbr + ": " + school.name}>
                                             <div className="flex flex-col my-4">
@@ -153,31 +199,22 @@ export default function Page() {
                                 <Input id="password" name="password" placeholder="••••••••" type="password" required />
                             </LabelInputContainer>
 
-
                             <button
-                                className="bg-gradient-to-br relative group/btn from-black dark:from-zinc-900 dark:to-zinc-900 to-neutral-600 block dark:bg-zinc-800 w-full text-white rounded-md h-10 font-medium shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] dark:shadow-[0px_1px_0px_0px_var(--zinc-800)_inset,0px_-1px_0px_0px_var(--zinc-800)_inset]"
+                                className="bg-gradient-to-br relative group/btn from-black dark:from-zinc-900 dark:to-zinc-900 to-neutral-600 block dark:bg-zinc-800 w-full text-white rounded-md h-10 font-medium shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] dark:shadow-[0px_1px_0px_0px_var(--zinc-800)_inset,0px_-1px_0px_0px_var(--zinc-800)_inset] disabled:opacity-50"
                                 type="submit"
-                                onClick={() => setLoading(true)}
-
+                                disabled={loading}
                             >
-                                Sign up &rarr;
+                                {loading ? "Creating Account..." : "Sign up →"}
                                 <BottomGradient />
                             </button>
 
-                            {/* <Button
-                                variant="bordered"
-                                className="w-full flex items-center justify-center mt-4"
-                                onPress={() => signIn("google", { callbackUrl: "/auth-callback" })}
-                            >
-                                <IconBrandGoogleFilled size={20} />
-                                Sign in with Google
-                            </Button> */}
-
                             {message && (
-                                <p className="mt-4 mb-4 text-green-600 dark:text-green-400">{message}</p>
+                                <p className={`mt-4 mb-4 ${message.includes('success') || message.includes('created') ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                                    {message}
+                                </p>
                             )}
 
-                            <small className="text-neutral-600">This site is protected by reCAPTCHA and the Google
+                            <small className="text-neutral-600 mt-2 block">This site is protected by reCAPTCHA and the Google
                                 <a className="text-blue-500" href="https://policies.google.com/privacy"> Privacy Policy</a> and
                                 <a className="text-blue-500" href="https://policies.google.com/terms"> Terms of Service</a> apply.
                             </small>
@@ -187,12 +224,10 @@ export default function Page() {
                                     <Spinner />
                                 </div>
                             )}
-
                         </form>
                     </div>
                 </div>
             </div>
-
         </>
     );
 }
@@ -207,9 +242,9 @@ const BottomGradient = () => {
 };
 
 const LabelInputContainer = ({
-    children,
-    className,
-}: {
+                                 children,
+                                 className,
+                             }: {
     children: React.ReactNode;
     className?: string;
 }) => {

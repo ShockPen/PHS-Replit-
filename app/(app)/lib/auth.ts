@@ -49,6 +49,7 @@ export const authOptions: NextAuthOptions = {
             email: user.email,
             role: user.role,
             school_abbr: user.school_abbr,
+            userType: user.userType, // <-- Add this
           } as ExtendedUser;
         } catch (error) {
           console.log(error);
@@ -95,8 +96,9 @@ export const authOptions: NextAuthOptions = {
               name: user.name,
               image: user.image,
               googleId: user.id,
-              role: "pending", // Special role for users who haven't completed onboarding
-              emailIsVerified: true, // Google already verified the email
+              role: "pending",
+              userType: "student", // <-- You can default or infer later
+              emailIsVerified: true,
               createdAt: new Date(),
               authProvider: "google",
             });
@@ -118,6 +120,8 @@ export const authOptions: NextAuthOptions = {
             // Set role and school_abbr from existing user
             (user as ExtendedUser).role = existingUser.role;
             (user as ExtendedUser).school_abbr = existingUser.school_abbr;
+            (user as ExtendedUser).userType = existingUser.userType; // <-- Add this
+
           }
           
           return true;
@@ -136,6 +140,7 @@ export const authOptions: NextAuthOptions = {
         session.user.school_abbr = token.school_abbr as string;
         // Add isNewUser flag to trigger onboarding
         session.user.isNewUser = token.isNewUser as boolean;
+        session.user.userType = token.userType as "student" | "educator"; // <-- Add this
       }
       return session;
     },
@@ -146,6 +151,7 @@ export const authOptions: NextAuthOptions = {
         token.role = (user as ExtendedUser).role;
         token.school_abbr = (user as ExtendedUser).school_abbr;
         token.isNewUser = (user as ExtendedUser).isNewUser;
+        token.userType = (user as ExtendedUser).userType; // <-- Add this
       }
       
       return token;

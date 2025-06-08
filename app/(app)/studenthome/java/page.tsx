@@ -364,7 +364,7 @@ const createProject = async () => {
                 <div className="flex items-center justify-between pt-2 border-t border-blue-300/30 dark:border-blue-600/30 flex-shrink-0">
                     <p className="text-xs text-blue-500 dark:text-blue-400 font-medium">7 pending assignments</p>
                     <Link
-                        href="/studenthome/java/assignments"
+                        href="/studenthome/classes"
                         className="text-xs text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300 hover:underline transition-colors group-hover:text-blue-400"
                     >
                         View all

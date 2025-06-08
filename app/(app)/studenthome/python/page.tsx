@@ -360,7 +360,7 @@ export default function PythonDashboard() {
                 <div className="flex items-center justify-between pt-2 border-t border-orange-300/30 dark:border-orange-600/30 flex-shrink-0">
                     <p className="text-xs text-orange-500 dark:text-orange-400 font-medium">7 pending assignments</p>
                     <Link
-                        href="/studenthome/python/assignments"
+                        href="/studenthome/classes"
                         className="text-xs text-orange-500 hover:text-orange-600 dark:text-orange-400 dark:hover:text-orange-300 hover:underline transition-colors group-hover:text-orange-400"
                     >
                         View all

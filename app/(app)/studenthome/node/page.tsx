@@ -334,7 +334,7 @@ export default function NodeDashboard() {
                 <div className="flex items-center justify-between pt-2 border-t border-green-300/30 dark:border-green-600/30 flex-shrink-0">
                     <p className="text-xs text-green-500 dark:text-green-400 font-medium">5 pending assignments</p>
                     <Link
-                        href="/studenthome/node/assignments"
+                        href="/studenthome/classes"
                         className="text-xs text-green-500 hover:text-green-600 dark:text-green-400 dark:hover:text-green-300 hover:underline transition-colors group-hover:text-green-400"
                     >
                         View all

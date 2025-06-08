@@ -437,7 +437,7 @@ export default function CPPDashboard() {
                 <div className="flex items-center justify-between pt-2 border-t border-purple-300/30 dark:border-purple-600/30 flex-shrink-0">
                     <p className="text-xs text-purple-500 dark:text-purple-400 font-medium">7 pending assignments</p>
                     <Link
-                        href="/studenthome/cpp/assignments"
+                        href="/studenthome/classes"
                         className="text-xs text-purple-500 hover:text-purple-600 dark:text-purple-400 dark:hover:text-purple-300 hover:underline transition-colors group-hover:text-purple-400"
                     >
                         View all

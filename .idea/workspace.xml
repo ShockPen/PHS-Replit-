@@ -4,10 +4,34 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b81c8c27-8c15-4931-ae89-c670a04f9254" name="Changes" comment="Python v0.1">
+    <list default="true" id="b81c8c27-8c15-4931-ae89-c670a04f9254" name="Changes" comment="login and educatorhome v0.1">
+      <change afterPath="$PROJECT_DIR$/app/(app)/api/github/assignments/route.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/(app)/educatorhome/classes/page.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/(app)/studenthome/python/ide/loading.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/api/complete_onboarding/post/route.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/api/complete_onboarding/post/route.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/lib/auth.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/lib/auth.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/login/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/login/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/onboarding/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/onboarding/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/register/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/register/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/registerteacher/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/registerteacher/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/classes/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/classes/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/cpp/assignments/page.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/cpp/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/cpp/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/java/assignments/page.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/java/ide/page.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/java/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/java/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/linux/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/linux/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/node/assignments/page.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/node/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/node/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/python/assignments/page.tsx" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/python/ide/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/python/ide/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/python/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/python/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/components/ui/floating-navbar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/components/ui/floating-navbar.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/next-auth.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/next-auth.d.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -49,6 +73,9 @@
   &quot;associatedIndex&quot;: 5
 }</component>
   <component name="ProjectId" id="2x5vocJKUWqx56TS4WkljKxocu2" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
@@ -60,7 +87,7 @@
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
     &quot;git-widget-placeholder&quot;: &quot;main&quot;,
     &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/davee/WebstormProjects/Rep-lite/app/(app)/studenthome&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/davee/WebstormProjects/Rep-lite/app/(app)/educatorhome&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.standard&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
@@ -77,6 +104,9 @@
 }</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\davee\WebstormProjects\Rep-lite\app\(app)\educatorhome\" />
+      <recent name="C:\Users\davee\WebstormProjects\Rep-lite\app\(app)\educatorhome" />
+      <recent name="C:\Users\davee\WebstormProjects\Rep-lite\app\(app)" />
       <recent name="C:\Users\davee\WebstormProjects\Rep-lite\app\(app)\studenthome" />
       <recent name="C:\Users\davee\WebstormProjects\Rep-lite\app\(app)\studenthome\linux\public" />
     </key>
@@ -120,6 +150,8 @@
       <workItem from="1749064407008" duration="13751000" />
       <workItem from="1749099989844" duration="14101000" />
       <workItem from="1749154969245" duration="6455000" />
+      <workItem from="1749391157105" duration="11566000" />
+      <workItem from="1749408187282" duration="2938000" />
     </task>
     <task id="LOCAL-00001" summary="so many errors do not run">
       <option name="closed" value="true" />
@@ -292,7 +324,8 @@
     <MESSAGE value="last minute fixes + comments to explain API and other parts of the site" />
     <MESSAGE value="small fixes before i commit fully the full code" />
     <MESSAGE value="Python v0.1" />
-    <option name="LAST_COMMIT_MESSAGE" value="Python v0.1" />
+    <MESSAGE value="login and educatorhome v0.1" />
+    <option name="LAST_COMMIT_MESSAGE" value="login and educatorhome v0.1" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -301,18 +334,6 @@
           <url>file://$PROJECT_DIR$/app/(app)/studenthome/python/page.tsx</url>
           <line>642</line>
           <option name="timeStamp" value="6" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="javascript">
-          <url>file://$PROJECT_DIR$/app/(app)/studenthome/python/ide/page.tsx</url>
-          <line>433</line>
-          <properties lambdaOrdinal="-1" />
-          <option name="timeStamp" value="12" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="javascript">
-          <url>file://$PROJECT_DIR$/app/(app)/studenthome/python/ide/page.tsx</url>
-          <line>159</line>
-          <properties lambdaOrdinal="-1" />
-          <option name="timeStamp" value="13" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
