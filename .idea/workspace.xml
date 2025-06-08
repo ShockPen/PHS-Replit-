@@ -4,9 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b81c8c27-8c15-4931-ae89-c670a04f9254" name="Changes" comment="make sure login will actually work now">
-      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/page.tsx" afterDir="false" />
-    </list>
+    <list default="true" id="b81c8c27-8c15-4931-ae89-c670a04f9254" name="Changes" comment="feedback form" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -125,7 +123,7 @@
       <workItem from="1749099989844" duration="14101000" />
       <workItem from="1749154969245" duration="6455000" />
       <workItem from="1749391157105" duration="11566000" />
-      <workItem from="1749408187282" duration="15449000" />
+      <workItem from="1749408187282" duration="15768000" />
     </task>
     <task id="LOCAL-00001" summary="so many errors do not run">
       <option name="closed" value="true" />
@@ -295,7 +293,15 @@
       <option name="project" value="LOCAL" />
       <updated>1749424934273</updated>
     </task>
-    <option name="localTasksCounter" value="22" />
+    <task id="LOCAL-00022" summary="feedback form">
+      <option name="closed" value="true" />
+      <created>1749425048335</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1749425048335</updated>
+    </task>
+    <option name="localTasksCounter" value="23" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -342,7 +348,8 @@
     <MESSAGE value="final commits to educatorhome and studenthome made page functionality" />
     <MESSAGE value=".env.local github signin fixing for netlify" />
     <MESSAGE value="make sure login will actually work now" />
-    <option name="LAST_COMMIT_MESSAGE" value="make sure login will actually work now" />
+    <MESSAGE value="feedback form" />
+    <option name="LAST_COMMIT_MESSAGE" value="feedback form" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

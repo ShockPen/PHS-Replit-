@@ -1,6 +1,6 @@
 import NextAuth from "next-auth";
 import GithubProvider from "next-auth/providers/github";
-import GoogleProvider from "next-auth/providers/google"; // If you want to re-enable Google later
+import GoogleProvider from "next-auth/providers/google";
 
 // Helper function to ensure required env vars are set
 function getEnv(name: string): string {
@@ -11,20 +11,21 @@ function getEnv(name: string): string {
     return value;
 }
 
-const handler = NextAuth({
+const authOptions = {
     providers: [
         GithubProvider({
             clientId: getEnv("GITHUB_ID"),
             clientSecret: getEnv("GITHUB_SECRET"),
         }),
-
         GoogleProvider({
-          clientId: getEnv("GOOGLE_CLIENT_ID"),
-          clientSecret: getEnv("GOOGLE_CLIENT_SECRET"),
+            clientId: getEnv("GOOGLE_CLIENT_ID"),
+            clientSecret: getEnv("GOOGLE_CLIENT_SECRET"),
         }),
     ],
     secret: getEnv("NEXTAUTH_SECRET"),
-});
+};
 
+const handler = NextAuth(authOptions);
+
+// Only export the HTTP methods you need
 export { handler as GET, handler as POST };
-export default handler;
