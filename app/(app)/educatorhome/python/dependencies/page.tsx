@@ -2,18 +2,18 @@
 
 import { BackgroundLines } from "@/app/components/ui/background-lines"
 import {
-    IconCoffee,
     IconHome,
-    IconClipboardCopy,
-    IconFileBroken,
-    IconSignature,
-    IconTableColumn,
+    IconBrandPython,
+    IconFileCode,
+    IconTemplate,
+    IconSchool,
+    IconBrandDjango,
+    IconFlaskFilled,
+    IconMathSymbols,
     IconDatabase,
     IconTestPipe,
     IconBrandGithub,
-    IconSchool,
-    IconFileCode,
-    IconTemplate,
+    IconNetwork,
 } from "@tabler/icons-react"
 import { FloatingNav } from "@/app/components/ui/floating-navbar"
 import { Button, Link } from "@nextui-org/react"
@@ -21,27 +21,26 @@ import { BentoGrid, BentoGridItem } from "@/app/components/ui/bento-grid"
 import { Code, Play } from "lucide-react"
 import React from "react"
 import { useRouter } from "next/navigation"
-import { generateTemplateFile, downloadFile } from "@/app/utils/fileGenerator"
+import { generateDependencyFile, downloadFile } from "@/app/utils/fileGenerator"
+
+interface DependencyCardProps {
+    title: string
+    description: string
+    icon: React.ReactElement
+    color?: string
+}
 
 export default function Page() {
     const router = useRouter()
 
-    const handleUseTemplate = (templateName: string | number | boolean) => {
-        const { filename, content } = generateTemplateFile(String(templateName), "java")
+    const handleUseDependency = (dependencyName: string | number | boolean) => {
+        const { filename, content } = generateDependencyFile(String(dependencyName), "python")
         downloadFile(filename, content)
-
-        // Show success message
-        console.log(`Downloaded ${filename} template successfully!`)
+        // Also navigate to IDE with the dependency parameter
+        router.push(`/educatorhome/python/ide?dependency=${encodeURIComponent(dependencyName)}`)
     }
 
-    interface TemplateCardProps {
-        title: string
-        description: string
-        icon: React.ReactElement
-        color?: string
-    }
-
-    const TemplateCard = ({ title, description, icon, color = "blue" }: TemplateCardProps) => {
+    const DependencyCard = ({ title, description, icon, color = "blue" }: DependencyCardProps) => {
         return (
             <div className="w-full h-full p-6 flex flex-col justify-between overflow-hidden group-hover:scale-[1.02] transition-all duration-300 bg-white/5 dark:bg-neutral-800/60 rounded-xl border border-neutral-200/20 dark:border-neutral-700/50 backdrop-blur-sm">
                 <div className="flex flex-col gap-4 flex-1">
@@ -55,11 +54,11 @@ export default function Page() {
 
                 <div className="mt-6 pt-4 border-t border-neutral-700/50">
                     <Button
-                        onClick={() => handleUseTemplate(title)}
+                        onClick={() => handleUseDependency(title)}
                         className={`w-full bg-gradient-to-r from-${color}-500 to-${color}-600 hover:from-${color}-600 hover:to-${color}-700 text-white font-medium rounded-lg px-4 py-2.5 transition-all duration-200 flex items-center justify-center gap-2 shadow-lg hover:shadow-${color}-500/25`}
                     >
                         <Play className="h-4 w-4" />
-                        Download Template
+                        Download & Use
                     </Button>
                 </div>
             </div>
@@ -74,89 +73,89 @@ export default function Page() {
         },
         {
             title: "Dashboard",
-            icon: <IconCoffee className="h-full w-full text-blue-500 dark:text-blue-300" />,
-            href: "/studenthome/java",
+            icon: <IconBrandPython className="h-full w-full text-blue-500 dark:text-blue-300" />,
+            href: "/educatorhome/python",
         },
         {
-            title: "Java IDE",
+            title: "Python IDE",
             icon: <IconFileCode className="h-full w-full text-blue-500 dark:text-blue-300" />,
-            href: "/studenthome/java/ide",
+            href: "/educatorhome/python/ide",
         },
         {
             title: "Templates",
             icon: <IconTemplate className="h-full w-full text-blue-500 dark:text-blue-300" />,
-            href: "/studenthome/java/templates",
+            href: "/educatorhome/python/templates",
         },
         {
             title: "Classes",
             icon: <IconSchool className="h-full w-full text-blue-500 dark:text-blue-300" />,
-            href: "/studenthome/classes",
+            href: "/educatorhome/classes",
         },
     ]
 
-    const templates = [
+    const dependencies = [
         {
-            title: "Spring Boot Web App",
+            title: "NumPy",
             description:
-                "Complete Spring Boot web application template with REST controllers, service layers, and web interface. Includes auto-configuration and embedded server.",
-            icon: <IconSignature className="h-6 w-6" />,
-            color: "green",
-        },
-        {
-            title: "Console Application",
-            description:
-                "Interactive console application template with command processing, user input handling, and data management. Perfect for CLI tools and utilities.",
-            icon: <IconFileCode className="h-6 w-6" />,
+                "Fundamental package for scientific computing with Python. Provides support for arrays, matrices, and mathematical functions to operate on these data structures.",
+            icon: <IconMathSymbols className="h-6 w-6" />,
             color: "blue",
         },
         {
-            title: "REST API Service",
+            title: "Pandas",
             description:
-                "RESTful web service template with CRUD operations, JSON handling, and proper HTTP status codes. Includes error handling and validation.",
+                "Data analysis and manipulation library providing data structures like DataFrame for efficiently storing and manipulating tabular data.",
             icon: <IconDatabase className="h-6 w-6" />,
-            color: "purple",
+            color: "green",
         },
         {
-            title: "Unit Testing Suite",
+            title: "TensorFlow",
             description:
-                "Comprehensive JUnit 5 testing template with test fixtures, parameterized tests, and mocking. Includes best practices for test organization.",
-            icon: <IconTestPipe className="h-6 w-6" />,
+                "End-to-end open source platform for machine learning. Build and deploy ML models with comprehensive tools and libraries.",
+            icon: <IconNetwork className="h-6 w-6" />,
             color: "orange",
         },
         {
-            title: "Data Processing App",
+            title: "Django",
             description:
-                "Template for data processing applications with file I/O, CSV handling, and data transformation utilities. Includes error handling and logging.",
-            icon: <IconTableColumn className="h-6 w-6" />,
+                "High-level Python web framework that encourages rapid development and clean, pragmatic design for building web applications.",
+            icon: <IconBrandDjango className="h-6 w-6" />,
+            color: "purple",
+        },
+        {
+            title: "Flask",
+            description:
+                "Lightweight WSGI web application framework designed to make getting started quick and easy, with the ability to scale up to complex applications.",
+            icon: <IconFlaskFilled className="h-6 w-6" />,
             color: "red",
         },
         {
-            title: "Microservice Template",
+            title: "Pytest",
             description:
-                "Spring Boot microservice template with health checks, metrics, configuration management, and Docker support for cloud deployment.",
-            icon: <IconBrandGithub className="h-6 w-6" />,
+                "Testing framework that makes it easy to write small, readable tests, and can scale to support complex functional testing.",
+            icon: <IconTestPipe className="h-6 w-6" />,
             color: "yellow",
         },
         {
-            title: "Desktop GUI App",
+            title: "SciPy",
             description:
-                "JavaFX desktop application template with modern UI components, event handling, and MVC architecture. Includes styling and layout examples.",
-            icon: <IconFileBroken className="h-6 w-6" />,
+                "Open-source library used for scientific computing and technical computing, containing modules for optimization, linear algebra, integration, and statistics.",
+            icon: <IconMathSymbols className="h-6 w-6" />,
             color: "cyan",
         },
         {
-            title: "Batch Processing",
+            title: "Requests",
             description:
-                "Spring Batch template for large-scale data processing with job configuration, step processing, and error handling for enterprise applications.",
-            icon: <IconClipboardCopy className="h-6 w-6" />,
+                "Elegant and simple HTTP library for Python, built for human beings. Makes HTTP requests simpler and more human-friendly.",
+            icon: <IconBrandGithub className="h-6 w-6" />,
             color: "pink",
         },
     ]
 
-    const items = templates.map((template, index) => ({
+    const items = dependencies.map((dep, index) => ({
         title: "",
         description: "",
-        header: <TemplateCard {...template} />,
+        header: <DependencyCard {...dep} />,
         className: "md:col-span-1",
         icon: null,
     }))
@@ -170,30 +169,30 @@ export default function Page() {
                     <div className="max-w-4xl mx-auto text-center">
                         <div className="inline-flex items-center gap-2 bg-blue-500/10 border border-blue-500/20 rounded-full px-4 py-2 mb-6">
                             <Code className="h-4 w-4 text-blue-400" />
-                            <span className="text-sm text-blue-300 font-medium">Java Development</span>
+                            <span className="text-sm text-blue-300 font-medium">Python Development</span>
                         </div>
 
                         <h1 className="text-5xl md:text-7xl font-bold bg-gradient-to-b from-white via-blue-100 to-blue-400 bg-clip-text text-transparent mb-6">
-                            Java Templates
+                            Python Dependencies
                         </h1>
 
                         <p className="text-xl text-neutral-300 max-w-2xl mx-auto leading-relaxed mb-8">
-                            Jumpstart your Java projects with professional templates and boilerplates. Click &quot;Download Template&quot; to
-                            get the template code and load it into your IDE.
+                            Discover powerful Python libraries and frameworks to accelerate your development. Click &quot;Use in IDE&quot; to
+                            start implementing any dependency in your project.
                         </p>
 
                         <div className="flex items-center justify-center gap-4 text-sm text-neutral-400">
                             <div className="flex items-center gap-2">
                                 <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                                <span>Production Ready</span>
+                                <span>Ready to use</span>
                             </div>
                             <div className="w-px h-4 bg-neutral-600"></div>
                             <div className="flex items-center gap-2">
                                 <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
-                                <span>Best Practices</span>
+                                <span>IDE Integration</span>
                             </div>
                         </div>
-                        {/* Templates Grid */}
+                        {/* Dependencies Grid */}
                         <div className="flex justify-center mt-12">
                             <div className="flex space-x-4 p-4 bg-neutral-900/80 backdrop-blur-xl rounded-2xl border border-neutral-700/40 shadow-2xl">
                                 {links.map((link, index) => (

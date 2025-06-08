@@ -5,33 +5,55 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b81c8c27-8c15-4931-ae89-c670a04f9254" name="Changes" comment="login and educatorhome v0.1">
-      <change afterPath="$PROJECT_DIR$/app/(app)/api/github/assignments/route.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/(app)/educatorhome/classes/page.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/(app)/studenthome/python/ide/loading.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/(app)/educatorhome/cpp/dependencies/page.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/(app)/educatorhome/cpp/ide/page.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/(app)/educatorhome/cpp/page.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/(app)/educatorhome/cpp/repo/page.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/(app)/educatorhome/cpp/templates/page.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/(app)/educatorhome/debugger/page.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/(app)/educatorhome/java/dependencies/page.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/(app)/educatorhome/java/ide/DEPRECATEDpage.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/(app)/educatorhome/java/ide/cj3loader.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/(app)/educatorhome/java/ide/javaTestingCode.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/(app)/educatorhome/java/ide/page.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/(app)/educatorhome/java/page.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/(app)/educatorhome/java/repo/page.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/(app)/educatorhome/java/templates/page.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/(app)/educatorhome/linux/page.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/(app)/educatorhome/node/dependencies/page.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/(app)/educatorhome/node/page.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/(app)/educatorhome/node/templates/page.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/(app)/educatorhome/python/dependencies/page.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/(app)/educatorhome/python/ide/compiler.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/(app)/educatorhome/python/ide/loading.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/(app)/educatorhome/python/ide/page.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/(app)/educatorhome/python/page.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/(app)/educatorhome/python/repo/page.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/(app)/educatorhome/python/templates/page.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/(app)/studenthome/debugger/page.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/(app)/studenthome/java/ide/page.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/components/ui/scroll-area.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/components/ui/textarea.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/utils/fileGenerator.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(app)/api/complete_onboarding/post/route.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/api/complete_onboarding/post/route.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(app)/lib/auth.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/lib/auth.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(app)/login/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/login/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(app)/onboarding/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/onboarding/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(app)/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(app)/register/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/register/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(app)/registerteacher/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/registerteacher/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/classes/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/classes/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/cpp/assignments/page.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/educatorhome/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/educatorhome/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/cpp/debugger/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/educatorhome/node/debugger/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/cpp/dependencies/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/cpp/dependencies/page.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/cpp/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/cpp/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/java/assignments/page.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/java/ide/page.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/cpp/repo/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/cpp/repo/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/cpp/templates/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/cpp/templates/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/java/debugger/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/educatorhome/node/ide/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/java/dependencies/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/java/dependencies/page.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/java/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/java/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/java/repo/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/java/repo/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/java/templates/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/java/templates/page.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/linux/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/linux/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/node/assignments/page.tsx" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/node/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/node/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/python/assignments/page.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/python/ide/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/python/ide/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/python/debugger/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/educatorhome/node/repo/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/python/dependencies/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/python/dependencies/page.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/python/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/python/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/components/ui/floating-navbar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/components/ui/floating-navbar.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/next-auth.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/next-auth.d.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/python/repo/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/python/repo/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/python/templates/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/python/templates/page.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -104,8 +126,8 @@
 }</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
-      <recent name="C:\Users\davee\WebstormProjects\Rep-lite\app\(app)\educatorhome\" />
       <recent name="C:\Users\davee\WebstormProjects\Rep-lite\app\(app)\educatorhome" />
+      <recent name="C:\Users\davee\WebstormProjects\Rep-lite\app\(app)\educatorhome\" />
       <recent name="C:\Users\davee\WebstormProjects\Rep-lite\app\(app)" />
       <recent name="C:\Users\davee\WebstormProjects\Rep-lite\app\(app)\studenthome" />
       <recent name="C:\Users\davee\WebstormProjects\Rep-lite\app\(app)\studenthome\linux\public" />
@@ -151,7 +173,7 @@
       <workItem from="1749099989844" duration="14101000" />
       <workItem from="1749154969245" duration="6455000" />
       <workItem from="1749391157105" duration="11566000" />
-      <workItem from="1749408187282" duration="2938000" />
+      <workItem from="1749408187282" duration="11041000" />
     </task>
     <task id="LOCAL-00001" summary="so many errors do not run">
       <option name="closed" value="true" />
@@ -281,7 +303,15 @@
       <option name="project" value="LOCAL" />
       <updated>1749278430154</updated>
     </task>
-    <option name="localTasksCounter" value="17" />
+    <task id="LOCAL-00017" summary="login and educatorhome v0.1">
+      <option name="closed" value="true" />
+      <created>1749411749209</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1749411749209</updated>
+    </task>
+    <option name="localTasksCounter" value="18" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

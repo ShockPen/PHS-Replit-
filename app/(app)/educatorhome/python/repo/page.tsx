@@ -11,7 +11,7 @@ import { FloatingNav } from "@/app/components/ui/floating-navbar"
 
 import {
     IconHome,
-    IconBrandCpp,
+    IconBrandPython,
     IconTemplate,
     IconFileCode,
     IconUpload,
@@ -34,16 +34,6 @@ interface File {
     contents: string
 }
 
-interface GitOperationCardProps {
-    title: string
-    description: string
-    icon: React.ReactElement
-    color?: string
-    command?: string
-    isSpecial?: boolean
-    isLoading?: boolean
-}
-
 export default function Page() {
     const router = useRouter()
     const searchParams = useSearchParams()
@@ -52,19 +42,20 @@ export default function Page() {
     // State for IDE integration
     const [files, setFiles] = useState<File[]>([
         {
-            filename: "main.cpp",
-            contents: `#include <iostream>
+            filename: "main.py",
+            contents: `def main():
+    user_input = input("Enter a number: ")
+    try:
+        number = int(user_input)
+        print(f"Your number: {number}")
+    except ValueError:
+        print("That's not a valid number!")
 
-int main() {
-    int number;
-    std::cout << "Enter an integer: ";
-    std::cin >> number;
-    std::cout << "Your integer: " << number << std::endl;
-    return 0;
-}`,
+if __name__ == "__main__":
+    main()`,
         },
     ])
-    const [activeFile, setActiveFile] = useState("main.cpp")
+    const [activeFile, setActiveFile] = useState("main.py")
     const [signedIn, setSignedIn] = useState(false)
     const [name, setName] = useState("")
     const [project, setProject] = useState(searchParams.get("project") ?? "")
@@ -125,7 +116,7 @@ int main() {
                         headers: { "Content-Type": "application/json" },
                     })
                     const projectListData = await projectListResponse.json()
-                    setProjectList(projectListData.cpp_project_names)
+                    setProjectList(projectListData.python_project_names)
                 } catch (error) {
                     console.error("Failed to fetch project list:", error)
                 }
@@ -312,17 +303,15 @@ int main() {
     // Get file statistics for dynamic display
     const getFileStats = () => {
         const totalFiles = files.length
-        const cppFiles = files.filter(
-            (f) => f.filename.endsWith(".cpp") || f.filename.endsWith(".c") || f.filename.endsWith(".h"),
-        ).length
-        const otherFiles = totalFiles - cppFiles
+        const pythonFiles = files.filter((f) => f.filename.endsWith(".py")).length
+        const otherFiles = totalFiles - pythonFiles
         const totalLines = files.reduce((acc, file) => acc + file.contents.split("\n").length, 0)
         const avgLinesPerFile = totalFiles > 0 ? Math.round(totalLines / totalFiles) : 0
         const fileTypes = [...new Set(files.map((f) => f.filename.split(".").pop()?.toLowerCase() || "unknown"))]
 
         return {
             totalFiles,
-            cppFiles,
+            pythonFiles,
             otherFiles,
             totalLines,
             avgLinesPerFile,
@@ -373,11 +362,21 @@ int main() {
             case "Create Branch":
             case "Fork Repository":
             case "Pull Request":
-                router.push(`/studenthome/git/terminal?operation=${encodeURIComponent(operationName)}`)
+                router.push(`/educatorhome/git/terminal?operation=${encodeURIComponent(operationName)}`)
                 break
             default:
                 alert(`Operation "${operationName}" not implemented directly here.`)
         }
+    }
+
+    interface GitOperationCardProps {
+        title: string
+        description: string
+        icon: React.ReactElement
+        color?: string
+        command?: string
+        isSpecial?: boolean
+        isLoading?: boolean
     }
 
     const GitOperationCard = ({
@@ -419,7 +418,7 @@ int main() {
                                         <span className="font-medium">Total Files:</span> {fileStats.totalFiles}
                                     </div>
                                     <div className={`text-${color}-300`}>
-                                        <span className="font-medium">C++ Files:</span> {fileStats.cppFiles}
+                                        <span className="font-medium">Python Files:</span> {fileStats.pythonFiles}
                                     </div>
                                     <div className={`text-${color}-300`}>
                                         <span className="font-medium">Total Lines:</span> {fileStats.totalLines}
@@ -470,30 +469,30 @@ int main() {
         },
         {
             title: "Dashboard",
-            icon: <IconBrandCpp className="h-full w-full text-blue-400 dark:text-blue-300" />,
-            href: "/studenthome/cpp",
+            icon: <IconBrandPython className="h-full w-full text-blue-400 dark:text-blue-300" />,
+            href: "/educatorhome/python",
         },
         {
-            title: "C++ IDE",
+            title: "Python IDE",
             icon: <IconTemplate className="h-full w-full text-blue-400 dark:text-blue-300" />,
-            href: "/studenthome/cpp/ide",
+            href: "/educatorhome/python/ide",
         },
         {
             title: "Classes",
             icon: <IconGitBranch className="h-full w-full text-blue-400 dark:text-blue-300" />,
-            href: "/studenthome/classes",
+            href: "/educatorhome/classes",
         },
         {
             title: "Terminal",
             icon: <IconFileCode className="h-full w-full text-blue-400 dark:text-blue-300" />,
-            href: "/studenthome/linux",
+            href: "/educatorhome/linux",
         },
     ]
 
     const gitOperations = [
         {
             title: "Upload File",
-            description: `Upload files from your computer. Currently supports ${fileStats.fileTypes.length > 0 ? fileStats.fileTypes.join(", ") : "C++, C, header, and source code"} files. You have ${fileStats.totalFiles} files loaded.`,
+            description: `Upload files from your computer. Currently supports ${fileStats.fileTypes.length > 0 ? fileStats.fileTypes.join(", ") : "Python, text, and source code"} files. You have ${fileStats.totalFiles} files loaded.`,
             icon: <IconUpload className="h-6 w-6" />,
             color: "blue",
             command: `Upload via file picker • Current: ${fileStats.totalFiles} files`,
@@ -520,7 +519,7 @@ int main() {
         },
         {
             title: "Push Changes",
-            description: `Upload your ${fileStats.totalFiles} project files (${fileStats.cppFiles} C++ files, ${fileStats.otherFiles} other files) to GitHub repository.`,
+            description: `Upload your ${fileStats.totalFiles} project files (${fileStats.pythonFiles} Python files, ${fileStats.otherFiles} other files) to GitHub repository.`,
             icon: <IconCloudUpload className="h-6 w-6" />,
             color: "orange",
             command: `git push ${fileStats.totalFiles} files with ${fileStats.totalLines} lines`,
@@ -610,7 +609,7 @@ int main() {
                 ref={fileInputRef}
                 onChange={handleFileUpload}
                 style={{ display: "none" }}
-                accept=".cpp,.c,.h,.hpp,.cc,.cxx,.txt,.js,.py,.css,.html,.json,.xml,.md"
+                accept=".py,.txt,.js,.cpp,.c,.h,.css,.html,.json,.xml,.md"
             />
 
             <div className="min-h-screen w-full bg-black relative flex flex-col items-center antialiased">
@@ -623,7 +622,7 @@ int main() {
                         </div>
 
                         <h1 className="text-5xl md:text-7xl font-bold bg-gradient-to-b from-blue-400 via-blue-300 to-cyan-400 bg-clip-text text-transparent mb-6">
-                            C++ Repository
+                            Python Repository
                         </h1>
 
                         <p className="text-xl text-blue-200 max-w-2xl mx-auto leading-relaxed mb-4">
@@ -639,8 +638,8 @@ int main() {
                                         <div className="text-blue-300">Total Files</div>
                                     </div>
                                     <div className="text-center">
-                                        <div className="text-green-400 font-bold text-lg">{fileStats.cppFiles}</div>
-                                        <div className="text-green-300">C++ Files</div>
+                                        <div className="text-green-400 font-bold text-lg">{fileStats.pythonFiles}</div>
+                                        <div className="text-green-300">Python Files</div>
                                     </div>
                                     <div className="text-center">
                                         <div className="text-purple-400 font-bold text-lg">{fileStats.totalLines}</div>

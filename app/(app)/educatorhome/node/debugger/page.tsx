@@ -26,28 +26,28 @@ export default function Page() {
             icon: (
                 <IconCoffee className="h-full w-full text-neutral-500 dark:text-neutral-300" />
             ),
-            href: "/studenthome/java",
+            href: "/educatorhome/java",
         },
         {
             title: "Node.js",
             icon: (
                 <IconFileTypeJs className="h-full w-full text-neutral-500 dark:text-neutral-300" />
             ),
-            href: "/studenthome/node",
+            href: "/educatorhome/node",
         },
         {
             title: "Python",
             icon: (
                 <IconBrandPython className="h-full w-full text-neutral-500 dark:text-neutral-300" />
             ),
-            href: "/studenthome/python",
+            href: "/educatorhome/python",
         },
         {
             title: "C++",
             icon: (
                 <IconBrandCpp className="h-full w-full text-neutral-500 dark:text-neutral-300" />
             ),
-            href: "/studenthome/cpp",
+            href: "/educatorhome/cpp",
         },
     ];
 

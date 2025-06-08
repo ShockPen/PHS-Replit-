@@ -161,7 +161,7 @@ export default function PythonDashboard() {
                     <span>Open Python IDE</span>
                 </Link>
                 <Link
-                    href="/studenthome/python/debugger"
+                    href="/studenthome/debugger"
                     className="w-1/2 border border-orange-500/50 dark:border-orange-400/50 text-orange-600 dark:text-orange-300 rounded-lg px-3 py-2 bg-orange-50/50 dark:bg-orange-900/20 hover:bg-orange-100/80 dark:hover:bg-orange-900/40 flex items-center gap-2 transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-orange-500/20 text-sm font-medium group-hover:border-orange-400/70"
                 >
                     <IconDeviceLaptop className="h-4 w-4 flex-shrink-0" />
@@ -557,7 +557,7 @@ export default function PythonDashboard() {
         {
             title: "Debugger",
             icon: <IconDeviceLaptop className="h-full w-full text-orange-400" />,
-            href: "/studenthome/python/debugger",
+            href: "/studenthome/debugger",
         },
         {
             title: "Repository",

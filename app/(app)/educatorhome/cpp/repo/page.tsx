@@ -373,7 +373,7 @@ int main() {
             case "Create Branch":
             case "Fork Repository":
             case "Pull Request":
-                router.push(`/studenthome/git/terminal?operation=${encodeURIComponent(operationName)}`)
+                router.push(`/educatorhome/git/terminal?operation=${encodeURIComponent(operationName)}`)
                 break
             default:
                 alert(`Operation "${operationName}" not implemented directly here.`)
@@ -471,22 +471,22 @@ int main() {
         {
             title: "Dashboard",
             icon: <IconBrandCpp className="h-full w-full text-blue-400 dark:text-blue-300" />,
-            href: "/studenthome/cpp",
+            href: "/educatorhome/cpp",
         },
         {
             title: "C++ IDE",
             icon: <IconTemplate className="h-full w-full text-blue-400 dark:text-blue-300" />,
-            href: "/studenthome/cpp/ide",
+            href: "/educatorhome/cpp/ide",
         },
         {
             title: "Classes",
             icon: <IconGitBranch className="h-full w-full text-blue-400 dark:text-blue-300" />,
-            href: "/studenthome/classes",
+            href: "/educatorhome/classes",
         },
         {
             title: "Terminal",
             icon: <IconFileCode className="h-full w-full text-blue-400 dark:text-blue-300" />,
-            href: "/studenthome/linux",
+            href: "/educatorhome/linux",
         },
     ]
 
