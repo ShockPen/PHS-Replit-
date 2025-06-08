@@ -15,6 +15,13 @@ import {
     IconBrandPython,
     IconBrandCpp,
     IconTerminal2,
+    IconFolderDown,
+    IconLoader,
+    IconFileDownload,
+    IconUpload,
+    IconPlayerPlayFilled,
+    IconCloudUpload,
+    IconBrandGithub,
 } from "@tabler/icons-react";
 import {
     IconClipboardCopy,
@@ -30,6 +37,7 @@ import { cn } from "@/app/lib/utils";
 import { useSession } from "next-auth/react";
 import Script from 'next/script';
 import { useSearchParams } from "next/navigation";
+import {Code, Edit3, Play, Trash2} from "lucide-react";
 
 const MonacoEditor = dynamic(() => import('@monaco-editor/react'), { ssr: false });
 
@@ -488,27 +496,58 @@ const links = [
                 </SidebarBody>
               </Sidebar>
     <Script src="https://cdn.jsdelivr.net/pyodide/v0.27.1/full/pyodide.js" strategy="beforeInteractive" />
-    <div className="flex flex-col items-center space-y-2 pt-16 bg-neutral-800 w-80 h-screen"> 
-        <button className =  "mb-20 font-8xl h-12 w-20 rounded-md bg-neutral-700">
-            Main.py
-        </button>
-        <button className="mb-20 border font-medium w-48 rounded-md bg-black hover:bg-stone-600 border-blue-500">
-        System files
-      </button>
-      <button className="border font-medium w-48 rounded-md bg-black hover:bg-stone-600 border-blue-500">
-        Add File
-      </button>
-      <button
-        onClick={runPython}
-        id="runCode"
-        className="mt-20 border font-medium w-48 rounded-md bg-black hover:bg-red-600 border-blue-500"
-      >
-        Run Main.py
-      </button>
-      <button className="mt-20 border font-medium w-48 rounded-md bg-black hover:bg-blue-600 border-blue-500">
-        Save Project
-      </button>
-    </div>
+    {/* Actions Section */}
+            <div className="space-y-4 flex-shrink-0">
+              <div className="flex  items-center space-x-2 mb-4">
+                <Play className="h-4 w-4 text-blue-500" />
+                <h3 className="text-neutral-900 dark:text-white text-sm font-semibold">Actions</h3>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                    className="rounded-lg py-3 px-4 bg-blue-100 dark:bg-blue-800 hover:bg-blue-200 dark:hover:bg-blue-700 text-blue-700 dark:text-blue-300 font-medium transition-all duration-200 border border-blue-200 dark:border-blue-700 hover:border-blue-300 dark:hover:border-blue-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 active:scale-[0.98]"
+                    
+                >
+                  <IconFileDownload className="w-4 h-4" />
+                  <span className="text-sm">Add File</span>
+                </button>
+
+                <button
+                    className="rounded-lg py-3 px-4 bg-green-100 dark:bg-green-800 hover:bg-green-200 dark:hover:bg-green-700 text-green-700 dark:text-green-300 font-medium transition-all duration-200 border border-green-200 dark:border-green-700 hover:border-green-300 dark:hover:border-green-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 active:scale-[0.98]"
+                    onClick={runPython}
+                >
+                  <IconPlayerPlayFilled className="w-4 h-4" />
+                  <span className="text-sm">Run File</span>
+                </button>
+
+                <button
+                    className="rounded-lg py-3 px-4 bg-purple-100 dark:bg-purple-800 hover:bg-purple-200 dark:hover:bg-purple-700 text-purple-700 dark:text-purple-300 font-medium transition-all duration-200 border border-purple-200 dark:border-purple-700 hover:border-purple-300 dark:hover:border-purple-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 active:scale-[0.98]"
+                    
+                >
+                  <IconFolderDown className="w-4 h-4" />
+                  <span className="text-sm">Export</span>
+                </button>
+
+                <button
+                    className="rounded-lg py-3 px-4 bg-red-100 dark:bg-red-800 hover:bg-red-200 dark:hover:bg-red-700 text-red-700 dark:text-red-300 font-medium transition-all duration-200 border border-red-200 dark:border-red-700 hover:border-red-300 dark:hover:border-red-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 active:scale-[0.98]"
+                    
+                >
+                  <IconCloudUpload className="w-4 h-4" />
+                  <span className="text-sm">Save</span>
+                </button>
+
+                <label className="rounded-lg py-3 px-4 bg-orange-100 dark:bg-orange-800 hover:bg-orange-200 dark:hover:bg-orange-700 text-orange-700 dark:text-orange-300 font-medium cursor-pointer transition-all duration-200 border border-orange-200 dark:border-orange-700 hover:border-orange-300 dark:hover:border-orange-600 disabled:opacity-50 flex items-center justify-center space-x-2 active:scale-[0.98]">
+                  <IconUpload className="w-4 h-4" />
+                  <span className="text-sm">Load</span>
+                  <input
+                      type="file"
+                      accept=".py"
+                      
+                      className="hidden"
+                  />
+                </label>
+                </div>
+                </div>
     <div id="ed" className="flex-1 flex-col h-screen">
       <MonacoEditor
         height="60%"
