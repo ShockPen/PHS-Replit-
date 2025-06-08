@@ -34,14 +34,13 @@ export default function Page() {
     const [loginPassword, setLoginPassword] = useState("");
 
     const [signInPressed, setSignInPressed] = useState(false);
-    const [showPassword, setShowPassword] = useState(false); // Add state for password visibility
+    const [showPassword, setShowPassword] = useState(false); 
 
     const togglePasswordVisibility = () => {
         setShowPassword((prev) => !prev);
     };
 
     const handleLogin = async (e?: React.FormEvent) => {
-        // Prevent default form submission if event exists
         if (e) e.preventDefault();
 
         setSignInPressed(true);

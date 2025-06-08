@@ -80,11 +80,6 @@ export default function Page() {
             </p>
             <Link href="/registerteacher" className="text-blue-500 pt-4">Not a student?</Link>
             <div>
-            <button 
-            className = "w-48 h-12 rounded-md border-1 bg-stone-800 border-stone-300 text-white dark:text-white"
-            onClick = {() => signIn("github", { callbackUrl: "/studenthome" })}>
-              Sign up with Github
-            </button>
             </div>
 
             <form className="mt-8" onSubmit={createAccount}>
