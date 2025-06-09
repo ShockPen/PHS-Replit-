@@ -32,7 +32,7 @@ import Script from "next/script"
 import { useSearchParams, useRouter } from "next/navigation"
 import JSZip from "jszip"
 import { saveAs } from "file-saver"
-import { Code, Edit3, Play } from 'lucide-react'
+import { Code, Edit3, Play, CloudDownloadIcon as IconCloudDownload } from "lucide-react"
 
 const MonacoEditor = dynamic(() => import("@monaco-editor/react"), { ssr: false })
 
@@ -79,21 +79,19 @@ const localStorageManager = {
         const projects = []
         for (let i = 0; i < localStorage.length; i++) {
             const key = localStorage.key(i)
-            if (key && key.startsWith('python_project_')) {
+            if (key && key.startsWith("python_project_")) {
                 try {
-                    const data = JSON.parse(localStorage.getItem(key) || '{}')
+                    const data = JSON.parse(localStorage.getItem(key) || "{}")
                     if (data.files && Array.isArray(data.files)) {
                         // Filter only .py files for the repo page
-                        const pythonFiles = data.files.filter((file: File) =>
-                            file.filename.endsWith('.py')
-                        )
+                        const pythonFiles = data.files.filter((file: File) => file.filename.endsWith(".py"))
                         if (pythonFiles.length > 0) {
                             projects.push({
-                                projectName: data.project || key.replace('python_project_', ''),
+                                projectName: data.project || key.replace("python_project_", ""),
                                 files: pythonFiles,
                                 timestamp: data.timestamp,
                                 totalFiles: data.files.length,
-                                pythonFiles: pythonFiles.length
+                                pythonFiles: pythonFiles.length,
                             })
                         }
                     }
@@ -103,7 +101,7 @@ const localStorageManager = {
             }
         }
         return projects
-    }
+    },
 }
 
 export default function PythonIDE() {
@@ -407,9 +405,11 @@ def test_io():
 
         // Dispatch custom event to notify repo page of updates
         if (typeof window !== "undefined") {
-            window.dispatchEvent(new CustomEvent('pythonProjectSaved', {
-                detail: { project: currentProject, files: files.filter(f => f.filename.endsWith('.py')) }
-            }))
+            window.dispatchEvent(
+                new CustomEvent("pythonProjectSaved", {
+                    detail: { project: currentProject, files: files.filter((f) => f.filename.endsWith(".py")) },
+                }),
+            )
         }
 
         return true
@@ -841,6 +841,145 @@ sys.stderr.flush()
         </Link>
     )
 
+    // Enhanced GitHub integration using backend routes
+    const createRepoViaBackend = async (repoName: string, description = "") => {
+        try {
+            const response = await fetch("/api/github/create-repo", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    name: repoName,
+                    description: description || `Created via SchoolNest Python IDE - ${currentProject}`,
+                    isPrivate: false,
+                }),
+            })
+
+            const data = await response.json()
+
+            if (!response.ok) {
+                throw new Error(data.error?.message || data.error || "Failed to create repository")
+            }
+
+            addToOutput(`✓ Repository "${repoName}" created successfully!`, "system")
+            return data
+        } catch (error: any) {
+            addToOutput(`✗ Failed to create repository: ${error.message}`, "error")
+            throw error
+        }
+    }
+
+    const pushFileViaBackend = async (owner: string, repo: string, filename: string, content: string) => {
+        try {
+            const response = await fetch("/api/github/push", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    owner,
+                    repo,
+                    path: filename,
+                    content,
+                    message: `Update ${filename} via SchoolNest Python IDE`,
+                }),
+            })
+
+            const data = await response.json()
+
+            if (!response.ok) {
+                throw new Error(data.error || "Failed to push file")
+            }
+
+            addToOutput(`✓ File "${filename}" pushed successfully to ${owner}/${repo}`, "system")
+            return data
+        } catch (error: any) {
+            addToOutput(`✗ Failed to push file: ${error.message}`, "error")
+            throw error
+        }
+    }
+
+    const pullFileViaBackend = async (owner: string, repo: string, filename: string) => {
+        try {
+            const response = await fetch(`/api/github/pull?owner=${owner}&repo=${repo}&path=${filename}`)
+
+            const data = await response.json()
+
+            if (!response.ok) {
+                throw new Error(data.error || "Failed to pull file")
+            }
+
+            addToOutput(`✓ File "${filename}" pulled successfully from ${owner}/${repo}`, "system")
+            return data.content
+        } catch (error: any) {
+            addToOutput(`✗ Failed to pull file: ${error.message}`, "error")
+            throw error
+        }
+    }
+
+    // Enhanced GitHub operations for Python files
+    const handleGitHubOperations = {
+        createRepo: async () => {
+            const repoName = prompt(`Enter repository name for project "${currentProject}":`)
+            if (!repoName || !repoName.trim()) {
+                addToOutput("Repository name is required", "error")
+                return null
+            }
+
+            try {
+                const repo = await createRepoViaBackend(repoName.trim())
+                return repo
+            } catch (error) {
+                return null
+            }
+        },
+
+        pushProject: async (owner: string, repo: string) => {
+            if (!files.length) {
+                addToOutput("No files to push", "error")
+                return
+            }
+
+            const pythonFiles = files.filter((f) => f.filename.endsWith(".py"))
+            if (!pythonFiles.length) {
+                addToOutput("No Python files to push", "error")
+                return
+            }
+
+            addToOutput(`Pushing ${pythonFiles.length} Python files...`, "system")
+
+            try {
+                for (const file of pythonFiles) {
+                    await pushFileViaBackend(owner, repo, file.filename, file.contents)
+                }
+                addToOutput(`✓ Successfully pushed ${pythonFiles.length} files`, "system")
+            } catch (error) {
+                addToOutput("Push operation failed", "error")
+            }
+        },
+
+        pullFile: async (owner: string, repo: string, filename: string) => {
+            try {
+                const content = await pullFileViaBackend(owner, repo, filename)
+
+                // Add or update the file in the current project
+                const existingFileIndex = files.findIndex((f) => f.filename === filename)
+                if (existingFileIndex >= 0) {
+                    setFiles((prev) => prev.map((f, i) => (i === existingFileIndex ? { ...f, contents: content } : f)))
+                } else {
+                    setFiles((prev) => [...prev, { filename, contents: content }])
+                }
+
+                setActiveFile(filename)
+                setIsSavedToLocalStorage(false)
+                setIsSavedToDatabase(false)
+            } catch (error) {
+                // Error already logged in pullFileViaBackend
+            }
+        },
+    }
+
     return (
         <>
             <Script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js" strategy="beforeInteractive" />
@@ -1038,12 +1177,35 @@ sys.stderr.flush()
                                 </label>
 
                                 <button
-                                    className="rounded-lg py-3 px-4 bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300 font-medium transition-all duration-200 border border-stone-200 dark:border-stone-700 hover:border-stone-300 dark:hover:border-stone-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 active:scale-[0.98]"
-                                    onClick={() => router.push("/educatorhome/python/repo")}
+                                    className="rounded-lg py-3 px-4 bg-green-100 dark:bg-green-800 hover:bg-green-200 dark:hover:bg-green-700 text-green-700 dark:text-green-300 font-medium transition-all duration-200 border border-green-200 dark:border-green-700 hover:border-green-300 dark:hover:border-green-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 active:scale-[0.98]"
+                                    onClick={async () => {
+                                        const repo = await handleGitHubOperations.createRepo()
+                                        if (repo) {
+                                            await handleGitHubOperations.pushProject(repo.owner.login, repo.name)
+                                        }
+                                    }}
                                     disabled={!pyodide}
                                 >
                                     <IconBrandGithub className="w-4 h-4" />
-                                    <span className="text-sm">Repo</span>
+                                    <span className="text-sm">Create & Push</span>
+                                </button>
+
+                                <button
+                                    className="rounded-lg py-3 px-4 bg-cyan-100 dark:bg-cyan-800 hover:bg-cyan-200 dark:hover:bg-cyan-700 text-cyan-700 dark:text-cyan-300 font-medium transition-all duration-200 border border-cyan-200 dark:border-cyan-700 hover:border-cyan-300 dark:hover:border-cyan-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 active:scale-[0.98]"
+                                    onClick={async () => {
+                                        const repoUrl = prompt("Enter repository URL (owner/repo):")
+                                        if (repoUrl) {
+                                            const [owner, repo] = repoUrl.split("/")
+                                            const filename = prompt("Enter filename to pull (e.g., main.py):")
+                                            if (filename && owner && repo) {
+                                                await handleGitHubOperations.pullFile(owner, repo, filename)
+                                            }
+                                        }
+                                    }}
+                                    disabled={!pyodide}
+                                >
+                                    <IconCloudDownload className="w-4 h-4" />
+                                    <span className="text-sm">Pull File</span>
                                 </button>
                             </div>
 
@@ -1082,11 +1244,7 @@ sys.stderr.flush()
                                                 Last saved: {new Date(lastLocalStorageSave).toLocaleTimeString()}
                                             </div>
                                         )}
-                                        {lastAutoSave && (
-                                            <div className="text-blue-500 text-xs">
-                                                Auto-save: {lastAutoSave} (every 30s)
-                                            </div>
-                                        )}
+                                        {lastAutoSave && <div className="text-blue-500 text-xs">Auto-save: {lastAutoSave} (every 30s)</div>}
                                     </div>
                                 </div>
                             )}
@@ -1139,64 +1297,103 @@ sys.stderr.flush()
                     <div
                         style={{
                             height: `${outputHeight}px`,
-                            borderTop: "1px solid #ccc",
-                            backgroundColor: "#1e1e1e",
-                            color: "white",
-                            fontFamily: "monospace",
-                            padding: "10px",
+                            borderTop: "1px solid #333",
+                            backgroundColor: "#1a1a1a",
+                            color: "#ffffff",
+                            fontFamily: "'Fira Code', 'Consolas', 'Monaco', 'Courier New', monospace",
+                            fontSize: "13px",
+                            lineHeight: "1.4",
+                            padding: "0",
                             overflowY: "auto",
+                            position: "relative",
                         }}
                         ref={outputRef}
                     >
-                        {/* Output Header */}
-                        <div className="flex items-center justify-between mb-2 pb-2 border-b border-gray-600">
-                            <span className="text-sm font-semibold text-gray-300">Output</span>
+                        {/* Terminal Header */}
+                        <div className="sticky top-0 bg-[#2d2d2d] border-b border-gray-600 px-4 py-2 flex items-center justify-between z-10">
+                            <div className="flex items-center space-x-2">
+                                <div className="flex space-x-1">
+                                    <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                                    <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+                                    <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                                </div>
+                                <span className="text-gray-300 text-sm font-medium ml-2">Python Terminal</span>
+                            </div>
                             <button
                                 onClick={clearOutput}
-                                className="text-gray-400 hover:text-white text-xs px-2 py-1 rounded hover:bg-gray-700"
+                                className="text-gray-400 hover:text-white text-sm px-3 py-1 rounded bg-gray-700 hover:bg-gray-600 transition-colors"
                             >
                                 Clear
                             </button>
                         </div>
 
-                        {/* Output Content */}
-                        {output.map((item, index) => (
-                            <div
-                                key={index}
-                                className={`mb-1 ${
-                                    item.type === "error"
-                                        ? "text-red-400"
-                                        : item.type === "system"
-                                            ? "text-yellow-400"
-                                            : item.type === "input"
-                                                ? "text-green-400"
-                                                : "text-white"
-                                }`}
-                            >
-                                {item.type === "system" && <span className="text-gray-500">[{item.timestamp}] </span>}
-                                <span className="whitespace-pre-wrap">{item.text}</span>
-                            </div>
-                        ))}
+                        {/* Terminal Content */}
+                        <div className="p-4 space-y-1">
+                            {output.length === 0 && (
+                                <div className="text-gray-500 italic">
+                                    Python {pyodide ? "3.11.0" : "loading..."} | Ready for execution
+                                </div>
+                            )}
 
-                        {/* Input field when waiting for user input */}
-                        {isWaitingForInput && (
-                            <div className="flex items-center mt-2">
-                                <span className="text-green-400 mr-2">{">"}</span>
-                                <input
-                                    ref={inputRef}
-                                    type="text"
-                                    value={userInput}
-                                    onChange={(e) => setUserInput(e.target.value)}
-                                    onKeyPress={(e) => {
-                                        if (e.key === "Enter") {
-                                            handleInputSubmit()
-                                        }
-                                    }}
-                                    className="flex-1 bg-transparent text-white outline-none font-mono"
-                                    placeholder="Enter input and press Enter..."
-                                />
-                            </div>
-                        )}
+                            {output.map((item, index) => (
+                                <div key={index} className="flex items-start space-x-2">
+                                    {/* Timestamp and type indicator */}
+                                    <span className="text-gray-500 text-xs mt-0.5 min-w-[60px] font-mono">{item.timestamp}</span>
+
+                                    {/* Type indicator */}
+                                    <span
+                                        className={`text-xs mt-0.5 min-w-[8px] ${
+                                            item.type === "error"
+                                                ? "text-red-400"
+                                                : item.type === "system"
+                                                    ? "text-blue-400"
+                                                    : item.type === "input"
+                                                        ? "text-green-400"
+                                                        : "text-gray-400"
+                                        }`}
+                                    >
+                    {item.type === "error" ? "✗" : item.type === "system" ? "●" : item.type === "input" ? ">" : "○"}
+                  </span>
+
+                                    {/* Content */}
+                                    <div
+                                        className={`flex-1 font-mono ${
+                                            item.type === "error"
+                                                ? "text-red-300"
+                                                : item.type === "system"
+                                                    ? "text-blue-300"
+                                                    : item.type === "input"
+                                                        ? "text-green-300"
+                                                        : "text-white"
+                                        }`}
+                                    >
+                                        <pre className="whitespace-pre-wrap break-words m-0 font-inherit text-inherit">{item.text}</pre>
+                                    </div>
+                                </div>
+                            ))}
+
+                            {/* Input field when waiting for user input */}
+                            {isWaitingForInput && (
+                                <div className="flex items-center space-x-2 mt-2 bg-gray-800 rounded px-2 py-1">
+                                    <span className="text-green-400 font-mono">{">"}</span>
+                                    <span className="text-yellow-300 text-sm">{inputPrompt}</span>
+                                    <input
+                                        ref={inputRef}
+                                        type="text"
+                                        value={userInput}
+                                        onChange={(e) => setUserInput(e.target.value)}
+                                        onKeyPress={(e) => {
+                                            if (e.key === "Enter") {
+                                                handleInputSubmit()
+                                            }
+                                        }}
+                                        className="flex-1 bg-transparent text-white outline-none font-mono placeholder-gray-500"
+                                        placeholder="Enter input and press Enter..."
+                                        autoFocus
+                                    />
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>

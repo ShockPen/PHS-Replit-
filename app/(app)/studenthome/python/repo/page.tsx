@@ -185,35 +185,27 @@ export default function Page() {
 
     // Dynamic GitHub functionality using user's account
     const createRepo = async (repoName: string) => {
-        if (!githubToken) {
-            alert("GitHub authentication required. Please sign in with GitHub.")
-            return null
-        }
-
         setIsCreatingRepo(true)
         try {
-            const res = await fetch("https://api.github.com/user/repos", {
+            const response = await fetch("/api/github/create-repo", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    Authorization: `token ${githubToken}`,
-                    Accept: "application/vnd.github.v3+json",
                 },
                 body: JSON.stringify({
                     name: repoName.trim(),
                     description: `Created via SchoolNest Python IDE - ${selectedProject?.projectName || "Python Project"}`,
-                    private: false, // Make public by default, user can change later
-                    auto_init: true,
+                    isPrivate: false,
                 }),
             })
 
-            const data = await res.json()
+            const data = await response.json()
 
-            if (!res.ok) {
-                if (data.errors?.some((e: any) => e.message?.includes("already exists"))) {
+            if (!response.ok) {
+                if (data.error?.errors?.some((e: any) => e.message?.includes("already exists"))) {
                     alert("Repository name already exists. Please choose a different name.")
                 } else {
-                    alert("Failed to create repo: " + (data.message || data.error || "Unknown error"))
+                    alert("Failed to create repo: " + (data.error?.message || data.error || "Unknown error"))
                 }
                 return null
             }
@@ -230,62 +222,31 @@ export default function Page() {
     }
 
     const handlePush = async (owner: string, repo: string) => {
-        const setPushing = setIsPushing // Declare the variable here
-        if (!githubToken) {
-            alert("GitHub authentication required. Please sign in with GitHub.")
-            return
-        }
-
         if (!activeFile) {
             alert("No file selected for push.")
             return
         }
 
-        setPushing(true)
+        setIsPushing(true)
         try {
-            // First, get the current file SHA if it exists
-            let sha = null
-            try {
-                const getFileRes = await fetch(
-                    `https://api.github.com/repos/${owner}/${repo}/contents/${activeFile.filename}`,
-                    {
-                        headers: {
-                            Authorization: `token ${githubToken}`,
-                            Accept: "application/vnd.github.v3+json",
-                        },
-                    },
-                )
-                if (getFileRes.ok) {
-                    const fileData = await getFileRes.json()
-                    sha = fileData.sha
-                }
-            } catch (e) {
-                // File doesn't exist yet, which is fine
-            }
-
-            // Push the file
-            const pushData: any = {
-                message: `Update ${activeFile.filename} via SchoolNest Python IDE`,
-                content: btoa(activeFile.contents), // Base64 encode
-            }
-
-            if (sha) {
-                pushData.sha = sha // Required for updates
-            }
-
-            const res = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${activeFile.filename}`, {
-                method: "PUT",
+            const response = await fetch("/api/github/push", {
+                method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    Authorization: `token ${githubToken}`,
-                    Accept: "application/vnd.github.v3+json",
                 },
-                body: JSON.stringify(pushData),
+                body: JSON.stringify({
+                    owner,
+                    repo,
+                    path: activeFile.filename,
+                    content: activeFile.contents,
+                    message: `Update ${activeFile.filename} via SchoolNest Python IDE`,
+                }),
             })
 
-            if (!res.ok) {
-                const errorData = await res.json()
-                alert("Push failed: " + (errorData.message || "Unknown error"))
+            const data = await response.json()
+
+            if (!response.ok) {
+                alert("Push failed: " + (data.error || "Unknown error"))
             } else {
                 alert(`File "${activeFile.filename}" pushed successfully to ${owner}/${repo}!`)
             }
@@ -293,7 +254,42 @@ export default function Page() {
             console.error("Network or unexpected error during push:", error)
             alert("Error pushing file. Please check your connection.")
         } finally {
-            setPushing(false)
+            setIsPushing(false)
+        }
+    }
+
+    const handlePullFile = async (owner: string, repo: string, filename: string) => {
+        try {
+            const response = await fetch(`/api/github/pull?owner=${owner}&repo=${repo}&path=${filename}`)
+
+            const data = await response.json()
+
+            if (!response.ok) {
+                alert("Pull failed: " + (data.error || "Unknown error"))
+                return
+            }
+
+            // Create a new file object
+            const newFile: File = {
+                filename,
+                contents: data.content,
+            }
+
+            // Add to selected project or create new project
+            if (selectedProject) {
+                const updatedProject = {
+                    ...selectedProject,
+                    files: [...selectedProject.files, newFile],
+                    pythonFiles: selectedProject.pythonFiles + 1,
+                }
+                setSelectedProject(updatedProject)
+            }
+
+            setActiveFile(newFile)
+            alert(`File "${filename}" pulled successfully from ${owner}/${repo}!`)
+        } catch (error) {
+            console.error("Network or unexpected error during pull:", error)
+            alert("Error pulling file. Please check your connection.")
         }
     }
 
@@ -447,6 +443,18 @@ export default function Page() {
             case "Fork Repository":
             case "Pull Request":
                 router.push(`/studenthome/git/terminal?operation=${encodeURIComponent(operationName)}`)
+                break
+            case "Pull File":
+                const pullRepoUrl = prompt("Enter repository URL (owner/repo):")
+                if (pullRepoUrl) {
+                    const [owner, repo] = pullRepoUrl.split("/")
+                    const filename = prompt("Enter Python filename to pull (e.g., main.py):")
+                    if (filename && owner && repo && filename.endsWith(".py")) {
+                        await handlePullFile(owner, repo, filename)
+                    } else {
+                        alert("Please enter a valid Python filename (.py)")
+                    }
+                }
                 break
             default:
                 alert(`Operation "${operationName}" not implemented directly here.`)
@@ -653,6 +661,15 @@ export default function Page() {
             icon: <IconGitFork className="h-6 w-6" />,
             color: "pink",
             command: "Fork via GitHub UI",
+        },
+        {
+            title: "Pull File",
+            description: `Download a specific Python file from a GitHub repository and add it to your current project.`,
+            icon: <IconCloudDownload className="h-6 w-6" />,
+            color: "teal",
+            command: `git pull specific file • Add to current project`,
+            isSpecial: true,
+            isLoading: false,
         },
         {
             title: "Pull Request",

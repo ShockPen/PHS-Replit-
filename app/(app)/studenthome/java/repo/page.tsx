@@ -184,35 +184,27 @@ export default function Page() {
 
     // Dynamic GitHub functionality using user's account
     const createRepo = async (repoName: string) => {
-        if (!githubToken) {
-            alert("GitHub authentication required. Please sign in with GitHub.")
-            return null
-        }
-
         setIsCreatingRepo(true)
         try {
-            const res = await fetch("https://api.github.com/user/repos", {
+            const response = await fetch("/api/github/create-repo", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    Authorization: `token ${githubToken}`,
-                    Accept: "application/vnd.github.v3+json",
                 },
                 body: JSON.stringify({
                     name: repoName.trim(),
                     description: `Created via SchoolNest Java IDE - ${selectedProject?.projectName || "Java Project"}`,
-                    private: false,
-                    auto_init: true,
+                    isPrivate: false,
                 }),
             })
 
-            const data = await res.json()
+            const data = await response.json()
 
-            if (!res.ok) {
-                if (data.errors?.some((e: any) => e.message?.includes("already exists"))) {
+            if (!response.ok) {
+                if (data.error?.errors?.some((e: any) => e.message?.includes("already exists"))) {
                     alert("Repository name already exists. Please choose a different name.")
                 } else {
-                    alert("Failed to create repo: " + (data.message || data.error || "Unknown error"))
+                    alert("Failed to create repo: " + (data.error?.message || data.error || "Unknown error"))
                 }
                 return null
             }
@@ -229,11 +221,6 @@ export default function Page() {
     }
 
     const handlePush = async (owner: string, repo: string) => {
-        if (!githubToken) {
-            alert("GitHub authentication required. Please sign in with GitHub.")
-            return
-        }
-
         if (!activeFile) {
             alert("No file selected for push.")
             return
@@ -241,49 +228,24 @@ export default function Page() {
 
         setIsPushing(true)
         try {
-            // First, get the current file SHA if it exists
-            let sha = null
-            try {
-                const getFileRes = await fetch(
-                    `https://api.github.com/repos/${owner}/${repo}/contents/${activeFile.filename}`,
-                    {
-                        headers: {
-                            Authorization: `token ${githubToken}`,
-                            Accept: "application/vnd.github.v3+json",
-                        },
-                    },
-                )
-                if (getFileRes.ok) {
-                    const fileData = await getFileRes.json()
-                    sha = fileData.sha
-                }
-            } catch (e) {
-                // File doesn't exist yet, which is fine
-            }
-
-            // Push the file
-            const pushData: any = {
-                message: `Update ${activeFile.filename} via SchoolNest Java IDE`,
-                content: btoa(activeFile.contents), // Base64 encode
-            }
-
-            if (sha) {
-                pushData.sha = sha // Required for updates
-            }
-
-            const res = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${activeFile.filename}`, {
-                method: "PUT",
+            const response = await fetch("/api/github/push", {
+                method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    Authorization: `token ${githubToken}`,
-                    Accept: "application/vnd.github.v3+json",
                 },
-                body: JSON.stringify(pushData),
+                body: JSON.stringify({
+                    owner,
+                    repo,
+                    path: activeFile.filename,
+                    content: activeFile.contents,
+                    message: `Update ${activeFile.filename} via SchoolNest Java IDE`,
+                }),
             })
 
-            if (!res.ok) {
-                const errorData = await res.json()
-                alert("Push failed: " + (errorData.message || "Unknown error"))
+            const data = await response.json()
+
+            if (!response.ok) {
+                alert("Push failed: " + (data.error || "Unknown error"))
             } else {
                 alert(`File "${activeFile.filename}" pushed successfully to ${owner}/${repo}!`)
             }
