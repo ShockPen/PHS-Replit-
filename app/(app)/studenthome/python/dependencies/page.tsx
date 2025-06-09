@@ -1,158 +1,157 @@
-"use client";
+"use client"
 
-import { BackgroundLines } from "@/app/components/ui/background-lines";
+import { BackgroundLines } from "@/app/components/ui/background-lines"
 import {
-    IconCoffee,
-    IconFileTypeJs,
-    IconBrandPython,
-    IconBrandCpp,
     IconHome,
-    IconClipboardCopy,
-    IconFileBroken,
-    IconSignature,
-    IconTableColumn,
+    IconBrandPython,
+    IconFileCode,
+    IconTemplate,
+    IconSchool,
+    IconBrandDjango,
+    IconFlaskFilled,
+    IconMathSymbols,
     IconDatabase,
     IconTestPipe,
-    IconFileText,
-    IconBrandGithub, IconSchool, IconFileCode, IconTemplate
-} from "@tabler/icons-react";
-import { FloatingDock } from "@/app/components/ui/floating-dock";
-import { FloatingNav } from "@/app/components/ui/floating-navbar";
-import { Button, Link } from "@nextui-org/react";
-import { BentoGrid, BentoGridItem } from "@/app/components/ui/bento-grid";
-import { Code, Play } from "lucide-react";
-import React from "react";
-import { useRouter } from "next/navigation";
+    IconBrandGithub,
+    IconNetwork,
+} from "@tabler/icons-react"
+import { FloatingNav } from "@/app/components/ui/floating-navbar"
+import { Button, Link } from "@nextui-org/react"
+import { BentoGrid, BentoGridItem } from "@/app/components/ui/bento-grid"
+import { Code, Play } from "lucide-react"
+import React from "react"
+import { useRouter } from "next/navigation"
+import { generateDependencyFile, downloadFile } from "@/app/utils/fileGenerator"
+
+interface DependencyCardProps {
+    title: string
+    description: string
+    icon: React.ReactElement
+    color?: string
+}
 
 export default function Page() {
-    const router = useRouter();
+    const router = useRouter()
 
-    const handleUseDepedency = (dependencyName: string | number | boolean) => {
-        // Navigate to IDE with the dependency parameter
-        router.push(`/studenthome/java/ide?dependency=${encodeURIComponent(dependencyName)}`);
-    };
+    const handleUseDependency = (dependencyName: string | number | boolean) => {
+        const { filename, content } = generateDependencyFile(String(dependencyName), "python")
+        downloadFile(filename, content)
 
-    class DependencyCard extends React.Component<{ title: any, description: any, icon: any, color: string }> {
-        static defaultProps = {color: "blue"}
+        // Show success message
+        console.log(`Downloaded ${filename} successfully!`)
+    }
 
-        render() {
-            let {title, description, icon, color} = this.props;
-            return (
-                <div
-                    className="w-full h-full p-6 flex flex-col justify-between overflow-hidden group-hover:scale-[1.02] transition-all duration-300 bg-white/5 dark:bg-neutral-800/60 rounded-xl border border-neutral-200/20 dark:border-neutral-700/50 backdrop-blur-sm">
-                    <div className="flex flex-col gap-4 flex-1">
-                        <div className={`flex items-center gap-3 text-${color}-400`}>
-                            {icon}
-                            <h3 className="text-lg font-semibold text-white">{title}</h3>
-                        </div>
-
-                        <p className="text-sm text-neutral-300 leading-relaxed flex-1">
-                            {description}
-                        </p>
+    const DependencyCard = ({ title, description, icon, color = "blue" }: DependencyCardProps) => {
+        return (
+            <div className="w-full h-full p-6 flex flex-col justify-between overflow-hidden group-hover:scale-[1.02] transition-all duration-300 bg-white/5 dark:bg-neutral-800/60 rounded-xl border border-neutral-200/20 dark:border-neutral-700/50 backdrop-blur-sm">
+                <div className="flex flex-col gap-4 flex-1">
+                    <div className={`flex items-center gap-3 text-${color}-400`}>
+                        {icon}
+                        <h3 className="text-lg font-semibold text-white">{title}</h3>
                     </div>
 
-                    <div className="mt-6 pt-4 border-t border-neutral-700/50">
-                        <Button
-                            onClick={() => handleUseDepedency(title)}
-                            className={`w-full bg-gradient-to-r from-${color}-500 to-${color}-600 hover:from-${color}-600 hover:to-${color}-700 text-white font-medium rounded-lg px-4 py-2.5 transition-all duration-200 flex items-center justify-center gap-2 shadow-lg hover:shadow-${color}-500/25`}
-                        >
-                            <Play className="h-4 w-4"/>
-                            Use in IDE
-                        </Button>
-                    </div>
+                    <p className="text-sm text-neutral-300 leading-relaxed flex-1">{description}</p>
                 </div>
-            );
-        }
+
+                <div className="mt-6 pt-4 border-t border-neutral-700/50">
+                    <Button
+                        onClick={() => handleUseDependency(title)}
+                        className={`w-full bg-gradient-to-r from-${color}-500 to-${color}-600 hover:from-${color}-600 hover:to-${color}-700 text-white font-medium rounded-lg px-4 py-2.5 transition-all duration-200 flex items-center justify-center gap-2 shadow-lg hover:shadow-${color}-500/25`}
+                    >
+                        <Play className="h-4 w-4" />
+                        Download & Use
+                    </Button>
+                </div>
+            </div>
+        )
     }
 
     const links = [
         {
             title: "Home",
-            icon: (
-                <IconHome className="h-full w-full text-blue-500 dark:text-blue-300" />
-            ),
+            icon: <IconHome className="h-full w-full text-blue-500 dark:text-blue-300" />,
             href: "/studenthome",
         },
         {
             title: "Dashboard",
-            icon: (
-                <IconCoffee className="h-full w-full text-blue-500 dark:text-blue-300" />
-            ),
-            href: "/studenthome/java",
+            icon: <IconBrandPython className="h-full w-full text-blue-500 dark:text-blue-300" />,
+            href: "/studenthome/python",
         },
         {
-            title: "Java IDE",
-            icon: (
-                <IconFileCode className="h-full w-full text-blue-500 dark:text-blue-300" />
-            ),
-            href: "/studenthome/java/ide",
+            title: "Python IDE",
+            icon: <IconFileCode className="h-full w-full text-blue-500 dark:text-blue-300" />,
+            href: "/studenthome/python/ide",
         },
         {
             title: "Templates",
-            icon: (
-                <IconTemplate className="h-full w-full text-blue-500 dark:text-blue-300" />
-            ),
-            href: "/studenthome/java/templates",
+            icon: <IconTemplate className="h-full w-full text-blue-500 dark:text-blue-300" />,
+            href: "/studenthome/python/templates",
         },
         {
             title: "Classes",
-            icon: (
-                <IconSchool className="h-full w-full text-blue-500 dark:text-blue-300" />
-            ),
+            icon: <IconSchool className="h-full w-full text-blue-500 dark:text-blue-300" />,
             href: "/studenthome/classes",
         },
-    ];
+    ]
 
     const dependencies = [
         {
-            title: "JUnit 5",
-            description: "Modern testing framework for Java with powerful annotations, assertions, and test lifecycle management. Perfect for unit testing and test-driven development.",
-            icon: <IconTestPipe className="h-6 w-6" />,
-            color: "green",
-        },
-        {
-            title: "Jackson",
-            description: "High-performance JSON processor for Java. Seamlessly convert between Java objects and JSON with powerful data binding capabilities.",
-            icon: <IconFileBroken className="h-6 w-6" />,
+            title: "NumPy",
+            description:
+                "Fundamental package for scientific computing with Python. Provides support for arrays, matrices, and mathematical functions to operate on these data structures.",
+            icon: <IconMathSymbols className="h-6 w-6" />,
             color: "blue",
         },
         {
-            title: "Spring Boot",
-            description: "Opinionated framework that simplifies Spring application development with auto-configuration, embedded servers, and production-ready features.",
-            icon: <IconSignature className="h-6 w-6" />,
-            color: "purple",
+            title: "Pandas",
+            description:
+                "Data analysis and manipulation library providing data structures like DataFrame for efficiently storing and manipulating tabular data.",
+            icon: <IconDatabase className="h-6 w-6" />,
+            color: "green",
         },
         {
-            title: "Hibernate",
-            description: "Object-relational mapping framework that simplifies database interactions using Java objects with powerful caching and query capabilities.",
-            icon: <IconDatabase className="h-6 w-6" />,
+            title: "TensorFlow",
+            description:
+                "End-to-end open source platform for machine learning. Build and deploy ML models with comprehensive tools and libraries.",
+            icon: <IconNetwork className="h-6 w-6" />,
             color: "orange",
         },
         {
-            title: "Apache Commons",
-            description: "Comprehensive collection of reusable Java utilities covering collections, file operations, string manipulation, and much more.",
-            icon: <IconBrandGithub className="h-6 w-6" />,
-            color: "yellow",
+            title: "Django",
+            description:
+                "High-level Python web framework that encourages rapid development and clean, pragmatic design for building web applications.",
+            icon: <IconBrandDjango className="h-6 w-6" />,
+            color: "purple",
         },
         {
-            title: "Mockito",
-            description: "Elegant mocking framework for unit tests. Create test doubles, verify interactions, and stub method calls with clean, readable syntax.",
-            icon: <IconClipboardCopy className="h-6 w-6" />,
-            color: "grey",
-        },
-        {
-            title: "Log4j",
-            description: "Flexible and configurable logging framework with multiple output destinations, log levels, and performance optimizations for Java applications.",
-            icon: <IconFileText className="h-6 w-6" />,
+            title: "Flask",
+            description:
+                "Lightweight WSGI web application framework designed to make getting started quick and easy, with the ability to scale up to complex applications.",
+            icon: <IconFlaskFilled className="h-6 w-6" />,
             color: "red",
         },
         {
-            title: "Gson",
-            description: "Google's JSON library for Java offering simple APIs for JSON serialization and deserialization with support for generics and custom serializers.",
-            icon: <IconTableColumn className="h-6 w-6" />,
+            title: "Pytest",
+            description:
+                "Testing framework that makes it easy to write small, readable tests, and can scale to support complex functional testing.",
+            icon: <IconTestPipe className="h-6 w-6" />,
+            color: "yellow",
+        },
+        {
+            title: "SciPy",
+            description:
+                "Open-source library used for scientific computing and technical computing, containing modules for optimization, linear algebra, integration, and statistics.",
+            icon: <IconMathSymbols className="h-6 w-6" />,
+            color: "cyan",
+        },
+        {
+            title: "Requests",
+            description:
+                "Elegant and simple HTTP library for Python, built for human beings. Makes HTTP requests simpler and more human-friendly.",
+            icon: <IconBrandGithub className="h-6 w-6" />,
             color: "pink",
         },
-    ];
+    ]
 
     const items = dependencies.map((dep, index) => ({
         title: "",
@@ -160,7 +159,7 @@ export default function Page() {
         header: <DependencyCard {...dep} />,
         className: "md:col-span-1",
         icon: null,
-    }));
+    }))
 
     return (
         <>
@@ -171,17 +170,16 @@ export default function Page() {
                     <div className="max-w-4xl mx-auto text-center">
                         <div className="inline-flex items-center gap-2 bg-blue-500/10 border border-blue-500/20 rounded-full px-4 py-2 mb-6">
                             <Code className="h-4 w-4 text-blue-400" />
-                            <span className="text-sm text-blue-300 font-medium">Java Development</span>
+                            <span className="text-sm text-blue-300 font-medium">Python Development</span>
                         </div>
 
                         <h1 className="text-5xl md:text-7xl font-bold bg-gradient-to-b from-white via-blue-100 to-blue-400 bg-clip-text text-transparent mb-6">
-                            Java Dependencies
+                            Python Dependencies
                         </h1>
 
                         <p className="text-xl text-neutral-300 max-w-2xl mx-auto leading-relaxed mb-8">
-                            Discover powerful Java libraries and frameworks to accelerate your development.
-                            {/* eslint-disable-next-line react/no-unescaped-entities */}
-                            Click "Use in IDE" to start implementing any dependency in your project.
+                            Discover powerful Python libraries and frameworks to accelerate your development. Click &quot;Use in IDE&quot; to
+                            start implementing any dependency in your project.
                         </p>
 
                         <div className="flex items-center justify-center gap-4 text-sm text-neutral-400">
@@ -205,7 +203,7 @@ export default function Page() {
                                             className="flex items-center justify-center w-14 h-14 bg-neutral-800/70 backdrop-blur-sm hover:bg-neutral-700/90 rounded-xl transition-all duration-300 hover:scale-110 hover:rotate-2 border border-neutral-600/50 shadow-lg hover:shadow-xl hover:shadow-blue-500/25"
                                         >
                                             {React.cloneElement(link.icon, {
-                                                className: "h-6 w-6 text-blue-400 group-hover:text-blue-300 transition-colors duration-200"
+                                                className: "h-6 w-6 text-blue-400 group-hover:text-blue-300 transition-colors duration-200",
                                             })}
                                         </Link>
 
@@ -237,5 +235,5 @@ export default function Page() {
                 </div>
             </div>
         </>
-    );
+    )
 }

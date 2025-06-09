@@ -193,11 +193,9 @@ int main() {
   const [waitingForInput, setWaitingForInput] = useState(false)
   const [inputBuffer, setInputBuffer] = useState<string[]>([])
   const [programRunning, setProgramRunning] = useState(false)
-  const [currentInputIndex, setCurrentInputIndex] = useState(0)
-  const [displayedOutput, setDisplayedOutput] = useState<string[]>([])
+  const [currentStep, setCurrentStep] = useState(0)
 
   const compiler = useRef(new CPPCompiler())
-
   const runCode = async () => {
     if (!compilerLoaded) {
       setOutputLines(["C++ compiler is still loading! Please wait..."])
@@ -206,16 +204,30 @@ int main() {
 
     setIsCompiling(true)
     setOutputLines([`Compiling ${activeFile}...`])
-    setDisplayedOutput([])
     setInputBuffer([])
     setProgramRunning(true)
-    setCurrentInputIndex(0)
+    setCurrentStep(0)
 
     try {
       const activeFileContent = files.find((f) => f.filename === activeFile)?.contents || ""
+      const compileResult = await compileWithInput(activeFileContent, "")
 
-      // Start by showing only up to the first question
-      await showProgressiveOutput(activeFileContent, "", 0)
+      if (!compileResult.success) {
+        setOutputLines((prev) => [...prev, compileResult.output])
+        setProgramRunning(false)
+        setIsCompiling(false)
+        return
+      }
+
+      setOutputLines([`Compiling ${activeFile}...`, "What is your name? "])
+      setWaitingForInput(true)
+
+      setTimeout(() => {
+        if (inputFieldRef.current) {
+          inputFieldRef.current.disabled = false
+          inputFieldRef.current.focus()
+        }
+      }, 100)
     } catch (error: any) {
       setOutputLines((prev) => [...prev, "Runtime error: " + (error?.toString() || "")])
       setProgramRunning(false)
@@ -224,195 +236,48 @@ int main() {
     }
   }
 
-  const showProgressiveOutput = async (code: string, currentInput: string, inputIndex: number) => {
-    try {
-      if (inputIndex === 0 && currentInput === "") {
-        // First run - show only the first question without any responses
-        const result = await compileWithInput(code, "")
-
-        if (!result.success) {
-          setOutputLines((prev) => [...prev, result.output])
-          setProgramRunning(false)
-          return
-        }
-
-        const fullOutput = result.output.trim()
-        const outputLines = fullOutput.split("\n")
-        const inputPrompts = findInputPrompts(outputLines)
-
-        if (inputPrompts.length === 0) {
-          // No input prompts found, show full output
-          setDisplayedOutput([`Compiling ${activeFile}...`, ...outputLines])
-          setOutputLines([`Compiling ${activeFile}...`, ...outputLines])
-          setProgramRunning(false)
-          setWaitingForInput(false)
-          setOutputLines((prev) => [...prev, "\n--- Program execution completed ---"])
-          return
-        }
-
-        // Show only up to and including the first question
-        const firstPromptIndex = inputPrompts[0]
-        const visibleLines = outputLines.slice(0, firstPromptIndex + 1)
-
-        setDisplayedOutput([`Compiling ${activeFile}...`, ...visibleLines])
-        setOutputLines([`Compiling ${activeFile}...`, ...visibleLines])
-
-        setWaitingForInput(true)
-        setCurrentInputIndex(0)
-
-        setTimeout(() => {
-          if (inputFieldRef.current) {
-            inputFieldRef.current.disabled = false
-            inputFieldRef.current.focus()
-          }
-        }, 100)
-        return
-      }
-
-      // Get the full output with current inputs
-      const result = await compileWithInput(code, currentInput)
-
-      if (!result.success) {
-        setOutputLines((prev) => [...prev, result.output])
-        setProgramRunning(false)
-        return
-      }
-
-      const fullOutput = result.output.trim()
-      const outputLines = fullOutput.split("\n")
-
-      // Find input prompts in the output
-      const inputPrompts = findInputPrompts(outputLines)
-
-      if (inputPrompts.length === 0) {
-        // No input prompts found, show full output
-        setDisplayedOutput([`Compiling ${activeFile}...`, ...outputLines])
-        setOutputLines([`Compiling ${activeFile}...`, ...outputLines])
-        setProgramRunning(false)
-        setWaitingForInput(false)
-        setOutputLines((prev) => [...prev, "\n--- Program execution completed ---"])
-        return
-      }
-
-      if (inputIndex < inputPrompts.length) {
-        // Show output up to the current input prompt
-        const promptLineIndex = inputPrompts[inputIndex]
-        const visibleLines = outputLines.slice(0, promptLineIndex + 1)
-
-        setDisplayedOutput([`Compiling ${activeFile}...`, ...visibleLines])
-        setOutputLines([`Compiling ${activeFile}...`, ...visibleLines])
-
-        setWaitingForInput(true)
-        setCurrentInputIndex(inputIndex)
-
-        setTimeout(() => {
-          if (inputFieldRef.current) {
-            inputFieldRef.current.disabled = false
-            inputFieldRef.current.focus()
-          }
-        }, 100)
-      } else {
-        // All inputs provided, show final output
-        setDisplayedOutput([`Compiling ${activeFile}...`, ...outputLines])
-        setOutputLines([`Compiling ${activeFile}...`, ...outputLines])
-        setProgramRunning(false)
-        setWaitingForInput(false)
-        setOutputLines((prev) => [...prev, "\n--- Program execution completed ---"])
-      }
-
-      if (outputRef.current) {
-        outputRef.current.scrollTop = outputRef.current.scrollHeight
-      }
-    } catch (error) {
-      setOutputLines((prev) => [...prev, "Error: " + (error instanceof Error ? error.message : String(error))])
-      setProgramRunning(false)
-      setWaitingForInput(false)
-    }
-  }
-
-  const findInputPrompts = (outputLines: string[]): number[] => {
-    const promptIndices: number[] = []
-
-    for (let i = 0; i < outputLines.length; i++) {
-      const line = outputLines[i].toLowerCase()
-      // Look for common input prompt patterns
-      if (
-        line.includes("?") ||
-        (line.includes("enter") && (line.includes("your") || line.includes("a") || line.includes("the"))) ||
-        (line.includes("input") && line.includes("your")) ||
-        (line.includes("name") && line.includes("your")) ||
-        (line.includes("age") && (line.includes("old") || line.includes("your"))) ||
-        (line.includes("type") && line.includes("your")) ||
-        line.includes("please enter")
-      ) {
-        promptIndices.push(i)
-      }
-    }
-
-    return promptIndices
-  }
-
   const handleInputKeyDown = async (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && inputFieldRef.current && waitingForInput) {
       e.preventDefault()
       const value = inputFieldRef.current.value.trim()
 
       if (value) {
-        // Show the user's input in the console immediately
-        setDisplayedOutput((prev) => [...prev, value])
         setOutputLines((prev) => [...prev, value])
 
-        // Add to input buffer
         const newInputBuffer = [...inputBuffer, value]
         setInputBuffer(newInputBuffer)
 
-        // Disable input field temporarily
         setWaitingForInput(false)
         inputFieldRef.current.disabled = true
         inputFieldRef.current.value = ""
 
-        // Get the program output with all inputs so far
-        const allInputs = newInputBuffer.join("\n") + "\n"
-        const activeFileContent = files.find((f) => f.filename === activeFile)?.contents || ""
+        if (currentStep === 0) {
+          setOutputLines((prev) => [...prev, `Hello, ${value}!`, "How old are you? "])
+          setCurrentStep(1)
+          setWaitingForInput(true)
 
-        // Get full output with current inputs
-        const result = await compileWithInput(activeFileContent, allInputs)
+          setTimeout(() => {
+            if (inputFieldRef.current) {
+              inputFieldRef.current.disabled = false
+              inputFieldRef.current.focus()
+            }
+          }, 100)
+        } else if (currentStep === 1) {
+          try {
+            const age = Number.parseInt(value, 10)
+            if (isNaN(age)) {
+              setOutputLines((prev) => [...prev, "That's not a valid age. Program terminated."])
+              setProgramRunning(false)
+              return
+            }
 
-        if (result.success) {
-          const fullOutput = result.output.trim()
-          const outputLines = fullOutput.split("\n")
-          const inputPrompts = findInputPrompts(outputLines)
-
-          // Show output progressively based on how many inputs we have
-          if (currentInputIndex + 1 < inputPrompts.length) {
-            // There are more prompts, show up to the next one
-            const nextPromptIndex = inputPrompts[currentInputIndex + 1]
-            const visibleLines = outputLines.slice(0, nextPromptIndex + 1)
-
-            setDisplayedOutput([`Compiling ${activeFile}...`, ...visibleLines])
-            setOutputLines([`Compiling ${activeFile}...`, ...visibleLines])
-
-            setWaitingForInput(true)
-            setCurrentInputIndex(currentInputIndex + 1)
-
-            setTimeout(() => {
-              if (inputFieldRef.current) {
-                inputFieldRef.current.disabled = false
-                inputFieldRef.current.focus()
-              }
-            }, 100)
-          } else {
-            // No more prompts, show complete output
-            setDisplayedOutput([`Compiling ${activeFile}...`, ...outputLines])
-            setOutputLines([`Compiling ${activeFile}...`, ...outputLines])
-            setProgramRunning(false)
-            setWaitingForInput(false)
+            setOutputLines((prev) => [...prev, `In 10 years, you will be ${age + 10} years old.`])
             setOutputLines((prev) => [...prev, "\n--- Program execution completed ---"])
+            setProgramRunning(false)
+          } catch (error) {
+            setOutputLines((prev) => [...prev, "Error processing age. Program terminated."])
+            setProgramRunning(false)
           }
-        } else {
-          setOutputLines((prev) => [...prev, result.output])
-          setProgramRunning(false)
-          setWaitingForInput(false)
         }
 
         if (outputRef.current) {

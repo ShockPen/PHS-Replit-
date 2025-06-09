@@ -46,14 +46,14 @@ export default function Page() {
             icon: (
                 <IconCoffee className="h-full w-full text-neutral-500 dark:text-red-300" />
             ),
-            href: "/studenthome/java",
+            href: "/educatorhome/java",
         },
         {
             title: "Node.js",
             icon: (
                 <IconFileTypeJs className="h-full w-full text-neutral-500 dark:text-red-300" />
             ),
-            href: "/studenthome/linux",
+            href: "/educatorhome/linux",
         },
 
         {
@@ -61,21 +61,21 @@ export default function Page() {
             icon: (
                 <IconBrandPython className="h-full w-full text-neutral-500 dark:text-red-300" />
             ),
-            href: "/studenthome/python",
+            href: "/educatorhome/python",
         },
         {
             title: "C++",
             icon: (
                 <IconBrandCpp className="h-full w-full text-neutral-500 dark:text-red-300" />
             ),
-            href: "/studenthome/cpp",
+            href: "/educatorhome/cpp",
         },
         {
             title: "Linux Terminal",
             icon: (
                 <IconTerminal2 className="h-full w-full text-neutral-500 dark:text-red-300" />
             ),
-            href: "/studenthome/linux",
+            href: "/educatorhome/linux",
         },
     ];
 
@@ -91,7 +91,7 @@ export default function Page() {
                         return (
                             <>
                                 {/* <a className="text-black dark:text-white" key={project} href="/">{project}</a> */}
-                                <Link className="text-black dark:text-white" href={`/studenthome/java/ide?project=${project}`}>{project}</Link>
+                                <Link className="text-black dark:text-white" href={`/educatorhome/java/ide?project=${project}`}>{project}</Link>
                             </>
                         );
                     })}
@@ -105,7 +105,7 @@ export default function Page() {
         return (
             <div className="my-auto h-full">
                 <div className="flex flex-col space-y-1">
-                    <Link href="/studenthome/generateclubqrcode">
+                    <Link href="/educatorhome/generateclubqrcode">
                         <button
                             className="border rounded-md px-4 py-2 mt-1 text-black dark:text-white bg-neutral-300 dark:bg-red-800"
                         >

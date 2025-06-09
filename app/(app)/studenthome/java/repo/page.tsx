@@ -1,39 +1,58 @@
-"use client";
+"use client"
 
-import React, { useState, useEffect, useRef } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { useSession } from 'next-auth/react';
+import React, { useState, useEffect, useRef } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
+import { useSession } from "next-auth/react"
 
-// Assuming these are custom components you have
-import { Link, Button, Tooltip } from "@nextui-org/react";
-import { BentoGrid, BentoGridItem } from "@/app/components/ui/bento-grid";
-import { BackgroundLines } from "@/app/components/ui/background-lines";
-import { FloatingNav } from "@/app/components/ui/floating-navbar";
-// Assuming these are your icon imports
+import { Link, Button } from "@nextui-org/react"
+import { BentoGrid, BentoGridItem } from "@/app/components/ui/bento-grid"
+import { BackgroundLines } from "@/app/components/ui/background-lines"
+import { FloatingNav } from "@/app/components/ui/floating-navbar"
+
 import {
-    IconHome, IconCoffee, IconTemplate, IconFileCode, IconUpload, IconFileDownload,
-    IconFolderPlus, IconCloudUpload, IconCopy, IconCloudDownload, IconGitCommit,
-    IconGitMerge, IconHistory, IconGitBranch, IconGitFork, IconGitPullRequest, IconPlayerPlayFilled
-} from '@tabler/icons-react';
-
-// For conceptual toast notifications, you'd need to install and configure react-toastify
-// import { toast } from 'react-toastify';
-// import 'react-toastify/dist/ReactToastify.css';
+    IconHome,
+    IconCoffee,
+    IconTemplate,
+    IconFileCode,
+    IconUpload,
+    IconFileDownload,
+    IconFolderPlus,
+    IconCloudUpload,
+    IconCopy,
+    IconCloudDownload,
+    IconGitCommit,
+    IconGitMerge,
+    IconHistory,
+    IconGitBranch,
+    IconGitFork,
+    IconGitPullRequest,
+    IconPlayerPlayFilled,
+} from "@tabler/icons-react"
 
 interface File {
-    filename: string;
-    contents: string;
+    filename: string
+    contents: string
+}
+
+interface GitOperationCardProps {
+    title: string
+    description: string
+    icon: React.ReactElement
+    color?: string
+    command?: string
+    isSpecial?: boolean
+    isLoading?: boolean
 }
 
 export default function Page() {
-    const router = useRouter();
-    const searchParams = useSearchParams();
-    const { data: session } = useSession();
+    const router = useRouter()
+    const searchParams = useSearchParams()
+    const { data: session } = useSession()
 
     // State for IDE integration
     const [files, setFiles] = useState<File[]>([
         {
-            filename: 'Main.java',
+            filename: "Main.java",
             contents: `import java.util.Scanner;
 
 public class Main {
@@ -44,114 +63,108 @@ public class Main {
         System.out.println("Your integer: " + a);
     }
 }`,
-        }
-    ]);
-    const [activeFile, setActiveFile] = useState('Main.java');
-    const [signedIn, setSignedIn] = useState(false);
-    const [name, setName] = useState('');
-    const [project, setProject] = useState(searchParams.get("project") ?? "");
-    const [projectList, setProjectList] = useState<string[]>([]);
-    const [createdRepos, setCreatedRepos] = useState<{ owner: string; name: string }[]>([]);
+        },
+    ])
+    const [activeFile, setActiveFile] = useState("Main.java")
+    const [signedIn, setSignedIn] = useState(false)
+    const [name, setName] = useState("")
+    const [project, setProject] = useState(searchParams.get("project") ?? "")
+    const [projectList, setProjectList] = useState<string[]>([])
+    const [createdRepos, setCreatedRepos] = useState<{ owner: string; name: string }[]>([])
 
     // Loading states for UI feedback
-    const [isSavingProject, setIsSavingProject] = useState(false);
-    const [isCreatingRepo, setIsCreatingRepo] = useState(false);
-    const [isPushing, setIsPushing] = useState(false);
-    const [isCloning, setIsCloning] = useState(false); // New loading state for clone
+    const [isSavingProject, setIsSavingProject] = useState(false)
+    const [isCreatingRepo, setIsCreatingRepo] = useState(false)
+    const [isPushing, setIsPushing] = useState(false)
+    const [isCloning, setIsCloning] = useState(false)
 
-    const fileInputRef = useRef<HTMLInputElement>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null)
 
     // Initialize session and load project data
     useEffect(() => {
         const loadInitialData = async () => {
-            if (session?.user?.role === 'student') {
-                setSignedIn(true);
+            if (session?.user?.role === "student") {
+                setSignedIn(true)
 
                 // Fetch student info
                 try {
-                    const studentInfoResponse = await fetch('/api/student/get_studentinfo/post', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' }
-                    });
-                    const studentInfoData = await studentInfoResponse.json();
-                    setName(studentInfoData.firstname + ' ' + studentInfoData.lastname);
+                    const studentInfoResponse = await fetch("/api/student/get_studentinfo/post", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                    })
+                    const studentInfoData = await studentInfoResponse.json()
+                    setName(studentInfoData.firstname + " " + studentInfoData.lastname)
                 } catch (error) {
-                    console.error('Failed to fetch student info:', error);
-                    // toast.error('Failed to load student information.');
+                    console.error("Failed to fetch student info:", error)
                 }
 
                 // Fetch project files if a project is selected
                 if (project) {
                     try {
-                        const filesResponse = await fetch('/api/student/get_files/post', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ project_name: project })
-                        });
-                        const filesData = await filesResponse.json();
+                        const filesResponse = await fetch("/api/student/get_files/post", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ project_name: project }),
+                        })
+                        const filesData = await filesResponse.json()
                         if (filesData.project) {
-                            setFiles(filesData.project.files);
+                            setFiles(filesData.project.files)
                             // Set active file to the first file if exists, or default
                             if (filesData.project.files.length > 0) {
-                                setActiveFile(filesData.project.files[0].filename);
+                                setActiveFile(filesData.project.files[0].filename)
                             }
                         }
                     } catch (error) {
-                        console.error('Failed to fetch project files:', error);
-                        // toast.error('Failed to load project files.');
+                        console.error("Failed to fetch project files:", error)
                     }
                 }
 
                 // Fetch project list
                 try {
-                    const projectListResponse = await fetch('/api/student/get_projectlist/post', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' }
-                    });
-                    const projectListData = await projectListResponse.json();
-                    setProjectList(projectListData.java_project_names);
+                    const projectListResponse = await fetch("/api/student/get_projectlist/post", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                    })
+                    const projectListData = await projectListResponse.json()
+                    setProjectList(projectListData.java_project_names)
                 } catch (error) {
-                    console.error('Failed to fetch project list:', error);
-                    // toast.error('Failed to load project list.');
+                    console.error("Failed to fetch project list:", error)
                 }
             } else {
-                setSignedIn(false); // If not a student or no session, ensure signedIn is false
+                setSignedIn(false) // If not a student or no session, ensure signedIn is false
             }
-        };
+        }
 
-        loadInitialData();
-    }, [session, project]); // Dependencies for re-running effect
+        loadInitialData()
+    }, [session, project]) // Dependencies for re-running effect
 
     // Save project functionality
     const saveProject = async () => {
-        setIsSavingProject(true);
+        setIsSavingProject(true)
         try {
-            const response = await fetch('/api/student/save_files/post', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ project, files })
-            });
+            const response = await fetch("/api/student/save_files/post", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ project, files }),
+            })
             if (response.ok) {
-                // toast.success('Project saved successfully!');
-                alert('Project saved successfully!');
+                alert("Project saved successfully!")
             } else {
-                const errorData = await response.json();
-                console.error('Error saving project:', errorData);
-                // toast.error(`Error saving project: ${errorData.message || 'Unknown error'}`);
-                alert(`Error saving project: ${errorData.message || 'Unknown error'}`);
+                const errorData = await response.json()
+                console.error("Error saving project:", errorData)
+                alert(`Error saving project: ${errorData.message || "Unknown error"}`)
             }
         } catch (error) {
-            console.error('Network or unexpected error saving project:', error);
-            // toast.error('Error saving project. Please check your connection.');
-            alert('Error saving project. Please check your connection.');
+            console.error("Network or unexpected error saving project:", error)
+            alert("Error saving project. Please check your connection.")
         } finally {
-            setIsSavingProject(false);
+            setIsSavingProject(false)
         }
-    };
+    }
 
     // GitHub functionality
     const createRepo = async (repoName: string) => {
-        setIsCreatingRepo(true);
+        setIsCreatingRepo(true)
         try {
             const res = await fetch("/api/github/create-repo", {
                 method: "POST",
@@ -161,43 +174,38 @@ public class Main {
                     description: "Created via Schoolnest Repository Manager",
                     isPrivate: true,
                 }),
-            });
+            })
 
-            const data = await res.json();
+            const data = await res.json()
 
             if (!res.ok) {
                 if (data.error?.errors?.some((e: any) => e.message.includes("already exists"))) {
-                    // toast.error("Repository name already exists. Please choose a different name.");
-                    alert("Repository name already exists. Please choose a different name.");
+                    alert("Repository name already exists. Please choose a different name.")
                 } else {
-                    // toast.error("Failed to create repo: " + (data.error?.message || data.error));
-                    alert("Failed to create repo: " + (data.error?.message || data.error));
+                    alert("Failed to create repo: " + (data.error?.message || data.error))
                 }
-                return null;
+                return null
             }
 
-            // toast.success(`Repo "${repoName}" created successfully!`);
-            alert(`Repo "${repoName}" created successfully!`);
-            return data;
+            alert(`Repo "${repoName}" created successfully!`)
+            return data
         } catch (error) {
-            console.error('Network or unexpected error creating repo:', error);
-            // toast.error('Error creating repository. Please try again.');
-            alert('Error creating repository. Please try again.');
-            return null;
+            console.error("Network or unexpected error creating repo:", error)
+            alert("Error creating repository. Please try again.")
+            return null
         } finally {
-            setIsCreatingRepo(false);
+            setIsCreatingRepo(false)
         }
-    };
+    }
 
     const handlePush = async (owner: string, repo: string) => {
-        setIsPushing(true);
-        const fileToPush = files.find((f) => f.filename === activeFile);
+        setIsPushing(true)
+        const fileToPush = files.find((f) => f.filename === activeFile)
 
         if (!fileToPush) {
-            // toast.error("No file selected or active file not found for push.");
-            alert("No file selected or active file not found for push.");
-            setIsPushing(false);
-            return;
+            alert("No file selected or active file not found for push.")
+            setIsPushing(false)
+            return
         }
 
         try {
@@ -205,7 +213,7 @@ public class Main {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    Authorization: `token ${session?.accessToken}`, // Ensure accessToken is handled securely
+                    Authorization: `token ${session?.accessToken}`,
                 },
                 body: JSON.stringify({
                     owner,
@@ -214,106 +222,102 @@ public class Main {
                     content: fileToPush.contents,
                     message: "Schoolnest Repository Manager Commit",
                 }),
-            });
+            })
 
             if (!res.ok) {
-                const errorData = await res.json();
-                // toast.error("Push failed: " + (errorData.error || "Unknown error"));
-                alert("Push failed: " + (errorData.error || "Unknown error"));
+                const errorData = await res.json()
+                alert("Push failed: " + (errorData.error || "Unknown error"))
             } else {
-                // toast.success("File pushed successfully!");
-                alert("File pushed successfully!");
+                alert("File pushed successfully!")
             }
         } catch (error) {
-            console.error('Network or unexpected error during push:', error);
-            // toast.error('Error pushing file. Please check your connection.');
-            alert('Error pushing file. Please check your connection.');
+            console.error("Network or unexpected error during push:", error)
+            alert("Error pushing file. Please check your connection.")
         } finally {
-            setIsPushing(false);
+            setIsPushing(false)
         }
-    };
+    }
 
     const handleCreateAndPush = async () => {
         if (files.length === 0) {
-            alert("No files to push. Please upload or create files first.");
-            return;
+            alert("No files to push. Please upload or create files first.")
+            return
         }
 
-        let chosenRepo: { owner: string; name: string } | null = null;
+        let chosenRepo: { owner: string; name: string } | null = null
 
         if (createdRepos.length > 0) {
-            const repoNames = createdRepos.map((r, i) => `${i + 1}: ${r.name}`).join("\n");
+            const repoNames = createdRepos.map((r, i) => `${i + 1}: ${r.name}`).join("\n")
             const input = prompt(
                 `You have created these repositories this session:\n${repoNames}\n\n` +
-                `Enter the number of the repo to push to, or leave empty to create a new repo:`
-            );
+                `Enter the number of the repo to push to, or leave empty to create a new repo:`,
+            )
 
             if (input) {
-                const index = parseInt(input, 10) - 1;
+                const index = Number.parseInt(input, 10) - 1
                 if (!isNaN(index) && createdRepos[index]) {
-                    chosenRepo = createdRepos[index];
+                    chosenRepo = createdRepos[index]
                 } else {
-                    alert("Invalid selection, creating a new repo.");
+                    alert("Invalid selection, creating a new repo.")
                 }
             }
         }
 
         if (!chosenRepo) {
-            const repoNameInput = prompt("Enter new repository name:");
+            const repoNameInput = prompt("Enter new repository name:")
             if (!repoNameInput || repoNameInput.trim() === "") {
-                alert("Repository name is required.");
-                return;
+                alert("Repository name is required.")
+                return
             }
 
-            const newRepo = await createRepo(repoNameInput); // Use the loading state here
-            if (!newRepo) return;
+            const newRepo = await createRepo(repoNameInput)
+            if (!newRepo) return
 
-            chosenRepo = { owner: newRepo.owner.login, name: newRepo.name };
-            setCreatedRepos((prev) => [...prev, chosenRepo!]);
+            chosenRepo = { owner: newRepo.owner.login, name: newRepo.name }
+            setCreatedRepos((prev) => [...prev, chosenRepo!])
         }
 
         if (chosenRepo) {
-            await handlePush(chosenRepo.owner, chosenRepo.name); // Use the loading state here
+            await handlePush(chosenRepo.owner, chosenRepo.name)
         }
-    };
+    }
 
     // File upload functionality
     const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const file = event.target.files?.[0];
-        if (!file) return;
+        const file = event.target.files?.[0]
+        if (!file) return
 
-        const reader = new FileReader();
+        const reader = new FileReader()
         reader.onload = (e) => {
-            const contents = e.target?.result as string;
+            const contents = e.target?.result as string
             const newFile = {
                 filename: file.name,
                 contents,
-            };
+            }
             setFiles((prev) => {
                 // Replace existing file or add new one
-                const existingFileIndex = prev.findIndex(f => f.filename === newFile.filename);
+                const existingFileIndex = prev.findIndex((f) => f.filename === newFile.filename)
                 if (existingFileIndex > -1) {
-                    const updatedFiles = [...prev];
-                    updatedFiles[existingFileIndex] = newFile;
-                    return updatedFiles;
+                    const updatedFiles = [...prev]
+                    updatedFiles[existingFileIndex] = newFile
+                    return updatedFiles
                 }
-                return [...prev, newFile];
-            });
-            setActiveFile(file.name);
-            alert(`File "${file.name}" uploaded successfully!`);
-            // toast.success(`File "${file.name}" uploaded successfully!`);
-        };
-        reader.readAsText(file);
-    };
+                return [...prev, newFile]
+            })
+            setActiveFile(file.name)
+            alert(`File "${file.name}" uploaded successfully!`)
+        }
+        reader.readAsText(file)
+    }
 
     // Get file statistics for dynamic display
     const getFileStats = () => {
-        const totalFiles = files.length;
-        const javaFiles = files.filter(f => f.filename.endsWith('.java')).length;
-        const otherFiles = totalFiles - javaFiles;
-        const totalLines = files.reduce((acc, file) => acc + file.contents.split('\n').length, 0);
-        const avgLinesPerFile = totalFiles > 0 ? Math.round(totalLines / totalFiles) : 0;
-        const fileTypes = [...new Set(files.map(f => f.filename.split('.').pop()?.toLowerCase() || 'unknown'))];
+        const totalFiles = files.length
+        const javaFiles = files.filter((f) => f.filename.endsWith(".java")).length
+        const otherFiles = totalFiles - javaFiles
+        const totalLines = files.reduce((acc, file) => acc + file.contents.split("\n").length, 0)
+        const avgLinesPerFile = totalFiles > 0 ? Math.round(totalLines / totalFiles) : 0
+        const fileTypes = [...new Set(files.map((f) => f.filename.split(".").pop()?.toLowerCase() || "unknown"))]
 
         return {
             totalFiles,
@@ -321,51 +325,46 @@ public class Main {
             otherFiles,
             totalLines,
             avgLinesPerFile,
-            fileTypes
-        };
-    };
+            fileTypes,
+        }
+    }
 
-    const fileStats = getFileStats();
+    const fileStats = getFileStats()
 
     const handleGitOperation = async (operationName: string) => {
         switch (operationName) {
             case "Clone Repository":
-                setIsCloning(true);
-                const cloneUrl = prompt("Enter repository URL to clone:");
+                setIsCloning(true)
+                const cloneUrl = prompt("Enter repository URL to clone:")
                 if (cloneUrl) {
-                    // This would typically involve a backend call to clone the repo
-                    // For now, it's a placeholder:
-                    alert(`Cloning ${cloneUrl}... This would be implemented with backend integration.`);
-                    // toast.info(`Cloning ${cloneUrl}... (Backend integration needed)`);
+                    alert(`Cloning ${cloneUrl}... This would be implemented with backend integration.`)
                 }
-                setIsCloning(false);
-                break;
+                setIsCloning(false)
+                break
             case "Create Repository":
-                const newRepoName = prompt("Enter repository name:");
+                const newRepoName = prompt("Enter repository name:")
                 if (newRepoName && newRepoName.trim() !== "") {
-                    const repo = await createRepo(newRepoName); // Await createRepo
+                    const repo = await createRepo(newRepoName)
                     if (repo) {
-                        setCreatedRepos(prev => [...prev, { owner: repo.owner.login, name: repo.name }]);
+                        setCreatedRepos((prev) => [...prev, { owner: repo.owner.login, name: repo.name }])
                     }
                 } else {
-                    alert("Repository name cannot be empty.");
+                    alert("Repository name cannot be empty.")
                 }
-                break;
+                break
             case "Push Changes":
                 if (files.length === 0) {
-                    alert("No files to push. Please upload or create files first.");
-                    // toast.warn("No files to push. Please upload or create files first.");
-                    return;
+                    alert("No files to push. Please upload or create files first.")
+                    return
                 }
-                await handleCreateAndPush();
-                break;
+                await handleCreateAndPush()
+                break
             case "Save Project":
-                await saveProject();
-                break;
+                await saveProject()
+                break
             case "Upload File":
-                fileInputRef.current?.click();
-                break;
-            // Other git operations would similarly involve backend calls or local logic
+                fileInputRef.current?.click()
+                break
             case "Pull Changes":
             case "Commit Changes":
             case "Merge Branches":
@@ -373,34 +372,26 @@ public class Main {
             case "Create Branch":
             case "Fork Repository":
             case "Pull Request":
-                router.push(`/studenthome/git/terminal?operation=${encodeURIComponent(operationName)}`);
-                break;
+                router.push(`/studenthome/git/terminal?operation=${encodeURIComponent(operationName)}`)
+                break
             default:
-                alert(`Operation "${operationName}" not implemented directly here.`);
-            // toast.info(`Operation "${operationName}" not implemented directly here.`);
+                alert(`Operation "${operationName}" not implemented directly here.`)
         }
-    };
+    }
 
-    // Converted to functional component for better React practice
     const GitOperationCard = ({
                                   title,
                                   description,
                                   icon,
                                   color = "blue",
                                   command,
-                                  isSpecial,
-                                  isLoading = false // New prop for loading state
-                              }: {
-        title: string;
-        description: string;
-        icon: React.ReactNode;
-        color?: string;
-        command?: string;
-        isSpecial?: boolean;
-        isLoading?: boolean;
-    }) => {
+                                  isSpecial = false,
+                                  isLoading = false,
+                              }: GitOperationCardProps) => {
         return (
-            <div className={`w-full h-full bg-black border border-${color}-500/30 rounded-xl shadow-xl hover:shadow-2xl hover:shadow-${color}-500/20 transition-all duration-300 hover:scale-[1.02] overflow-hidden hover:border-${color}-400/50`}>
+            <div
+                className={`w-full h-full bg-black border border-${color}-500/30 rounded-xl shadow-xl hover:shadow-2xl hover:shadow-${color}-500/20 transition-all duration-300 hover:scale-[1.02] overflow-hidden hover:border-${color}-400/50`}
+            >
                 <div className="p-6 h-full flex flex-col">
                     {/* Header */}
                     <div className={`flex items-center gap-3 mb-4 text-${color}-400`}>
@@ -409,9 +400,7 @@ public class Main {
                     </div>
 
                     {/* Description */}
-                    <p className="text-sm text-blue-200 leading-relaxed mb-4 flex-1">
-                        {description}
-                    </p>
+                    <p className="text-sm text-blue-200 leading-relaxed mb-4 flex-1">{description}</p>
 
                     {/* Command */}
                     {command && (
@@ -441,10 +430,10 @@ public class Main {
                                 {fileStats.totalFiles > 0 && (
                                     <>
                                         <div className={`text-xs text-${color}-300`}>
-                                            <span className="font-medium">File Types:</span> {fileStats.fileTypes.join(', ')}
+                                            <span className="font-medium">File Types:</span> {fileStats.fileTypes.join(", ")}
                                         </div>
                                         <div className={`text-xs text-${color}-400 max-h-16 overflow-y-auto`}>
-                                            <span className="font-medium">Files:</span> {files.map(f => f.filename).join(', ')}
+                                            <span className="font-medium">Files:</span> {files.map((f) => f.filename).join(", ")}
                                         </div>
                                     </>
                                 )}
@@ -456,21 +445,21 @@ public class Main {
                     <div className="mt-auto pt-4 border-t border-blue-500/20">
                         <Button
                             onClick={() => handleGitOperation(title)}
-                            disabled={isLoading} // Disable button when loading
+                            disabled={isLoading}
                             className={`w-full bg-gradient-to-r from-${color}-600 to-${color}-800 hover:from-${color}-500 hover:to-${color}-700 text-white font-medium rounded-lg px-4 py-2.5 transition-all duration-200 flex items-center justify-center gap-2 shadow-lg hover:shadow-${color}-500/25 border border-${color}-500/30`}
                         >
                             {isLoading ? (
                                 <span className="animate-spin h-4 w-4 border-2 border-current border-r-transparent rounded-full"></span>
                             ) : (
-                                <IconPlayerPlayFilled className="h-4 w-4"/>
+                                <IconPlayerPlayFilled className="h-4 w-4" />
                             )}
-                            {isLoading ? 'Executing...' : 'Execute'}
+                            {isLoading ? "Executing..." : "Execute"}
                         </Button>
                     </div>
                 </div>
             </div>
-        );
-    };
+        )
+    }
 
     const links = [
         {
@@ -498,17 +487,19 @@ public class Main {
             icon: <IconFileCode className="h-full w-full text-blue-400 dark:text-blue-300" />,
             href: "/studenthome/linux",
         },
-    ];
+    ]
 
     const gitOperations = [
         {
             title: "Upload File",
-            description: `Upload files from your computer. Currently supports ${fileStats.fileTypes.length > 0 ? fileStats.fileTypes.join(', ') : 'Java, text, and source code'} files. You have ${fileStats.totalFiles} files loaded.`,
+            description: `Upload files from your computer. Currently supports ${
+                fileStats.fileTypes.length > 0 ? fileStats.fileTypes.join(", ") : "Java, text, and source code"
+            } files. You have ${fileStats.totalFiles} files loaded.`,
             icon: <IconUpload className="h-6 w-6" />,
             color: "blue",
             command: `Upload via file picker • Current: ${fileStats.totalFiles} files`,
             isSpecial: true,
-            isLoading: false, // Upload doesn't have a long loading state typically
+            isLoading: false,
         },
         {
             title: "Save Project",
@@ -539,7 +530,8 @@ public class Main {
         },
         {
             title: "Clone Repository",
-            description: "Create a local copy of a remote repository on your machine. This downloads all files, branches, and commit history.",
+            description:
+                "Create a local copy of a remote repository on your machine. This downloads all files, branches, and commit history.",
             icon: <IconCopy className="h-6 w-6" />,
             color: "cyan",
             command: "git clone <repository-url>",
@@ -547,62 +539,69 @@ public class Main {
         },
         {
             title: "Pull Changes",
-            description: "Download and merge changes from a remote repository into your current branch. Stay synchronized with team updates.",
+            description:
+                "Download and merge changes from a remote repository into your current branch. Stay synchronized with team updates.",
             icon: <IconCloudDownload className="h-6 w-6" />,
             color: "teal",
             command: "git pull origin main",
         },
         {
             title: "Commit Changes",
-            description: "Save your staged changes to the repository with a descriptive message. Create a snapshot of your project's current state.",
+            description:
+                "Save your staged changes to the repository with a descriptive message. Create a snapshot of your project's current state.",
             icon: <IconGitCommit className="h-6 w-6" />,
             color: "emerald",
             command: 'git commit -m "Your message"',
         },
         {
             title: "Merge Branches",
-            description: "Combine changes from different branches into one. Integrate feature branches back into your main development line.",
+            description:
+                "Combine changes from different branches into one. Integrate feature branches back into your main development line.",
             icon: <IconGitMerge className="h-6 w-6" />,
             color: "violet",
             command: "git merge feature-branch",
         },
         {
             title: "Rebase",
-            description: "Reapply commits on top of another base tip. Clean up commit history and create a linear project timeline.",
+            description:
+                "Reapply commits on top of another base tip. Clean up commit history and create a linear project timeline.",
             icon: <IconHistory className="h-6 w-6" />,
             color: "indigo",
             command: "git rebase main",
         },
         {
             title: "Create Branch",
-            description: "Create a new branch for feature development or experimentation. Work on isolated changes without affecting main code.",
+            description:
+                "Create a new branch for feature development or experimentation. Work on isolated changes without affecting main code.",
             icon: <IconGitBranch className="h-6 w-6" />,
             color: "sky",
             command: "git checkout -b new-branch",
         },
         {
             title: "Fork Repository",
-            description: "Create a personal copy of someone else's repository. Contribute to open source projects or customize existing code.",
+            description:
+                "Create a personal copy of someone else's repository. Contribute to open source projects or customize existing code.",
             icon: <IconGitFork className="h-6 w-6" />,
             color: "pink",
             command: "Fork via GitHub UI",
         },
         {
             title: "Pull Request",
-            description: "Propose changes to a repository by requesting that your changes be pulled into the main branch. Collaborate and review code.",
+            description:
+                "Propose changes to a repository by requesting that your changes be pulled into the main branch. Collaborate and review code.",
             icon: <IconGitPullRequest className="h-6 w-6" />,
             color: "rose",
             command: "Create via GitHub UI",
         },
-    ];
+    ]
 
     const items = gitOperations.map((operation) => ({
-        title: "", // Title is used in GitOperationCard's header, not directly here
-        description: "", // Description is used in GitOperationCard's header, not directly here
+        title: "",
+        description: "",
         header: <GitOperationCard {...operation} />,
         className: "md:col-span-1",
         icon: null,
-    }));
+    }))
 
     return (
         <>
@@ -611,10 +610,9 @@ public class Main {
                 type="file"
                 ref={fileInputRef}
                 onChange={handleFileUpload}
-                style={{ display: 'none' }}
-                accept=".java,.txt,.js,.py,.cpp,.c,.h,.css,.html,.json,.xml,.md" // Consider expanding for more code types
+                style={{ display: "none" }}
+                accept=".java,.txt,.js,.py,.cpp,.c,.h,.css,.html,.json,.xml,.md"
             />
-            {/* <ToastContainer position="bottom-right" autoClose={3000} hideProgressBar={false} newestOnTop={false} closeOnClick rtl={false} pauseOnFocusLoss draggable pauseOnHover theme="dark" /> */}
 
             <div className="min-h-screen w-full bg-black relative flex flex-col items-center antialiased">
                 {/* Hero Section */}
@@ -626,12 +624,12 @@ public class Main {
                         </div>
 
                         <h1 className="text-5xl md:text-7xl font-bold bg-gradient-to-b from-blue-400 via-blue-300 to-cyan-400 bg-clip-text text-transparent mb-6">
-                            Your Repository
+                            Java Repository
                         </h1>
 
                         <p className="text-xl text-blue-200 max-w-2xl mx-auto leading-relaxed mb-4">
-                            Master Git operations and repository management with integrated file handling.
-                            Upload files, save projects, create repositories, and push code to GitHub.
+                            Master Git operations and repository management with integrated file handling. Upload files, save
+                            projects, create repositories, and push code to GitHub.
                         </p>
 
                         {signedIn && (
@@ -657,7 +655,12 @@ public class Main {
                                 <div className="mt-3 pt-3 border-t border-blue-500/20 text-center">
                                     <p className="text-sm text-blue-300">
                                         Welcome, <span className="text-blue-400 font-medium">{name}</span>
-                                        {project && <> • Project: <span className="text-green-400 font-medium">{project}</span></>}
+                                        {project && (
+                                            <>
+                                                {" "}
+                                                • Project: <span className="text-green-400 font-medium">{project}</span>
+                                            </>
+                                        )}
                                     </p>
                                 </div>
                             </div>
@@ -690,7 +693,7 @@ public class Main {
                                             className="flex items-center justify-center w-14 h-14 bg-black/70 backdrop-blur-sm hover:bg-gray-800/90 rounded-xl transition-all duration-300 hover:scale-110 hover:rotate-2 border border-blue-500/30 shadow-lg hover:shadow-xl hover:shadow-blue-500/25"
                                         >
                                             {React.cloneElement(link.icon, {
-                                                className: "h-6 w-6 text-blue-400 group-hover:text-blue-300 transition-colors duration-200"
+                                                className: "h-6 w-6 text-blue-400 group-hover:text-blue-300 transition-colors duration-200",
                                             })}
                                         </Link>
 
@@ -722,5 +725,5 @@ public class Main {
                 </div>
             </div>
         </>
-    );
+    )
 }

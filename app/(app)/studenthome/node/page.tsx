@@ -143,7 +143,7 @@ export default function NodeDashboard() {
                     <span>Open Node IDE</span>
                 </Link>
                 <Link
-                    href="/studenthome/node/debugger"
+                    href="/studenthome/debugger"
                     className="w-1/2 border border-green-500/50 dark:border-green-400/50 text-green-600 dark:text-green-300 rounded-lg px-3 py-2 bg-green-50/50 dark:bg-green-900/20 hover:bg-green-100/80 dark:hover:bg-green-900/40 flex items-center gap-2 transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-green-500/20 text-sm font-medium group-hover:border-green-400/70"
                 >
                     <IconDeviceLaptop className="h-4 w-4 flex-shrink-0" />
@@ -334,7 +334,7 @@ export default function NodeDashboard() {
                 <div className="flex items-center justify-between pt-2 border-t border-green-300/30 dark:border-green-600/30 flex-shrink-0">
                     <p className="text-xs text-green-500 dark:text-green-400 font-medium">5 pending assignments</p>
                     <Link
-                        href="/studenthome/node/assignments"
+                        href="/studenthome/classes"
                         className="text-xs text-green-500 hover:text-green-600 dark:text-green-400 dark:hover:text-green-300 hover:underline transition-colors group-hover:text-green-400"
                     >
                         View all
@@ -525,7 +525,7 @@ export default function NodeDashboard() {
         {
             title: "Debugger",
             icon: <IconDeviceLaptop className="h-full w-full text-green-400" />,
-            href: "/studenthome/node/debugger",
+            href: "/studenthome/debugger",
         },
         {
             title: "Repository",

@@ -196,7 +196,7 @@ export default function CPPDashboard() {
                     <span>Open C++ IDE</span>
                 </Link>
                 <Link
-                    href="/studenthome/cpp/debugger"
+                    href="/studenthome/debugger"
                     className="w-1/2 border border-purple-500/50 dark:border-purple-400/50 text-purple-600 dark:text-purple-300 rounded-lg px-3 py-2 bg-purple-50/50 dark:bg-purple-900/20 hover:bg-purple-100/80 dark:hover:bg-purple-900/40 flex items-center gap-2 transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-purple-500/20 text-sm font-medium group-hover:border-purple-400/70"
                 >
                     <IconDeviceLaptop className="h-4 w-4 flex-shrink-0" />
@@ -437,7 +437,7 @@ export default function CPPDashboard() {
                 <div className="flex items-center justify-between pt-2 border-t border-purple-300/30 dark:border-purple-600/30 flex-shrink-0">
                     <p className="text-xs text-purple-500 dark:text-purple-400 font-medium">7 pending assignments</p>
                     <Link
-                        href="/studenthome/cpp/assignments"
+                        href="/studenthome/classes"
                         className="text-xs text-purple-500 hover:text-purple-600 dark:text-purple-400 dark:hover:text-purple-300 hover:underline transition-colors group-hover:text-purple-400"
                     >
                         View all
@@ -648,7 +648,7 @@ export default function CPPDashboard() {
         {
             title: "Debugger",
             icon: <IconDeviceLaptop className="h-full w-full text-purple-400" />,
-            href: "/studenthome/cpp/debugger",
+            href: "/studenthome/debugger",
         },
         {
             title: "Repository",

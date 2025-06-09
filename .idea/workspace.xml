@@ -4,10 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b81c8c27-8c15-4931-ae89-c670a04f9254" name="Changes" comment="Python v0.1">
+    <list default="true" id="b81c8c27-8c15-4931-ae89-c670a04f9254" name="Changes" comment=".env.local github signin fixing for netlify">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/python/ide/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/python/ide/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -49,6 +47,9 @@
   &quot;associatedIndex&quot;: 5
 }</component>
   <component name="ProjectId" id="2x5vocJKUWqx56TS4WkljKxocu2" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
@@ -60,7 +61,7 @@
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
     &quot;git-widget-placeholder&quot;: &quot;main&quot;,
     &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/davee/WebstormProjects/Rep-lite/app/(app)/studenthome&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/davee/WebstormProjects/Rep-lite/app/(app)/educatorhome&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.standard&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
@@ -77,6 +78,9 @@
 }</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\davee\WebstormProjects\Rep-lite\app\(app)\educatorhome" />
+      <recent name="C:\Users\davee\WebstormProjects\Rep-lite\app\(app)\educatorhome\" />
+      <recent name="C:\Users\davee\WebstormProjects\Rep-lite\app\(app)" />
       <recent name="C:\Users\davee\WebstormProjects\Rep-lite\app\(app)\studenthome" />
       <recent name="C:\Users\davee\WebstormProjects\Rep-lite\app\(app)\studenthome\linux\public" />
     </key>
@@ -120,6 +124,8 @@
       <workItem from="1749064407008" duration="13751000" />
       <workItem from="1749099989844" duration="14101000" />
       <workItem from="1749154969245" duration="6455000" />
+      <workItem from="1749391157105" duration="11566000" />
+      <workItem from="1749408187282" duration="15093000" />
     </task>
     <task id="LOCAL-00001" summary="so many errors do not run">
       <option name="closed" value="true" />
@@ -249,7 +255,39 @@
       <option name="project" value="LOCAL" />
       <updated>1749278430154</updated>
     </task>
-    <option name="localTasksCounter" value="17" />
+    <task id="LOCAL-00017" summary="login and educatorhome v0.1">
+      <option name="closed" value="true" />
+      <created>1749411749209</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1749411749209</updated>
+    </task>
+    <task id="LOCAL-00018" summary="final commits to educatorhome and studenthome made page functionality">
+      <option name="closed" value="true" />
+      <created>1749420414178</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1749420414178</updated>
+    </task>
+    <task id="LOCAL-00019" summary="final commits to educatorhome and studenthome made page functionality">
+      <option name="closed" value="true" />
+      <created>1749420438725</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1749420438725</updated>
+    </task>
+    <task id="LOCAL-00020" summary=".env.local github signin fixing for netlify">
+      <option name="closed" value="true" />
+      <created>1749423156361</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1749423156361</updated>
+    </task>
+    <option name="localTasksCounter" value="21" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -292,7 +330,10 @@
     <MESSAGE value="last minute fixes + comments to explain API and other parts of the site" />
     <MESSAGE value="small fixes before i commit fully the full code" />
     <MESSAGE value="Python v0.1" />
-    <option name="LAST_COMMIT_MESSAGE" value="Python v0.1" />
+    <MESSAGE value="login and educatorhome v0.1" />
+    <MESSAGE value="final commits to educatorhome and studenthome made page functionality" />
+    <MESSAGE value=".env.local github signin fixing for netlify" />
+    <option name="LAST_COMMIT_MESSAGE" value=".env.local github signin fixing for netlify" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -301,18 +342,6 @@
           <url>file://$PROJECT_DIR$/app/(app)/studenthome/python/page.tsx</url>
           <line>642</line>
           <option name="timeStamp" value="6" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="javascript">
-          <url>file://$PROJECT_DIR$/app/(app)/studenthome/python/ide/page.tsx</url>
-          <line>433</line>
-          <properties lambdaOrdinal="-1" />
-          <option name="timeStamp" value="12" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="javascript">
-          <url>file://$PROJECT_DIR$/app/(app)/studenthome/python/ide/page.tsx</url>
-          <line>159</line>
-          <properties lambdaOrdinal="-1" />
-          <option name="timeStamp" value="13" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

@@ -11,6 +11,7 @@ declare module "next-auth" {
             role?: string | null;
             school_abbr?: string | null;
             isNewUser?: boolean;
+            userType?: "student" | "educator"; // <-- Add this line
         } & DefaultSession["user"];
     }
 
@@ -18,6 +19,7 @@ declare module "next-auth" {
         role?: string | null;
         school_abbr?: string | null;
         isNewUser?: boolean;
+        userType?: "student" | "educator"; // <-- Add this line
     }
 }
 
@@ -27,5 +29,6 @@ declare module "next-auth/jwt" {
         role?: string | null;
         school_abbr?: string | null;
         isNewUser?: boolean;
+        userType?: "student" | "educator"; // <-- Add this line
     }
 }

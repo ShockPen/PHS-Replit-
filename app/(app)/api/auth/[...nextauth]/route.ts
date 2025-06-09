@@ -1,8 +1,30 @@
-//Authorization routes for GitHub API
-
 import NextAuth from "next-auth";
-import { authOptions } from "@/lib/auth";
+import GithubProvider from "next-auth/providers/github";
+import GoogleProvider from "next-auth/providers/google"; // If you want to re-enable Google later
 
-const handler = NextAuth(authOptions);
+// Helper function to ensure required env vars are set
+function getEnv(name: string): string {
+    const value = process.env[name];
+    if (!value) {
+        throw new Error(`Missing environment variable: ${name}`);
+    }
+    return value;
+}
+
+const handler = NextAuth({
+    providers: [
+        GithubProvider({
+            clientId: getEnv("GITHUB_ID"),
+            clientSecret: getEnv("GITHUB_SECRET"),
+        }),
+
+        GoogleProvider({
+          clientId: getEnv("GOOGLE_CLIENT_ID"),
+          clientSecret: getEnv("GOOGLE_CLIENT_SECRET"),
+        }),
+    ],
+    secret: getEnv("NEXTAUTH_SECRET"),
+});
 
 export { handler as GET, handler as POST };
+export default handler;

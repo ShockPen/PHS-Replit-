@@ -9,26 +9,25 @@ import {
 import { cn } from "@/app/lib/utils";
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
-import { IconHome, IconDirections } from "@tabler/icons-react";
+import { IconHome, IconDirections, IconSchool, IconUser } from "@tabler/icons-react";
 
 import ThemeSwitcher from "../ThemeSwitcher";
 
 export const FloatingNav = ({
-    // navItems,
-    className,
-}: {
-    // navItems: {
-    //     name: string;
-    //     link: string;
-    //     icon?: JSX.Element;
-    // }[];
+                                className,
+                            }: {
+    navItems?: {
+        name: string;
+        link: string;
+        icon?: JSX.Element;
+    }[];
     className?: string;
 }) => {
 
-    const { data: session } = useSession();
+    const { data: session, status } = useSession();
     const { scrollYProgress } = useScroll();
 
-    const [visible, setVisible] = useState(false);
+    const [visible, setVisible] = useState(true);
 
     useMotionValueEvent(scrollYProgress, "change", (current) => {
         // Check if current is not undefined and is a number
@@ -47,27 +46,48 @@ export const FloatingNav = ({
         }
     });
 
-    const navItems = [
-        {
-            name: "Home",
-            link: "/",
-            icon: <IconHome />,
-            // icon: <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="size-6">
-            //     <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
-            // </svg>
-            
-        },
-        {
-            name: "Student home",
-            link: "/studenthome",
-            icon: <IconDirections />,
-        },
-        // {
-        //     name: "Contact",
-        //     link: "/about",
-        //     icon: <p className="h-4 w-4 text-neutral-500 dark:text-white">TEST</p>,
-        // }
-    ];
+    // Get user type from session
+    const userType = session?.user?.userType as "student" | "educator" | undefined;
+    const schoolAbbr = session?.user?.school_abbr as string | undefined;
+
+    // Create dynamic nav items based on user type
+    const getNavItems = () => {
+        const baseNavItems = [
+            {
+                name: "Home",
+                link: "/",
+                icon: <IconHome className="h-4 w-4" />,
+            }
+        ];
+
+        // Add user-specific home link if user is logged in
+        if (session && userType) {
+            const userHomeItem = {
+                name: userType === "student" ? "Student Home" : "Educator Home",
+                link: userType === "student" ? "/studenthome" : "/educatorhome",
+                icon: <IconUser className="h-4 w-4" />,
+            };
+            baseNavItems.push(userHomeItem);
+        }
+
+        return baseNavItems;
+    };
+
+    const navItems = getNavItems();
+
+    // Show loading state while session is being fetched
+    if (status === "loading") {
+        return (
+            <motion.div
+                className={cn(
+                    "flex max-w-fit fixed top-10 inset-x-0 mx-auto border border-transparent dark:border-white/[0.2] rounded-full dark:bg-black bg-white shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(25,28,33,0.02),0px_0px_0px_1px_rgba(25,28,33,0.08)] z-[5000] pr-2 pl-4 py-2 items-center justify-center space-x-4",
+                    className
+                )}
+            >
+                <div className="animate-pulse">Loading...</div>
+            </motion.div>
+        );
+    }
 
     return (
         <AnimatePresence mode="wait">
@@ -84,17 +104,17 @@ export const FloatingNav = ({
                     duration: 0.2,
                 }}
                 className={cn(
-                    "flex max-w-fit  fixed top-10 inset-x-0 mx-auto border border-transparent dark:border-white/[0.2] rounded-full dark:bg-black bg-white shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(25,28,33,0.02),0px_0px_0px_1px_rgba(25,28,33,0.08)] z-[5000] pr-2 pl-4 py-2  items-center justify-center space-x-4",
+                    "flex max-w-fit fixed top-10 inset-x-0 mx-auto border border-transparent dark:border-white/[0.2] rounded-full dark:bg-black bg-white shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(25,28,33,0.02),0px_0px_0px_1px_rgba(25,28,33,0.08)] z-[5000] pr-2 pl-4 py-2 items-center justify-center space-x-4",
                     className
                 )}
             >
-                <div className="flex space-x-4 justify-center md:flex-row ">
+                <div className="flex space-x-4 justify-center md:flex-row">
                     {navItems.map((navItem: any, idx: number) => (
                         <Link
                             key={`link=${idx}`}
                             href={navItem.link}
                             className={cn(
-                                "relative dark:text-neutral-50 items-center flex space-x-1 text-neutral-600 dark:hover:text-neutral-300 hover:text-neutral-500"
+                                "relative dark:text-neutral-50 items-center flex space-x-1 text-neutral-600 dark:hover:text-neutral-300 hover:text-neutral-500 transition-colors"
                             )}
                         >
                             <span className="block sm:hidden">{navItem.icon}</span>
@@ -103,42 +123,56 @@ export const FloatingNav = ({
                     ))}
                 </div>
 
+                {/* Show login/register buttons when not authenticated */}
                 {!session && (
                     <>
-                        <a href="/login">
-                            <button className="border text-sm font-medium relative border-neutral-200 dark:border-white/[0.2] text-black dark:text-white px-4 py-2 rounded-full">
+                        <Link href="/login">
+                            <button className="border text-sm font-medium relative border-neutral-200 dark:border-white/[0.2] text-black dark:text-white px-4 py-2 rounded-full hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors">
                                 <span>Login</span>
-                                <span className="absolute inset-x-0 w-1/2 mx-auto -bottom-px bg-gradient-to-r from-transparent via-blue-500 to-transparent  h-px" />
+                                <span className="absolute inset-x-0 w-1/2 mx-auto -bottom-px bg-gradient-to-r from-transparent via-blue-500 to-transparent h-px" />
                             </button>
-                        </a>
-                        <a href="/register">
-                            <button className="border text-sm font-medium relative border-neutral-200 dark:border-white/[0.2] text-black dark:text-white px-4 py-2 rounded-full">
+                        </Link>
+                        <Link href="/register">
+                            <button className="border text-sm font-medium relative border-neutral-200 dark:border-white/[0.2] text-black dark:text-white px-4 py-2 rounded-full hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors">
                                 <span>Register</span>
-                                <span className="absolute inset-x-0 w-1/2 mx-auto -bottom-px bg-gradient-to-r from-transparent via-blue-500 to-transparent  h-px" />
+                                <span className="absolute inset-x-0 w-1/2 mx-auto -bottom-px bg-gradient-to-r from-transparent via-blue-500 to-transparent h-px" />
                             </button>
-                        </a>
+                        </Link>
                     </>
                 )}
+
+                {/* Show user-specific content when authenticated */}
                 {session && (
                     <>
-                        <Link
-                            href={"/" + session.user.school_abbr}
-                            className={cn(
-                                "relative dark:text-neutral-50 items-center flex space-x-1 text-neutral-600 dark:hover:text-neutral-300 hover:text-neutral-500"
-                            )}
+                        {/* School link if user has school_abbr */}
+                        {schoolAbbr && (
+                            <Link
+                                href={`/${schoolAbbr}`}
+                                className={cn(
+                                    "relative dark:text-neutral-50 items-center flex space-x-1 text-neutral-600 dark:hover:text-neutral-300 hover:text-neutral-500 transition-colors"
+                                )}
+                            >
+                                <span className="block sm:hidden">
+                                    <IconSchool className="h-4 w-4" />
+                                </span>
+                                <span className="hidden sm:block text-sm">{schoolAbbr}</span>
+                            </Link>
+                        )}
+
+                        {/* User type indicator */}
+                        <div className="flex items-center space-x-1 text-xs text-neutral-500 dark:text-neutral-400 bg-neutral-100 dark:bg-neutral-800 px-2 py-1 rounded-full">
+                            <span className="capitalize">{userType}</span>
+                        </div>
+
+                        {/* Logout button */}
+                        <button
+                            className="border text-sm font-medium relative border-neutral-200 dark:border-white/[0.2] text-black dark:text-white px-4 py-2 rounded-full hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors"
+                            onClick={() => signOut({ callbackUrl: '/', redirect: true })}
                         >
-                            <span className="block sm:hidden"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-6">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
-                            </svg>
-                            </span>
-                            <span className="hidden sm:block text-sm">{session.user.school_abbr}</span>
-                        </Link>
-                        <button className="border text-sm font-medium relative border-neutral-200 dark:border-white/[0.2] text-black dark:text-white px-4 py-2 rounded-full" onClick={() => signOut({ callbackUrl: '/', redirect: true })}>
                             <span>Logout</span>
-                            <span className="absolute inset-x-0 w-1/2 mx-auto -bottom-px bg-gradient-to-r from-transparent via-blue-500 to-transparent  h-px" />
+                            <span className="absolute inset-x-0 w-1/2 mx-auto -bottom-px bg-gradient-to-r from-transparent via-blue-500 to-transparent h-px" />
                         </button>
                     </>
-
                 )}
 
                 <ThemeSwitcher />
