@@ -547,7 +547,7 @@ export default function PythonDashboard() {
         {
             title: "Back Home",
             icon: <IconHome className="h-full w-full text-orange-400" />,
-            href: "/studenthome",
+            href: "/educatorhome",
         },
         {
             title: "Python IDE",

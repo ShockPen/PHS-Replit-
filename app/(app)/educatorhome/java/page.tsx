@@ -545,7 +545,7 @@ const createProject = async () => {
         {
             title: "Back Home",
             icon: <IconHome className="h-full w-full text-blue-400" />,
-            href: "/studenthome",
+            href: "/educatorhome",
         },
         {
             title: "Java IDE",

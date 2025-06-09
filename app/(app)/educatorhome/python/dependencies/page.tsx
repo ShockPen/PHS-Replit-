@@ -69,7 +69,7 @@ export default function Page() {
         {
             title: "Home",
             icon: <IconHome className="h-full w-full text-blue-500 dark:text-blue-300" />,
-            href: "/studenthome",
+            href: "/educatorhome",
         },
         {
             title: "Dashboard",

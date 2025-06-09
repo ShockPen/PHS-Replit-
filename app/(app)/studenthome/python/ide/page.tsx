@@ -32,7 +32,7 @@ import Script from "next/script"
 import { useSearchParams, useRouter } from "next/navigation"
 import JSZip from "jszip"
 import { saveAs } from "file-saver"
-import { Code, Edit3, Play } from "lucide-react"
+import { Code, Edit3, Play } from 'lucide-react'
 
 const MonacoEditor = dynamic(() => import("@monaco-editor/react"), { ssr: false })
 
@@ -52,8 +52,8 @@ interface OutputItem {
     timestamp: string
 }
 
-// In-memory storage for demonstration
-const memoryStorage = {
+// Enhanced localStorage management with proper .py file handling
+const localStorageManager = {
     getItem: (key: string) => {
         if (typeof window !== "undefined") {
             return localStorage.getItem(key)
@@ -72,6 +72,38 @@ const memoryStorage = {
         }
         console.log(`Removed from localStorage: ${key}`)
     },
+    // Get all Python projects from localStorage
+    getAllPythonProjects: () => {
+        if (typeof window === "undefined") return []
+
+        const projects = []
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i)
+            if (key && key.startsWith('python_project_')) {
+                try {
+                    const data = JSON.parse(localStorage.getItem(key) || '{}')
+                    if (data.files && Array.isArray(data.files)) {
+                        // Filter only .py files for the repo page
+                        const pythonFiles = data.files.filter((file: File) =>
+                            file.filename.endsWith('.py')
+                        )
+                        if (pythonFiles.length > 0) {
+                            projects.push({
+                                projectName: data.project || key.replace('python_project_', ''),
+                                files: pythonFiles,
+                                timestamp: data.timestamp,
+                                totalFiles: data.files.length,
+                                pythonFiles: pythonFiles.length
+                            })
+                        }
+                    }
+                } catch (error) {
+                    console.error(`Error parsing project ${key}:`, error)
+                }
+            }
+        }
+        return projects
+    }
 }
 
 export default function PythonIDE() {
@@ -115,10 +147,12 @@ print("Hello, World!")
     const [isSavedToLocalStorage, setIsSavedToLocalStorage] = useState(true)
     const [isSavedToDatabase, setIsSavedToDatabase] = useState(true)
     const [lastLocalStorageSave, setLastLocalStorageSave] = useState<string>("")
+    const [lastAutoSave, setLastAutoSave] = useState<string>("")
 
     // Session management
     const [signedIn, setSignedIn] = useState(false)
     const [name, setName] = useState("")
+    const [githubToken, setGithubToken] = useState<string>("")
     const { data: session } = useSession()
     const searchParams = useSearchParams()
     const router = useRouter()
@@ -129,12 +163,19 @@ print("Hello, World!")
     const monacoEditorRef = useRef<any>(null)
     const isResizing = useRef(false)
     const isResizingOutput = useRef(false)
+    const autoSaveIntervalRef = useRef<NodeJS.Timeout | null>(null)
 
-    // Initialize session
+    // Initialize session and GitHub token
     useEffect(() => {
         if (session && (session.user.role === "student" || session.user.role === "educator")) {
             setSignedIn(true)
             setName(session.user.name || "User")
+
+            // Get GitHub token from session if available
+            if (session.accessToken) {
+                setGithubToken(session.accessToken)
+            }
+
             loadUserProjects()
         }
     }, [session])
@@ -177,6 +218,11 @@ print("Hello, World!")
             inputRef.current.focus()
         }
     }, [isWaitingForInput])
+
+    // Load project from localStorage on mount
+    useEffect(() => {
+        loadFromLocalStorage()
+    }, [currentProject])
 
     // Utility functions
     const addToOutput = (text: string, type: OutputItem["type"] = "output") => {
@@ -344,7 +390,7 @@ def test_io():
         setIsSavedToDatabase(false)
     }
 
-    // Save management functions
+    // Enhanced save management functions
     const saveToLocalStorage = useCallback(() => {
         const saveData = {
             project: currentProject,
@@ -354,17 +400,24 @@ def test_io():
         }
 
         const saveKey = `python_project_${currentProject}`
-        memoryStorage.setItem(saveKey, JSON.stringify(saveData))
+        localStorageManager.setItem(saveKey, JSON.stringify(saveData))
 
         setIsSavedToLocalStorage(true)
         setLastLocalStorageSave(new Date().toISOString())
 
-        addToOutput(`✓ Project saved to local storage at ${new Date().toLocaleTimeString()}`, "system")
+        // Dispatch custom event to notify repo page of updates
+        if (typeof window !== "undefined") {
+            window.dispatchEvent(new CustomEvent('pythonProjectSaved', {
+                detail: { project: currentProject, files: files.filter(f => f.filename.endsWith('.py')) }
+            }))
+        }
+
+        return true
     }, [files, currentProject, activeFile])
 
     const loadFromLocalStorage = useCallback(() => {
         const saveKey = `python_project_${currentProject}`
-        const savedData = memoryStorage.getItem(saveKey)
+        const savedData = localStorageManager.getItem(saveKey)
 
         if (savedData) {
             try {
@@ -393,7 +446,14 @@ def test_io():
     const saveProject = async () => {
         try {
             // Save locally first
-            saveToLocalStorage()
+            const localSaveSuccess = saveToLocalStorage()
+
+            if (!localSaveSuccess) {
+                addToOutput("✗ Failed to save to local storage", "error")
+                return
+            }
+
+            addToOutput(`✓ Project saved to local storage at ${new Date().toLocaleTimeString()}`, "system")
 
             if (signedIn) {
                 const response = await fetch("/api/student/save_files/post", {
@@ -657,16 +717,31 @@ sys.stderr.flush()
         monacoEditorRef.current = editor
     }
 
-    // Auto-save functionality
+    // Enhanced auto-save functionality - saves every 30 seconds
     useEffect(() => {
-        const interval = setInterval(() => {
-            if (!isSavedToLocalStorage && files.length > 0) {
-                saveToLocalStorage()
-                addToOutput(`⚡ Auto-saved to local storage at ${new Date().toLocaleTimeString()}`, "system")
-            }
-        }, 30000)
+        // Clear existing interval
+        if (autoSaveIntervalRef.current) {
+            clearInterval(autoSaveIntervalRef.current)
+        }
 
-        return () => clearInterval(interval)
+        // Set up new auto-save interval
+        autoSaveIntervalRef.current = setInterval(() => {
+            if (!isSavedToLocalStorage && files.length > 0) {
+                const success = saveToLocalStorage()
+                if (success) {
+                    const now = new Date().toLocaleTimeString()
+                    setLastAutoSave(now)
+                    addToOutput(`⚡ Auto-saved to local storage at ${now}`, "system")
+                }
+            }
+        }, 30000) // 30 seconds
+
+        // Cleanup on unmount
+        return () => {
+            if (autoSaveIntervalRef.current) {
+                clearInterval(autoSaveIntervalRef.current)
+            }
+        }
     }, [isSavedToLocalStorage, saveToLocalStorage, files])
 
     // Keyboard shortcuts
@@ -984,7 +1059,7 @@ sys.stderr.flush()
                                 </div>
                             )}
 
-                            {/* Save Status */}
+                            {/* Enhanced Save Status */}
                             {(hasUnsavedChanges() || lastLocalStorageSave) && (
                                 <div className="mt-4 p-3 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg">
                                     <div className="text-xs space-y-1">
@@ -1005,6 +1080,11 @@ sys.stderr.flush()
                                         {lastLocalStorageSave && (
                                             <div className="text-neutral-500 text-xs">
                                                 Last saved: {new Date(lastLocalStorageSave).toLocaleTimeString()}
+                                            </div>
+                                        )}
+                                        {lastAutoSave && (
+                                            <div className="text-blue-500 text-xs">
+                                                Auto-save: {lastAutoSave} (every 30s)
                                             </div>
                                         )}
                                     </div>

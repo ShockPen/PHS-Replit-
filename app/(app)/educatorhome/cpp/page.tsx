@@ -638,7 +638,7 @@ export default function CPPDashboard() {
         {
             title: "Back Home",
             icon: <IconHome className="h-full w-full text-purple-400" />,
-            href: "/studenthome",
+            href: "/educatorhome",
         },
         {
             title: "C++ IDE",

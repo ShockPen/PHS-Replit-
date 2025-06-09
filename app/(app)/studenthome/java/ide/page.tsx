@@ -1,6 +1,6 @@
-"use client";
+"use client"
 
-import { Sidebar, SidebarBody, SidebarLink } from "@/app/components/ui/sidebar";
+import { Sidebar, SidebarBody, SidebarLink } from "@/app/components/ui/sidebar"
 import {
     IconArrowLeft,
     IconBrandTabler,
@@ -9,7 +9,6 @@ import {
     IconCoffee,
     IconPackage,
     IconTemplate,
-    IconFileTypeJs,
     IconCode,
     IconTrash,
     IconFolderDown,
@@ -19,61 +18,95 @@ import {
     IconPlayerPlayFilled,
     IconCloudUpload,
     IconBrandGithub,
-} from "@tabler/icons-react";
-import Link from "next/link";
-import { motion } from "framer-motion";
-import Image from "next/image";
-import { cn } from "@/app/lib/utils";
-import JSZip from "jszip";
-import { saveAs } from "file-saver"; // Also install file-saver
-import React, { useEffect, useRef, useState, useCallback } from 'react';
-import { useSession } from "next-auth/react";
-import dynamic from 'next/dynamic';
-import { get } from "http";
-import { useSearchParams, useRouter } from "next/navigation";
-import {Code, Edit3, Play, Trash2} from "lucide-react";
+} from "@tabler/icons-react"
+import Link from "next/link"
+import { motion } from "framer-motion"
+import Image from "next/image"
+import { cn } from "@/lib/utils"
+import JSZip from "jszip"
+import { saveAs } from "file-saver"
+import React, { useEffect, useRef, useState, useCallback } from "react"
+import { useSession } from "next-auth/react"
+import dynamic from "next/dynamic"
+import { useSearchParams, useRouter } from "next/navigation"
+import { Code, Edit3, Play } from 'lucide-react'
 
 // Import MonacoEditor to avoid SSR issues
-const MonacoEditor = dynamic(() => import('@monaco-editor/react'), { ssr: false });
+const MonacoEditor = dynamic(() => import("@monaco-editor/react"), { ssr: false })
 
 declare global {
     interface Window {
-        cheerpjInit: (options?: object) => Promise<void>;
-        cheerpjRunMain: any;
-        cheerpjAddStringFile: any;
+        cheerpjInit: (options?: object) => Promise<void>
+        cheerpjRunMain: any
+        cheerpjAddStringFile: any
     }
 }
 
 interface File {
-    filename: string;
-    contents: string;
+    filename: string
+    contents: string
 }
 
-interface Project {
-    project_name: string,
-    files: File[]
+interface OutputItem {
+    text: string
+    type: "output" | "error" | "system" | "input"
+    timestamp: string
 }
 
-// In-memory storage for demonstration (replace with localStorage in real environment)
-const memoryStorage = {
+// Enhanced localStorage manager for Java projects
+const localStorageManager = {
     getItem: (key: string) => {
-        // In real environment: return localStorage.getItem(key);
-        return null; // Simulated for demo
+        if (typeof window !== "undefined") {
+            return localStorage.getItem(key)
+        }
+        return null
     },
     setItem: (key: string, value: string) => {
-        // In real environment: localStorage.setItem(key, value);
-        console.log(`Would save to localStorage: ${key}`, JSON.parse(value));
+        if (typeof window !== "undefined") {
+            localStorage.setItem(key, value)
+        }
+        console.log(`Saved to localStorage: ${key}`)
     },
     removeItem: (key: string) => {
-        // In real environment: localStorage.removeItem(key);
-        console.log(`Would remove from localStorage: ${key}`);
-    }
-};
+        if (typeof window !== "undefined") {
+            localStorage.removeItem(key)
+        }
+        console.log(`Removed from localStorage: ${key}`)
+    },
+    getAllJavaProjects: () => {
+        if (typeof window === "undefined") return []
+
+        const projects = []
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i)
+            if (key && key.startsWith("java_project_")) {
+                try {
+                    const data = JSON.parse(localStorage.getItem(key) || "{}")
+                    if (data.files && Array.isArray(data.files)) {
+                        const javaFiles = data.files.filter((file: File) => file.filename.endsWith(".java"))
+                        if (javaFiles.length > 0) {
+                            projects.push({
+                                projectName: data.project || key.replace("java_project_", ""),
+                                files: javaFiles,
+                                timestamp: data.timestamp,
+                                totalFiles: data.files.length,
+                                javaFiles: javaFiles.length,
+                            })
+                        }
+                    }
+                } catch (error) {
+                    console.error(`Error parsing project ${key}:`, error)
+                }
+            }
+        }
+        return projects
+    },
+}
 
 const Editor = () => {
     const [files, setFiles] = useState<File[]>([
         {
-            filename: 'Main.java',
+            filename: "Main.java",
             contents: `import java.util.Scanner;
 
 public class Main {
@@ -87,7 +120,7 @@ public class Main {
 `,
         },
         {
-            filename: 'CustomFileInputStream.java',
+            filename: "CustomFileInputStream.java",
             contents: `/*
 CustomFileInputStream.java
 
@@ -151,17 +184,9 @@ public class CustomFileInputStream extends InputStream {
             // set the custom InputStream as the standard input
             System.setIn(new CustomFileInputStream());
 
-            // System.out.println(args[0]);
-            // Class<?> clazz = Class.forName(args[0]);
-            // Method method = clazz.getMethod("main", String[].class);
-            // method.invoke(null, (Object) new String[]{});
-
             // invoke main method in the user's main class
-            // Main clazz2 = new Main();
             Main.main(new String[0]);
 
-        // } catch (InvocationTargetException e) {
-        //     e.getTargetException().printStackTrace();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -169,381 +194,390 @@ public class CustomFileInputStream extends InputStream {
 }
 `,
         },
-    ]);
+    ])
 
-    const [activeFile, setActiveFile] = useState('Main.java');
-    const [outputLines, setOutputLines] = useState<string[]>([]);
-    const [cheerpjLoaded, setCheerpjLoaded] = useState(false);
-    const inputFieldRef = useRef<HTMLInputElement>(null);
-    const outputRef = useRef<HTMLDivElement>(null);
-    const [showSystemFiles, setShowSystemFiles] = useState(false);
-    const [sidebarWidth, setSidebarWidth] = useState(300);
-    const isResizing = useRef(false);
-    const monacoEditorRef = useRef<any>(null);
-    const [open, setOpen] = useState(false);
-    const searchParams = useSearchParams();
-    const router = useRouter();
-    const projectFromUrl = searchParams.get("project") ?? "";
-    const [signedIn, setSignedIn] = useState(false);
-    const [name, setName] = useState('');
-    const [project, setProject] = useState(projectFromUrl);
-    const [projectList, setProjectList] = useState<string[]>([]);
-    const { data: session } = useSession();
-    const [outputHeight, setOutputHeight] = useState(200); // initial height
-    const isResizingOutput = useRef(false);
+    const [activeFile, setActiveFile] = useState("Main.java")
+    const [output, setOutput] = useState<OutputItem[]>([])
+    const [cheerpjLoaded, setCheerpjLoaded] = useState(false)
+    const inputFieldRef = useRef<HTMLInputElement>(null)
+    const outputRef = useRef<HTMLDivElement>(null)
+    const [sidebarWidth, setSidebarWidth] = useState(300)
+    const isResizing = useRef(false)
+    const monacoEditorRef = useRef<any>(null)
+    const [open, setOpen] = useState(false)
+    const searchParams = useSearchParams()
+    const router = useRouter()
+    const projectFromUrl = searchParams.get("project") ?? ""
+    const [signedIn, setSignedIn] = useState(false)
+    const [name, setName] = useState("")
+
+    // Project management
+    const [currentProject, setCurrentProject] = useState("My Java Project")
+    const [projectList, setProjectList] = useState<string[]>(["My Java Project"])
 
     // Save management states
-    const [isSavedToLocalStorage, setIsSavedToLocalStorage] = useState(true);
-    const [isSavedToDatabase, setIsSavedToDatabase] = useState(true);
-    const [lastLocalStorageSave, setLastLocalStorageSave] = useState<string>("");
+    const [isSavedToLocalStorage, setIsSavedToLocalStorage] = useState(true)
+    const [isSavedToDatabase, setIsSavedToDatabase] = useState(true)
+    const [lastLocalStorageSave, setLastLocalStorageSave] = useState<string>("")
+    const [lastAutoSave, setLastAutoSave] = useState<string>("")
 
-    // GitHub functionality states
-    const [createdRepos, setCreatedRepos] = useState<
-        { owner: string; name: string }[]
-    >([]);
+    // Session management
+    const [githubToken, setGithubToken] = useState<string>("")
+    const { data: session } = useSession()
+
+    // Refs
+    const autoSaveIntervalRef = useRef<NodeJS.Timeout | null>(null)
+
+    // Initialize session and GitHub token
+    useEffect(() => {
+        if (session && (session.user.role === "student" || session.user.role === "educator")) {
+            setSignedIn(true)
+            setName(session.user.name || "User")
+
+            if (session.accessToken) {
+                setGithubToken(session.accessToken)
+            }
+
+            loadUserProjects()
+        }
+    }, [session])
+
+    // Auto-scroll output
+    useEffect(() => {
+        if (outputRef.current) {
+            outputRef.current.scrollTop = outputRef.current.scrollHeight
+        }
+    }, [output])
+
+    // Load project from localStorage on mount
+    useEffect(() => {
+        loadFromLocalStorage()
+    }, [currentProject])
+
+    // Utility functions
+    const addToOutput = (text: string, type: OutputItem["type"] = "output") => {
+        setOutput((prev) => [
+            ...prev,
+            {
+                text,
+                type,
+                timestamp: new Date().toLocaleTimeString(),
+            },
+        ])
+    }
+
+    const clearOutput = () => {
+        setOutput([])
+    }
 
     // Save to localStorage (excluding CustomFileInputStream.java)
     const saveToLocalStorage = useCallback(() => {
-        const filesToSave = files.filter(f => f.filename !== 'CustomFileInputStream.java');
+        const filesToSave = files.filter((f) => f.filename !== "CustomFileInputStream.java")
         const saveData = {
-            project,
+            project: currentProject,
             files: filesToSave,
             timestamp: new Date().toISOString(),
-            activeFile
-        };
+            activeFile,
+        }
 
-        const saveKey = `java_project_${project}`;
-        memoryStorage.setItem(saveKey, JSON.stringify(saveData));
+        const saveKey = `java_project_${currentProject}`
+        localStorageManager.setItem(saveKey, JSON.stringify(saveData))
 
-        setIsSavedToLocalStorage(true);
-        setLastLocalStorageSave(new Date().toISOString());
+        setIsSavedToLocalStorage(true)
+        setLastLocalStorageSave(new Date().toISOString())
 
-        // Show success message
-        setOutputLines(prev => [...prev, `✓ Project saved to local storage at ${new Date().toLocaleTimeString()}`]);
-    }, [files, project, activeFile]);
+        // Dispatch custom event to notify repo page of updates
+        if (typeof window !== "undefined") {
+            window.dispatchEvent(
+                new CustomEvent("javaProjectSaved", {
+                    detail: { project: currentProject, files: filesToSave },
+                }),
+            )
+        }
+
+        addToOutput(`✓ Project saved to local storage at ${new Date().toLocaleTimeString()}`, "system")
+        return true
+    }, [files, currentProject, activeFile])
 
     // Load from localStorage
     const loadFromLocalStorage = useCallback(() => {
-        const saveKey = `java_project_${project}`;
-        const savedData = memoryStorage.getItem(saveKey);
+        const saveKey = `java_project_${currentProject}`
+        const savedData = localStorageManager.getItem(saveKey)
 
         if (savedData) {
             try {
-                const parsedData = JSON.parse(savedData);
+                const parsedData = JSON.parse(savedData)
                 if (parsedData.files && Array.isArray(parsedData.files)) {
                     // Add CustomFileInputStream.java back to the loaded files
-                    const customFileInputStream = files.find(f => f.filename === 'CustomFileInputStream.java');
-                    const loadedFiles = [...parsedData.files];
+                    const customFileInputStream = files.find((f) => f.filename === "CustomFileInputStream.java")
+                    const loadedFiles = [...parsedData.files]
                     if (customFileInputStream) {
-                        loadedFiles.push(customFileInputStream);
+                        loadedFiles.push(customFileInputStream)
                     }
 
-                    setFiles(loadedFiles);
+                    setFiles(loadedFiles)
                     if (parsedData.activeFile) {
-                        setActiveFile(parsedData.activeFile);
+                        setActiveFile(parsedData.activeFile)
                     }
-                    setLastLocalStorageSave(parsedData.timestamp || "");
-                    setIsSavedToLocalStorage(true);
+                    setLastLocalStorageSave(parsedData.timestamp || "")
+                    setIsSavedToLocalStorage(true)
 
-                    setOutputLines(prev => [...prev, `✓ Project loaded from local storage (saved: ${new Date(parsedData.timestamp).toLocaleTimeString()})`]);
-                    return true;
+                    addToOutput(
+                        `✓ Project loaded from local storage (saved: ${new Date(parsedData.timestamp).toLocaleTimeString()})`,
+                        "system",
+                    )
+                    return true
                 }
             } catch (error) {
-                console.error('Error loading from localStorage:', error);
+                console.error("Error loading from localStorage:", error)
             }
         }
-        return false;
-    }, [project, files]);
+        return false
+    }, [currentProject, files])
 
     // Save to database (existing function, modified to update save status)
     const saveProject = async () => {
         try {
-            const filteredFiles = files.filter(file => file.filename !== 'CustomFileInputStream.java');
+            // Save locally first
+            const localSaveSuccess = saveToLocalStorage()
 
-            // Save locally in localStorage for cross-page access
-            localStorage.setItem('projectFiles', JSON.stringify(filteredFiles));
-            localStorage.setItem('projectData', JSON.stringify(project));
+            if (!localSaveSuccess) {
+                addToOutput("✗ Failed to save to local storage", "error")
+                return
+            }
 
-            const response = await fetch('/api/student/save_files/post', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ project, files: filteredFiles })
-            });
+            if (signedIn) {
+                const filteredFiles = files.filter((file) => file.filename !== "CustomFileInputStream.java")
 
-            if (response.ok) {
-                const fileCount = filteredFiles.length;
-                const totalLines = filteredFiles.reduce((acc, file) => acc + file.contents.split('\n').length, 0);
+                const response = await fetch("/api/student/save_files/post", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ project: currentProject, files: filteredFiles }),
+                })
 
-                setIsSavedToDatabase(true);
-                setOutputLines(prev => [
-                    ...prev,
-                    `✓ Project saved at ${new Date().toLocaleTimeString()} | Files: ${fileCount} | Total Lines: ${totalLines}`
-                ]);
-            } else {
-                const error = await response.json();
-                throw new Error(error?.error || 'Database save failed');
+                if (response.ok) {
+                    const fileCount = filteredFiles.length
+                    const totalLines = filteredFiles.reduce((acc, file) => acc + file.contents.split("\n").length, 0)
+
+                    setIsSavedToDatabase(true)
+                    addToOutput(
+                        `✓ Project saved to database at ${new Date().toLocaleTimeString()} | Files: ${fileCount} | Total Lines: ${totalLines}`,
+                        "system",
+                    )
+                } else {
+                    const error = await response.json()
+                    throw new Error(error?.error || "Database save failed")
+                }
             }
         } catch (errors: any) {
-            console.log(errors);
-            setOutputLines(prev => [
-                ...prev,
-                `✗ Failed to save to database: ${errors.message}`
-            ]);
+            console.log(errors)
+            addToOutput(`✗ Failed to save to database: ${errors.message}`, "error")
         }
-    };
+    }
 
-    // Handle navigation to Git page
-    const handleGitNavigation = async () => {
+    const loadUserProjects = async () => {
         try {
-            // First save to database
-            await saveProject();
-
-            // Then navigate to git page
-            router.push('/studenthome/java/repo');
+            if (signedIn) {
+                const response = await fetch("/api/student/get_projectlist/post", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                })
+                const data = await response.json()
+                if (data.java_project_names) {
+                    setProjectList(data.java_project_names)
+                }
+            }
         } catch (error) {
-            console.error('Error saving before navigation:', error);
-            setOutputLines(prev => [...prev, `✗ Error saving before navigation: ${error}`]);
+            console.error("Failed to load projects:", error)
         }
-    };
+    }
 
     // Check if project has unsaved changes
     const hasUnsavedChanges = useCallback(() => {
-        return !isSavedToLocalStorage || !isSavedToDatabase;
-    }, [isSavedToLocalStorage, isSavedToDatabase]);
+        return !isSavedToLocalStorage || !isSavedToDatabase
+    }, [isSavedToLocalStorage, isSavedToDatabase])
 
     // Handle beforeunload event
     useEffect(() => {
         const handleBeforeUnload = (e: BeforeUnloadEvent) => {
             if (hasUnsavedChanges()) {
-                e.preventDefault();
-                e.returnValue = 'You have unsaved changes. Are you sure you want to leave?';
-                return 'You have unsaved changes. Are you sure you want to leave?';
+                e.preventDefault()
+                e.returnValue = "You have unsaved changes. Are you sure you want to leave?"
+                return "You have unsaved changes. Are you sure you want to leave?"
             }
-        };
+        }
 
-        window.addEventListener('beforeunload', handleBeforeUnload);
+        window.addEventListener("beforeunload", handleBeforeUnload)
 
         return () => {
-            window.removeEventListener('beforeunload', handleBeforeUnload);
-        };
-    }, [hasUnsavedChanges]);
+            window.removeEventListener("beforeunload", handleBeforeUnload)
+        }
+    }, [hasUnsavedChanges])
 
     // Mark as unsaved when files change
+    const updateFileContent = (content: string) => {
+        setFiles((prev) => prev.map((f) => (f.filename === activeFile ? { ...f, contents: content } : f)))
+        setIsSavedToLocalStorage(false)
+        setIsSavedToDatabase(false)
+    }
+
+    // Enhanced auto-save functionality - saves every 30 seconds
     useEffect(() => {
-        // Don't mark as unsaved on initial load or when loading from storage
-        if (files.length > 0 && lastLocalStorageSave) {
-            setIsSavedToLocalStorage(false);
-            setIsSavedToDatabase(false);
+        // Clear existing interval
+        if (autoSaveIntervalRef.current) {
+            clearInterval(autoSaveIntervalRef.current)
         }
-    }, [files, activeFile]);
 
-    // Auto-save to localStorage every 30 seconds if there are changes
-    useEffect(() => {
-        const interval = setInterval(() => {
+        // Set up new auto-save interval
+        autoSaveIntervalRef.current = setInterval(() => {
             if (!isSavedToLocalStorage && files.length > 0) {
-                saveToLocalStorage();
-                setOutputLines(prev => [...prev, `⚡ Auto-saved to local storage at ${new Date().toLocaleTimeString()}`]);
+                const success = saveToLocalStorage()
+                if (success) {
+                    const now = new Date().toLocaleTimeString()
+                    setLastAutoSave(now)
+                    addToOutput(`⚡ Auto-saved to local storage at ${now}`, "system")
+                }
             }
-        }, 30000); // 30 seconds
+        }, 30000) // 30 seconds
 
-        return () => clearInterval(interval);
-    }, [isSavedToLocalStorage, saveToLocalStorage, files]);
-
-    const [repoName, setRepoName] = React.useState("");
+        // Cleanup on unmount
+        return () => {
+            if (autoSaveIntervalRef.current) {
+                clearInterval(autoSaveIntervalRef.current)
+            }
+        }
+    }, [isSavedToLocalStorage, saveToLocalStorage, files])
 
     const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-        const file = event.target.files?.[0];
-        if (!file) return;
+        const file = event.target.files?.[0]
+        if (!file) return
 
         // Handle .zip file upload
         if (file.name.endsWith(".zip")) {
             try {
-                const zip = await JSZip.loadAsync(file);
-                const filesArray: { filename: string; contents: string }[] = [];
+                const zip = await JSZip.loadAsync(file)
+                const filesArray: { filename: string; contents: string }[] = []
 
                 // Iterate through all entries in the zip
                 await Promise.all(
                     Object.keys(zip.files).map(async (filename) => {
-                        const zipEntry = zip.files[filename];
+                        const zipEntry = zip.files[filename]
 
                         if (!zipEntry.dir) {
-                            const content = await zipEntry.async("string");
-                            filesArray.push({ filename, contents: content });
+                            const content = await zipEntry.async("string")
+                            filesArray.push({ filename, contents: content })
                         }
-                    })
-                );
+                    }),
+                )
 
                 // Set the files to state
-                setFiles((prev) => [...prev, ...filesArray]);
+                setFiles((prev) => [...prev, ...filesArray])
 
                 if (filesArray.length > 0) {
-                    setActiveFile(filesArray[0].filename);
+                    setActiveFile(filesArray[0].filename)
                 }
 
+                addToOutput(`Imported ${filesArray.length} files from ZIP`, "system")
             } catch (err) {
-                console.error("Failed to read zip file:", err);
-                alert("Failed to open ZIP file.");
+                console.error("Failed to read zip file:", err)
+                alert("Failed to open ZIP file.")
             }
-
         } else {
             // Handle plain file
-            const reader = new FileReader();
+            const reader = new FileReader()
 
             reader.onload = (e) => {
-                const contents = e.target?.result as string;
+                const contents = e.target?.result as string
                 const newFile = {
                     filename: file.name,
                     contents,
-                };
-
-                setFiles((prev) => [...prev, newFile]);
-                setActiveFile(file.name);
-            };
-
-            reader.readAsText(file);
-        }
-    };
-
-    useEffect(() => {
-        if (session && session.user.role == 'student') {
-            setSignedIn(true);
-
-            const getStudentInfo = async () => {
-                const response = await fetch('/api/student/get_studentinfo/post', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                });
-
-                const data = await response.json();
-
-                setName(data.firstname + ' ' + data.lastname);
-            }
-            getStudentInfo();
-
-            const getProjectFiles = async () => {
-                const response = await fetch('/api/student/get_files/post', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ project_name: project })
-                });
-
-                const data = await response.json();
-
-                if (data.project) {
-                    setFiles(data.project.files);
-                    setIsSavedToDatabase(true);
-                } else {
-                    // Try to load from localStorage if database doesn't have the project
-                    if (!loadFromLocalStorage()) {
-                        alert('Project not found');
-                    }
                 }
+
+                setFiles((prev) => [...prev, newFile])
+                setActiveFile(file.name)
+                addToOutput(`File "${file.name}" uploaded`, "system")
             }
 
-            if (project) {
-                getProjectFiles();
-            }
-
-            const getProjects = async () => {
-                const response = await fetch('/api/student/get_projectlist/post', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                });
-
-                const data = await response.json();
-
-                setProjectList(data.java_project_names);
-            }
-            getProjects();
+            reader.readAsText(file)
         }
-    }, [project, session, loadFromLocalStorage]);
-
-    const convertToMonaco = (files: File[]) => {
-        var fileData: any = []
-        files.forEach(file => {
-            fileData[file.filename] = file.contents;
-        });
-        return fileData;
+        setIsSavedToLocalStorage(false)
+        setIsSavedToDatabase(false)
     }
 
     // load wasm compiler
     useEffect(() => {
         const loadCheerpJ = async () => {
             try {
-                const cheerpJUrl = 'https://cjrtnc.leaningtech.com/3.0/cj3loader.js';
+                const cheerpJUrl = "https://cjrtnc.leaningtech.com/3.0/cj3loader.js"
 
                 if (!document.querySelector(`script[src="${cheerpJUrl}"]`)) {
-                    const script = document.createElement('script');
-                    script.src = cheerpJUrl;
+                    const script = document.createElement("script")
+                    script.src = cheerpJUrl
                     script.onload = async () => {
                         if (window.cheerpjInit) {
                             await window.cheerpjInit({
-                                status: 'none',
+                                status: "none",
                                 natives: {
                                     async Java_CustomFileInputStream_getCurrentInputString() {
-                                        let input = await getInput();
-                                        return input;
+                                        let input = await getInput()
+                                        return input
                                     },
                                     async Java_CustomFileInputStream_clearCurrentInputString() {
-                                        clearInput();
+                                        clearInput()
                                     },
                                 },
-                            });
-                            setCheerpjLoaded(true);
+                            })
+                            setCheerpjLoaded(true)
+                            addToOutput("Java environment ready!", "system")
                         }
-                    };
-                    document.body.appendChild(script);
+                    }
+                    document.body.appendChild(script)
                 }
             } catch (error) {
-                console.error('Error loading Java Compiler:', error);
+                console.error("Error loading Java Compiler:", error)
+                addToOutput(`Failed to initialize Java: ${error}`, "error")
             }
-        };
+        }
 
-        loadCheerpJ();
-        setActiveFile('Main.java');
-    }, [project, session]);
+        loadCheerpJ()
+        setActiveFile("Main.java")
+    }, [currentProject, session])
 
     const getInput = () => {
         return new Promise<string>((resolve) => {
             const checkKeyPress = (e: KeyboardEvent) => {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    e.stopImmediatePropagation();
+                if (e.key === "Enter") {
+                    e.preventDefault()
+                    e.stopImmediatePropagation()
                     if (inputFieldRef.current) {
-                        inputFieldRef.current.removeEventListener('keydown', checkKeyPress);
-                        inputFieldRef.current.disabled = true;
-                        inputFieldRef.current.blur();
-                        const value = inputFieldRef.current.value + '\n';
-                        setOutputLines((prev) => [...prev, '> ' + inputFieldRef.current!.value]);
+                        inputFieldRef.current.removeEventListener("keydown", checkKeyPress)
+                        inputFieldRef.current.disabled = true
+                        inputFieldRef.current.blur()
+                        const value = inputFieldRef.current.value + "\n"
+                        addToOutput("> " + inputFieldRef.current.value, "input")
                         if (outputRef.current) {
-                            outputRef.current.scrollTop = outputRef.current.scrollHeight;
+                            outputRef.current.scrollTop = outputRef.current.scrollHeight
                         }
-                        resolve(value);
+                        resolve(value)
                     }
                 }
-            };
-            if (inputFieldRef.current) {
-                inputFieldRef.current.disabled = false;
-                inputFieldRef.current.value = '';
-                inputFieldRef.current.focus();
-                inputFieldRef.current.addEventListener('keydown', checkKeyPress);
             }
-        });
-    };
+            if (inputFieldRef.current) {
+                inputFieldRef.current.disabled = false
+                inputFieldRef.current.value = ""
+                inputFieldRef.current.focus()
+                inputFieldRef.current.addEventListener("keydown", checkKeyPress)
+            }
+        })
+    }
 
     const clearInput = () => {
         if (inputFieldRef.current) {
-            inputFieldRef.current.value = '';
+            inputFieldRef.current.value = ""
         }
-    };
+    }
 
     const generateCustomFileInputStream = (targetClassName: string) => {
         return `/*
@@ -616,205 +650,193 @@ public class CustomFileInputStream extends InputStream {
             e.printStackTrace();
         }
     }
-}`;
-    };
+}`
+    }
 
     const getClassNameFromFile = (filename: string) => {
-        return filename.replace('.java', '');
-    };
+        return filename.replace(".java", "")
+    }
 
     const runCode = async () => {
         if (!cheerpjLoaded) {
-            setOutputLines(['Java virtual machine is still loading! Please wait...']);
-            return;
+            addToOutput("Java virtual machine is still loading! Please wait...", "error")
+            return
         }
 
-        const activeClassName = getClassNameFromFile(activeFile);
+        const activeClassName = getClassNameFromFile(activeFile)
 
-        setOutputLines([`Compiling ${activeFile}...`]);
+        addToOutput(`Compiling ${activeFile}...`, "system")
 
-        const encoder = new TextEncoder();
+        const encoder = new TextEncoder()
 
-        const dynamicCustomFileInputStream = generateCustomFileInputStream(activeClassName);
+        const dynamicCustomFileInputStream = generateCustomFileInputStream(activeClassName)
 
         const filesToCompile = [
-            ...files.filter(f => f.filename !== 'CustomFileInputStream.java'),
-            { filename: 'CustomFileInputStream.java', contents: dynamicCustomFileInputStream }
-        ];
+            ...files.filter((f) => f.filename !== "CustomFileInputStream.java"),
+            { filename: "CustomFileInputStream.java", contents: dynamicCustomFileInputStream },
+        ]
 
         filesToCompile.forEach(({ filename, contents }) => {
-            const encodedContent = encoder.encode(contents);
-            window.cheerpjAddStringFile('/str/' + filename, encodedContent);
-        });
+            const encodedContent = encoder.encode(contents)
+            window.cheerpjAddStringFile("/str/" + filename, encodedContent)
+        })
 
-        const originalConsoleLog = console.log;
-        const originalConsoleError = console.error;
+        const originalConsoleLog = console.log
+        const originalConsoleError = console.error
         console.log = (msg: string) => {
-            setOutputLines((prev) => [...prev, msg]);
-        };
+            addToOutput(msg, "output")
+        }
         console.error = (msg: string) => {
-            setOutputLines((prev) => [...prev, msg]);
-        };
+            addToOutput(msg, "error")
+        }
 
         try {
-            const sourceFiles = filesToCompile.map(file => '/str/' + file.filename);
-            const classPath = '/app/tools.jar:/files/';
-            const code = await window.cheerpjRunMain(
-                'com.sun.tools.javac.Main',
-                classPath,
-                ...sourceFiles,
-                '-d',
-                '/files/',
-                '-Xlint'
-            );
+            const sourceFiles = filesToCompile.map((file) => "/str/" + file.filename)
+            const classPath = "/app/tools.jar:/files/"
+            const code = await window.cheerpjRunMain("com.sun.tools.javac.Main", classPath, ...sourceFiles, "-d", "/files/", "-Xlint")
 
             if (code !== 0) {
-                setOutputLines((prev) => [...prev, 'Compilation failed.']);
-                return;
+                addToOutput("Compilation failed.", "error")
+                return
             }
 
-            setOutputLines((prev) => [...prev, `Running ${activeFile}...`]);
+            addToOutput(`Running ${activeFile}...`, "system")
 
-            await window.cheerpjRunMain(
-                'CustomFileInputStream',
-                classPath,
-                activeClassName
-            );
-
+            await window.cheerpjRunMain("CustomFileInputStream", classPath, activeClassName)
         } catch (error: any) {
-            console.error('Runtime error:', error);
-            setOutputLines((prev) => [...prev, 'Runtime error: ' + (error?.toString() || '')]);
+            console.error("Runtime error:", error)
+            addToOutput("Runtime error: " + (error?.toString() || ""), "error")
         } finally {
-            console.log = originalConsoleLog;
-            console.error = originalConsoleError;
+            console.log = originalConsoleLog
+            console.error = originalConsoleError
         }
-    };
+    }
 
     const handleEditorChange = (value: string | undefined) => {
-        if (!value) return;
-        setFiles(prev =>
-            prev.map(file =>
-                file.filename === activeFile
-                    ? { ...file, contents: value }
-                    : file
-            )
-        );
-    };
+        if (!value) return
+        updateFileContent(value)
+    }
 
     const addFile = () => {
-        let baseName = 'Class';
-        let extension = '.java';
+        let baseName = "Class"
+        let extension = ".java"
 
         // Get the maximum suffix used so far
-        let maxSuffix = 0;
-        files.forEach(f => {
-            const match = f.filename.match(/^Class(\d*)\.java$/);
+        let maxSuffix = 0
+        files.forEach((f) => {
+            const match = f.filename.match(/^Class(\d*)\.java$/)
             if (match) {
-                const suffix = match[1] ? parseInt(match[1], 10) : 0;
+                const suffix = match[1] ? parseInt(match[1], 10) : 0
                 if (suffix >= maxSuffix) {
-                    maxSuffix = suffix + 1;
+                    maxSuffix = suffix + 1
                 }
             }
-        });
-        const newFileName = `${baseName}${maxSuffix === 0 ? '' : maxSuffix}${extension}`;
+        })
+        const newFileName = `${baseName}${maxSuffix === 0 ? "" : maxSuffix}${extension}`
         setFiles([
             ...files,
             {
                 filename: newFileName,
-                contents: `public class ${newFileName.replace('.java', '')} {\n\n}`,
+                contents: `public class ${newFileName.replace(".java", "")} {\n\n}`,
             },
-        ]);
-        setActiveFile(newFileName);
-    };
+        ])
+        setActiveFile(newFileName)
+        setIsSavedToLocalStorage(false)
+        setIsSavedToDatabase(false)
+    }
 
     const removeFile = (fileName: string) => {
-        if (files.length === 1) return;
-        const newFiles = files.filter(f => f.filename !== fileName);
-        setFiles(newFiles);
-        if (activeFile === fileName && newFiles.length > 0) {
-            setActiveFile(newFiles[0].filename);
+        if (files.length === 1) {
+            addToOutput("Cannot delete the last file", "error")
+            return
         }
-    };
+        const newFiles = files.filter((f) => f.filename !== fileName)
+        setFiles(newFiles)
+        if (activeFile === fileName && newFiles.length > 0) {
+            setActiveFile(newFiles[0].filename)
+        }
+        addToOutput("File deleted", "system")
+        setIsSavedToLocalStorage(false)
+        setIsSavedToDatabase(false)
+    }
 
     const renameFile = (oldFileName: string, newFileName: string) => {
-        if (files.some(f => f.filename === newFileName)) {
-            alert("A file with that name already exists.");
-            return;
+        if (!newFileName.trim()) return
+        if (files.some((f) => f.filename === newFileName)) {
+            alert("A file with that name already exists.")
+            return
         }
-        const updatedFiles = files.map(f =>
-            f.filename === oldFileName
-                ? { ...f, filename: newFileName }
-                : f
-        );
-        setFiles(updatedFiles);
+        const updatedFiles = files.map((f) => (f.filename === oldFileName ? { ...f, filename: newFileName } : f))
+        setFiles(updatedFiles)
         if (activeFile === oldFileName) {
-            setActiveFile(newFileName);
+            setActiveFile(newFileName)
         }
-    };
+        setIsSavedToLocalStorage(false)
+        setIsSavedToDatabase(false)
+    }
 
     const handleExport = async () => {
-        const zip = new JSZip();
+        const zip = new JSZip()
 
-        const filesToExport = files.filter(file => file.filename !== 'CustomFileInputStream.java');
+        const filesToExport = files.filter((file) => file.filename !== "CustomFileInputStream.java")
 
         if (filesToExport.length === 1) {
             // Single file, download directly
-            const file = filesToExport[0];
-            const blob = new Blob([file.contents], { type: 'text/plain' });
-            const url = URL.createObjectURL(blob);
+            const file = filesToExport[0]
+            const blob = new Blob([file.contents], { type: "text/plain" })
+            const url = URL.createObjectURL(blob)
 
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = file.filename;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
+            const a = document.createElement("a")
+            a.href = url
+            a.download = file.filename
+            document.body.appendChild(a)
+            a.click()
+            document.body.removeChild(a)
+            URL.revokeObjectURL(url)
+            addToOutput(`File exported as ${file.filename}`, "system")
         } else {
             // Multiple files, export as ZIP
-            filesToExport.forEach(file => {
-                zip.file(file.filename, file.contents);
-            });
+            filesToExport.forEach((file) => {
+                zip.file(file.filename, file.contents)
+            })
 
-            const blob = await zip.generateAsync({ type: "blob" });
-            saveAs(blob, "project-files.zip");
+            const blob = await zip.generateAsync({ type: "blob" })
+            saveAs(blob, "project-files.zip")
+            addToOutput("Project exported as project-files.zip", "system")
         }
-    };
+    }
 
     const handleEditorDidMount = (editor: any) => {
-        monacoEditorRef.current = editor;
-    };
+        monacoEditorRef.current = editor
+    }
 
     const handleMouseDown = (e: React.MouseEvent) => {
-        isResizing.current = true;
-        document.addEventListener('mousemove', handleMouseMove);
-        document.addEventListener('mouseup', handleMouseUp);
-        document.body.style.userSelect = 'none';
-    };
+        isResizing.current = true
+        document.addEventListener("mousemove", handleMouseMove)
+        document.addEventListener("mouseup", handleMouseUp)
+        document.body.style.userSelect = "none"
+    }
 
     const handleMouseMove = (e: MouseEvent) => {
-        if (!isResizing.current) return;
-        const newWidth = e.clientX - 60;
-        setSidebarWidth(newWidth);
-        e.preventDefault();
+        if (!isResizing.current) return
+        const newWidth = e.clientX - 60
+        setSidebarWidth(newWidth)
+        e.preventDefault()
         if (monacoEditorRef.current) {
-            monacoEditorRef.current.layout();
+            monacoEditorRef.current.layout()
         }
-    };
+    }
 
     const handleMouseUp = () => {
-        isResizing.current = false;
-        document.removeEventListener('mousemove', handleMouseMove);
-        document.removeEventListener('mouseup', handleMouseUp);
-        document.body.style.userSelect = 'auto';
-    };
+        isResizing.current = false
+        document.removeEventListener("mousemove", handleMouseMove)
+        document.removeEventListener("mouseup", handleMouseUp)
+        document.body.style.userSelect = "auto"
+    }
 
     const Logo = () => {
         return (
-            <Link
-                href="/"
-                className="font-normal flex space-x-2 items-center text-sm text-white py-1 relative z-20"
-            >
+            <Link href="/" className="font-normal flex space-x-2 items-center text-sm text-white py-1 relative z-20">
                 <div className="h-6 w-6 bg-gradient-to-br from-blue-400 via-blue-500 to-blue-600 rounded-lg shadow-lg shadow-blue-500/30 flex-shrink-0" />
                 <motion.span
                     initial={{ opacity: 0 }}
@@ -824,78 +846,60 @@ public class CustomFileInputStream extends InputStream {
                     SchoolNest
                 </motion.span>
             </Link>
-        );
-    };
+        )
+    }
 
     const LogoIcon = () => {
         return (
-            <Link
-                href="#"
-                className="font-normal flex space-x-2 items-center text-sm text-white py-1 relative z-20"
-            >
+            <Link href="#" className="font-normal flex space-x-2 items-center text-sm text-white py-1 relative z-20">
                 <div className="h-6 w-6 bg-gradient-to-br from-blue-400 via-blue-500 to-blue-600 rounded-lg shadow-lg shadow-blue-500/30 flex-shrink-0" />
             </Link>
-        );
-    };
+        )
+    }
 
     const links = [
         {
             label: "Home",
             href: "/studenthome/",
-            icon: (
-                <IconBrandTabler className="text-blue-400 h-5 w-5 flex-shrink-0" />
-            ),
+            icon: <IconBrandTabler className="text-blue-400 h-5 w-5 flex-shrink-0" />,
         },
         {
             label: "Profile",
             href: "#",
-            icon: (
-                <IconUserBolt className="text-blue-400 h-5 w-5 flex-shrink-0" />
-            ),
+            icon: <IconUserBolt className="text-blue-400 h-5 w-5 flex-shrink-0" />,
         },
         {
-            label: "Dashboard",
-            href: "/studenthome/java",
-            icon: (
-                <IconCoffee className="text-blue-400 h-5 w-5 flex-shrink-0" />
-            ),
+            label: "Java IDE",
+            href: "/studenthome/java/ide",
+            icon: <IconCoffee className="text-blue-400 h-5 w-5 flex-shrink-0" />,
         },
         {
             label: "Dependencies",
             href: "/studenthome/java/dependencies",
-            icon: (
-                <IconPackage className="text-blue-400 h-5 w-5 flex-shrink-0" />
-            ),
+            icon: <IconPackage className="text-blue-400 h-5 w-5 flex-shrink-0" />,
         },
         {
             label: "Templates",
             href: "/studenthome/java/templates",
-            icon: (
-                <IconTemplate className="text-blue-400 h-5 w-5 flex-shrink-0" />
-            ),
+            icon: <IconTemplate className="text-blue-400 h-5 w-5 flex-shrink-0" />,
         },
         {
             label: "Account Settings",
             href: "#",
-            icon: (
-                <IconSettings className="text-blue-400 h-5 w-5 flex-shrink-0" />
-            ),
+            icon: <IconSettings className="text-blue-400 h-5 w-5 flex-shrink-0" />,
         },
         {
             label: "Logout",
-            href: "",
-            icon: (
-                <IconArrowLeft className="text-blue-400 h-5 w-5 flex-shrink-0" />
-            ),
+            href: "/api/auth/signout",
+            icon: <IconArrowLeft className="text-blue-400 h-5 w-5 flex-shrink-0" />,
         },
-    ];
+    ]
 
-    // @ts-ignore
     return (
         <div
             className={cn(
                 "rounded-md flex flex-col md:flex-row bg-black w-full flex-1 border border-slate-800 overflow-hidden",
-                "h-screen"
+                "h-screen",
             )}
         >
             <Sidebar open={open} setOpen={setOpen}>
@@ -910,7 +914,7 @@ public class CustomFileInputStream extends InputStream {
                         </div>
                     </div>
                     <div>
-                        {signedIn ?
+                        {signedIn ? (
                             <SidebarLink
                                 link={{
                                     label: name,
@@ -924,10 +928,9 @@ public class CustomFileInputStream extends InputStream {
                                             alt="Avatar"
                                         />
                                     ),
-                                }} />
-                            :
-                            null
-                        }
+                                }}
+                            />
+                        ) : null}
                     </div>
                 </SidebarBody>
             </Sidebar>
@@ -936,17 +939,17 @@ public class CustomFileInputStream extends InputStream {
                 className="border-r border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 backdrop-blur-xl flex flex-col"
                 style={{ width: sidebarWidth }}
             >
-                <div className="p-6 -mt-2 h-full flex flex-col overflow-hidden"> {/* moved up by -mt-4 */}
+                <div className="p-6 -mt-2 h-full flex flex-col overflow-hidden">
                     {/* Project Header */}
-                    <div className="mb-4 flex-shrink-0 font-bold flex items-center gap-2"> {/* reduce bottom margin a bit */}
+                    <div className="mb-4 flex-shrink-0 font-bold flex items-center gap-2">
                         {/* SVG and "Java IDE" */}
-                        <svg
-                            className="w-5 h-5"
-                            viewBox="0 0 4825 2550"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                        >
-                            <path fillRule="evenodd" clipRule="evenodd" d="M2088 114L850.672 1226H2265.67L2088 114Z" fill="url(#paint0_linear_0_1)" />
+                        <svg className="w-5 h-5" viewBox="0 0 4825 2550" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                fillRule="evenodd"
+                                clipRule="evenodd"
+                                d="M2088 114L850.672 1226H2265.67L2088 114Z"
+                                fill="url(#paint0_linear_0_1)"
+                            />
                             <path d="M2300.53 1373H851L2475.94 2535L2300.53 1373Z" fill="url(#paint1_linear_0_1)" />
                             <path d="M2476 2535L2300.5 1373L1740.5 2009L2476 2535Z" fill="url(#paint2_linear_0_1)" />
                             <path d="M1232 0H456L531.5 1008L713 1155.5L1591.5 367L1232 0Z" fill="url(#paint3_linear_0_1)" />
@@ -954,31 +957,80 @@ public class CustomFileInputStream extends InputStream {
                             <path d="M4824.5 108.5H2233L2526 1850.5L4824.5 108.5Z" fill="url(#paint5_linear_0_1)" />
                             <path d="M2639.5 2549.5L2566 2025.5L2980.5 1713L3935.5 2394L2639.5 2549.5Z" fill="url(#paint6_linear_0_1)" />
                             <defs>
-                                <linearGradient id="paint0_linear_0_1" x1="1444.15" y1="192.913" x2="1444.15" y2="1152.86" gradientUnits="userSpaceOnUse">
+                                <linearGradient
+                                    id="paint0_linear_0_1"
+                                    x1="1444.15"
+                                    y1="192.913"
+                                    x2="1444.15"
+                                    y2="1152.86"
+                                    gradientUnits="userSpaceOnUse"
+                                >
                                     <stop stopColor="#4E60FF" />
                                     <stop offset="1" stopColor="#789FFF" />
                                 </linearGradient>
-                                <linearGradient id="paint1_linear_0_1" x1="1663.47" y1="1373" x2="1663.47" y2="2535" gradientUnits="userSpaceOnUse">
+                                <linearGradient
+                                    id="paint1_linear_0_1"
+                                    x1="1663.47"
+                                    y1="1373"
+                                    x2="1663.47"
+                                    y2="2535"
+                                    gradientUnits="userSpaceOnUse"
+                                >
                                     <stop stopColor="#ADD0FF" />
                                     <stop offset="0.802885" stopColor="#DDFFF4" />
                                 </linearGradient>
-                                <linearGradient id="paint2_linear_0_1" x1="2112.03" y1="1376.56" x2="2112.03" y2="2533.98" gradientUnits="userSpaceOnUse">
+                                <linearGradient
+                                    id="paint2_linear_0_1"
+                                    x1="2112.03"
+                                    y1="1376.56"
+                                    x2="2112.03"
+                                    y2="2533.98"
+                                    gradientUnits="userSpaceOnUse"
+                                >
                                     <stop stopColor="#CDFFF3" />
                                     <stop offset="1" stopColor="white" />
                                 </linearGradient>
-                                <linearGradient id="paint3_linear_0_1" x1="932.25" y1="82" x2="932.25" y2="1079.5" gradientUnits="userSpaceOnUse">
+                                <linearGradient
+                                    id="paint3_linear_0_1"
+                                    x1="932.25"
+                                    y1="82"
+                                    x2="932.25"
+                                    y2="1079.5"
+                                    gradientUnits="userSpaceOnUse"
+                                >
                                     <stop stopColor="#4E60FF" />
                                     <stop offset="1" stopColor="#789FFF" />
                                 </linearGradient>
-                                <linearGradient id="paint4_linear_0_1" x1="315.128" y1="26.1583" x2="168.856" y2="843.229" gradientUnits="userSpaceOnUse">
+                                <linearGradient
+                                    id="paint4_linear_0_1"
+                                    x1="315.128"
+                                    y1="26.1583"
+                                    x2="168.856"
+                                    y2="843.229"
+                                    gradientUnits="userSpaceOnUse"
+                                >
                                     <stop stopColor="#ADD0FF" />
                                     <stop offset="0.802885" stopColor="#DDFFF4" />
                                 </linearGradient>
-                                <linearGradient id="paint5_linear_0_1" x1="3186.25" y1="-66" x2="3186.25" y2="1850.5" gradientUnits="userSpaceOnUse">
+                                <linearGradient
+                                    id="paint5_linear_0_1"
+                                    x1="3186.25"
+                                    y1="-66"
+                                    x2="3186.25"
+                                    y2="1850.5"
+                                    gradientUnits="userSpaceOnUse"
+                                >
                                     <stop stopColor="#ADD0FF" />
                                     <stop offset="0.802885" stopColor="#DDFFF4" />
                                 </linearGradient>
-                                <linearGradient id="paint6_linear_0_1" x1="3140.39" y1="1772.36" x2="3140.39" y2="2494.48" gradientUnits="userSpaceOnUse">
+                                <linearGradient
+                                    id="paint6_linear_0_1"
+                                    x1="3140.39"
+                                    y1="1772.36"
+                                    x2="3140.39"
+                                    y2="2494.48"
+                                    gradientUnits="userSpaceOnUse"
+                                >
                                     <stop stopColor="#4E60FF" />
                                     <stop offset="1" stopColor="#789FFF" />
                                 </linearGradient>
@@ -987,10 +1039,25 @@ public class CustomFileInputStream extends InputStream {
                         Java IDE
                     </div>
 
+                    {/* Project Selector */}
+                    <div className="mb-4">
+                        <select
+                            value={currentProject}
+                            onChange={(e) => setCurrentProject(e.target.value)}
+                            className="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white text-sm"
+                        >
+                            {projectList.map((project) => (
+                                <option key={project} value={project}>
+                                    {project}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+
                     {/* Files Section */}
                     <div
                         className="flex-1 overflow-y-auto space-y-2 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-blue-300 dark:scrollbar-thumb-blue-600 hover:scrollbar-thumb-blue-400 dark:hover:scrollbar-thumb-blue-500 scrollbar-thumb-rounded-full pb-4"
-                        style={{ marginTop: '-12px' }} /* pull it up more */
+                        style={{ marginTop: "-12px" }}
                     >
                         {/* Main.java - Always first */}
                         <div className="relative group">
@@ -1016,11 +1083,7 @@ public class CustomFileInputStream extends InputStream {
 
                         {/* Other Files */}
                         {files
-                            .filter(
-                                (file) =>
-                                    file.filename !== "Main.java" &&
-                                    file.filename !== "CustomFileInputStream.java"
-                            )
+                            .filter((file) => file.filename !== "Main.java" && file.filename !== "CustomFileInputStream.java")
                             .map((file) => (
                                 <div key={file.filename} className="relative group">
                                     <div className="flex items-center space-x-2">
@@ -1035,18 +1098,16 @@ public class CustomFileInputStream extends InputStream {
                                             <div className="w-8 h-8 bg-gradient-to-br from-orange-400 to-red-500 rounded-lg flex items-center justify-center shadow-sm">
                                                 <Code className="h-4 w-4 text-white" />
                                             </div>
-                                            <span className="font-mono text-sm font-medium truncate flex-1">
-                    {file.filename}
-                  </span>
+                                            <span className="font-mono text-sm font-medium truncate flex-1">{file.filename}</span>
                                         </button>
 
                                         {/* Action Buttons */}
                                         <div className="flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                                             <button
                                                 onClick={() => {
-                                                    const newFileName = prompt("Enter new file name", file.filename);
+                                                    const newFileName = prompt("Enter new file name", file.filename)
                                                     if (newFileName && newFileName !== file.filename) {
-                                                        renameFile(file.filename, newFileName);
+                                                        renameFile(file.filename, newFileName)
                                                     }
                                                 }}
                                                 className="p-2 bg-neutral-100 dark:bg-neutral-800 hover:bg-blue-100 dark:hover:bg-blue-900/40 rounded-lg transition-all duration-200 border border-neutral-200 dark:border-neutral-700 hover:border-blue-300 dark:hover:border-blue-600"
@@ -1069,7 +1130,7 @@ public class CustomFileInputStream extends InputStream {
 
                     {/* Actions Section */}
                     <div className="space-y-4 flex-shrink-0">
-                        <div className="flex  items-center space-x-2 mb-4">
+                        <div className="flex items-center space-x-2 mb-4">
                             <Play className="h-4 w-4 text-blue-500" />
                             <h3 className="text-neutral-900 dark:text-white text-sm font-semibold">Actions</h3>
                         </div>
@@ -1125,7 +1186,7 @@ public class CustomFileInputStream extends InputStream {
 
                             <button
                                 className="rounded-lg py-3 px-4 bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300 font-medium transition-all duration-200 border border-stone-200 dark:border-stone-700 hover:border-stone-300 dark:hover:border-stone-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 active:scale-[0.98]"
-                                onClick={() => window.location.href = '/studenthome/java/repo'}
+                                onClick={() => router.push("/studenthome/java/repo")}
                                 disabled={!cheerpjLoaded}
                             >
                                 <IconBrandGithub className="w-4 h-4" />
@@ -1138,7 +1199,37 @@ public class CustomFileInputStream extends InputStream {
                             <div className="mt-4 p-4 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg">
                                 <div className="flex items-center space-x-3">
                                     <IconLoader className="h-4 w-4 text-blue-500 animate-spin" />
-                                    <span className="text-neutral-600 dark:text-neutral-400 text-sm font-medium">Loading Java Compiler...</span>
+                                    <span className="text-neutral-600 dark:text-neutral-400 text-sm font-medium">
+                    Loading Java Compiler...
+                  </span>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Enhanced Save Status */}
+                        {(hasUnsavedChanges() || lastLocalStorageSave) && (
+                            <div className="mt-4 p-3 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg">
+                                <div className="text-xs space-y-1">
+                                    <div
+                                        className={`flex items-center space-x-2 ${isSavedToLocalStorage ? "text-green-600" : "text-yellow-600"}`}
+                                    >
+                                        <div
+                                            className={`w-2 h-2 rounded-full ${isSavedToLocalStorage ? "bg-green-500" : "bg-yellow-500"}`}
+                                        />
+                                        <span>Local: {isSavedToLocalStorage ? "Saved" : "Unsaved"}</span>
+                                    </div>
+                                    <div
+                                        className={`flex items-center space-x-2 ${isSavedToDatabase ? "text-green-600" : "text-yellow-600"}`}
+                                    >
+                                        <div className={`w-2 h-2 rounded-full ${isSavedToDatabase ? "bg-green-500" : "bg-yellow-500"}`} />
+                                        <span>Database: {isSavedToDatabase ? "Saved" : "Unsaved"}</span>
+                                    </div>
+                                    {lastLocalStorageSave && (
+                                        <div className="text-neutral-500 text-xs">
+                                            Last saved: {new Date(lastLocalStorageSave).toLocaleTimeString()}
+                                        </div>
+                                    )}
+                                    {lastAutoSave && <div className="text-blue-500 text-xs">Auto-save: {lastAutoSave} (every 30s)</div>}
                                 </div>
                             </div>
                         )}
@@ -1153,74 +1244,99 @@ public class CustomFileInputStream extends InputStream {
             />
             {/* monaco editor */}
             <div className="flex-1 flex flex-col min-w-0">
-                <div className='bg-[#1E1E1E]'>
-                    <p
-                        className='ml-2 font-mono '
-                        style={{
-                            fontFamily: 'monospace',
-                        }}
-                    >
-                        {activeFile}
-                    </p>
+                <div className="bg-[#1E1E1E] border-b border-neutral-700">
+                    <p className="ml-2 font-mono text-white py-2">{activeFile}</p>
                 </div>
                 <div className="flex-1">
                     <MonacoEditor
                         language="java"
                         theme="vs-dark"
-                        value={
-                            files.find((f) => f.filename === activeFile)?.contents ?? ""
-                        }
+                        value={files.find((f) => f.filename === activeFile)?.contents ?? ""}
                         onChange={handleEditorChange}
-                        options={{ automaticLayout: true }}
+                        options={{
+                            automaticLayout: true,
+                            fontSize: 14,
+                            lineNumbers: "on",
+                            minimap: { enabled: true },
+                            wordWrap: "on",
+                            tabSize: 4,
+                            insertSpaces: true,
+                        }}
                         onMount={handleEditorDidMount}
                     />
                 </div>
                 {/* Output */}
                 <div
                     style={{
-                        height: '5px',
-                        cursor: 'row-resize',
-                        backgroundColor: '#ccc',
+                        height: "5px",
+                        cursor: "row-resize",
+                        backgroundColor: "#ccc",
                     }}
                 />
 
                 <div
                     style={{
-                        height: '200px',
-                        borderTop: '1px solid #ccc',
-                        backgroundColor: '#1e1e1e',
-                        color: 'white',
-                        fontFamily: 'monospace',
-                        padding: '10px',
-                        overflowY: 'auto',
+                        height: "200px",
+                        borderTop: "1px solid #ccc",
+                        backgroundColor: "#1e1e1e",
+                        color: "white",
+                        fontFamily: "monospace",
+                        padding: "10px",
+                        overflowY: "auto",
                     }}
                     ref={outputRef}
                 >
-                    {outputLines.map((line, index) => (
-                        <div key={index}>{line}</div>
+                    {/* Output Header */}
+                    <div className="flex items-center justify-between mb-2 pb-2 border-b border-gray-600">
+                        <span className="text-sm font-semibold text-gray-300">Output</span>
+                        <button
+                            onClick={clearOutput}
+                            className="text-gray-400 hover:text-white text-xs px-2 py-1 rounded hover:bg-gray-700"
+                        >
+                            Clear
+                        </button>
+                    </div>
 
+                    {/* Output Content */}
+                    {output.map((item, index) => (
+                        <div
+                            key={index}
+                            className={`mb-1 ${
+                                item.type === "error"
+                                    ? "text-red-400"
+                                    : item.type === "system"
+                                        ? "text-yellow-400"
+                                        : item.type === "input"
+                                            ? "text-green-400"
+                                            : "text-white"
+                            }`}
+                        >
+                            {item.type === "system" && <span className="text-gray-500">[{item.timestamp}] </span>}
+                            <span className="whitespace-pre-wrap">{item.text}</span>
+                        </div>
                     ))}
+
                     {/* Input Field */}
-                    <div style={{ display: 'flex' }}>
+                    <div style={{ display: "flex" }}>
                         &gt;&nbsp;
                         <input
                             type="text"
                             ref={inputFieldRef}
                             disabled
                             style={{
-                                width: '100%',
-                                backgroundColor: 'transparent',
-                                color: 'white',
-                                border: 'none',
-                                outline: 'none',
-                                fontFamily: 'monospace',
+                                width: "100%",
+                                backgroundColor: "transparent",
+                                color: "white",
+                                border: "none",
+                                outline: "none",
+                                fontFamily: "monospace",
                             }}
                         />
                     </div>
                 </div>
             </div>
         </div>
-    );
-};
+    )
+}
 
-export default Editor;
+export default Editor
