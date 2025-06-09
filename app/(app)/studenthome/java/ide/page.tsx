@@ -899,7 +899,7 @@ public class CustomFileInputStream extends InputStream {
         <div
             className={cn(
                 "rounded-md flex flex-col md:flex-row bg-black w-full flex-1 border border-slate-800 overflow-hidden",
-                "h-screen",
+                "h-screen"
             )}
         >
             <Sidebar open={open} setOpen={setOpen}>
@@ -943,13 +943,13 @@ public class CustomFileInputStream extends InputStream {
                     {/* Project Header */}
                     <div className="mb-4 flex-shrink-0 font-bold flex items-center gap-2">
                         {/* SVG and "Java IDE" */}
-                        <svg className="w-5 h-5" viewBox="0 0 4825 2550" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path
-                                fillRule="evenodd"
-                                clipRule="evenodd"
-                                d="M2088 114L850.672 1226H2265.67L2088 114Z"
-                                fill="url(#paint0_linear_0_1)"
-                            />
+                        <svg
+                            className="w-5 h-5"
+                            viewBox="0 0 4825 2550"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                        >
+                            <path fillRule="evenodd" clipRule="evenodd" d="M2088 114L850.672 1226H2265.67L2088 114Z" fill="url(#paint0_linear_0_1)" />
                             <path d="M2300.53 1373H851L2475.94 2535L2300.53 1373Z" fill="url(#paint1_linear_0_1)" />
                             <path d="M2476 2535L2300.5 1373L1740.5 2009L2476 2535Z" fill="url(#paint2_linear_0_1)" />
                             <path d="M1232 0H456L531.5 1008L713 1155.5L1591.5 367L1232 0Z" fill="url(#paint3_linear_0_1)" />
@@ -957,80 +957,31 @@ public class CustomFileInputStream extends InputStream {
                             <path d="M4824.5 108.5H2233L2526 1850.5L4824.5 108.5Z" fill="url(#paint5_linear_0_1)" />
                             <path d="M2639.5 2549.5L2566 2025.5L2980.5 1713L3935.5 2394L2639.5 2549.5Z" fill="url(#paint6_linear_0_1)" />
                             <defs>
-                                <linearGradient
-                                    id="paint0_linear_0_1"
-                                    x1="1444.15"
-                                    y1="192.913"
-                                    x2="1444.15"
-                                    y2="1152.86"
-                                    gradientUnits="userSpaceOnUse"
-                                >
+                                <linearGradient id="paint0_linear_0_1" x1="1444.15" y1="192.913" x2="1444.15" y2="1152.86" gradientUnits="userSpaceOnUse">
                                     <stop stopColor="#4E60FF" />
                                     <stop offset="1" stopColor="#789FFF" />
                                 </linearGradient>
-                                <linearGradient
-                                    id="paint1_linear_0_1"
-                                    x1="1663.47"
-                                    y1="1373"
-                                    x2="1663.47"
-                                    y2="2535"
-                                    gradientUnits="userSpaceOnUse"
-                                >
+                                <linearGradient id="paint1_linear_0_1" x1="1663.47" y1="1373" x2="1663.47" y2="2535" gradientUnits="userSpaceOnUse">
                                     <stop stopColor="#ADD0FF" />
                                     <stop offset="0.802885" stopColor="#DDFFF4" />
                                 </linearGradient>
-                                <linearGradient
-                                    id="paint2_linear_0_1"
-                                    x1="2112.03"
-                                    y1="1376.56"
-                                    x2="2112.03"
-                                    y2="2533.98"
-                                    gradientUnits="userSpaceOnUse"
-                                >
+                                <linearGradient id="paint2_linear_0_1" x1="2112.03" y1="1376.56" x2="2112.03" y2="2533.98" gradientUnits="userSpaceOnUse">
                                     <stop stopColor="#CDFFF3" />
                                     <stop offset="1" stopColor="white" />
                                 </linearGradient>
-                                <linearGradient
-                                    id="paint3_linear_0_1"
-                                    x1="932.25"
-                                    y1="82"
-                                    x2="932.25"
-                                    y2="1079.5"
-                                    gradientUnits="userSpaceOnUse"
-                                >
+                                <linearGradient id="paint3_linear_0_1" x1="932.25" y1="82" x2="932.25" y2="1079.5" gradientUnits="userSpaceOnUse">
                                     <stop stopColor="#4E60FF" />
                                     <stop offset="1" stopColor="#789FFF" />
                                 </linearGradient>
-                                <linearGradient
-                                    id="paint4_linear_0_1"
-                                    x1="315.128"
-                                    y1="26.1583"
-                                    x2="168.856"
-                                    y2="843.229"
-                                    gradientUnits="userSpaceOnUse"
-                                >
+                                <linearGradient id="paint4_linear_0_1" x1="315.128" y1="26.1583" x2="168.856" y2="843.229" gradientUnits="userSpaceOnUse">
                                     <stop stopColor="#ADD0FF" />
                                     <stop offset="0.802885" stopColor="#DDFFF4" />
                                 </linearGradient>
-                                <linearGradient
-                                    id="paint5_linear_0_1"
-                                    x1="3186.25"
-                                    y1="-66"
-                                    x2="3186.25"
-                                    y2="1850.5"
-                                    gradientUnits="userSpaceOnUse"
-                                >
+                                <linearGradient id="paint5_linear_0_1" x1="3186.25" y1="-66" x2="3186.25" y2="1850.5" gradientUnits="userSpaceOnUse">
                                     <stop stopColor="#ADD0FF" />
                                     <stop offset="0.802885" stopColor="#DDFFF4" />
                                 </linearGradient>
-                                <linearGradient
-                                    id="paint6_linear_0_1"
-                                    x1="3140.39"
-                                    y1="1772.36"
-                                    x2="3140.39"
-                                    y2="2494.48"
-                                    gradientUnits="userSpaceOnUse"
-                                >
+                                <linearGradient id="paint6_linear_0_1" x1="3140.39" y1="1772.36" x2="3140.39" y2="2494.48" gradientUnits="userSpaceOnUse">
                                     <stop stopColor="#4E60FF" />
                                     <stop offset="1" stopColor="#789FFF" />
                                 </linearGradient>
@@ -1057,7 +1008,7 @@ public class CustomFileInputStream extends InputStream {
                     {/* Files Section */}
                     <div
                         className="flex-1 overflow-y-auto space-y-2 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-blue-300 dark:scrollbar-thumb-blue-600 hover:scrollbar-thumb-blue-400 dark:hover:scrollbar-thumb-blue-500 scrollbar-thumb-rounded-full pb-4"
-                        style={{ marginTop: "-12px" }}
+                        style={{ marginTop: '-12px' }}
                     >
                         {/* Main.java - Always first */}
                         <div className="relative group">
@@ -1083,7 +1034,11 @@ public class CustomFileInputStream extends InputStream {
 
                         {/* Other Files */}
                         {files
-                            .filter((file) => file.filename !== "Main.java" && file.filename !== "CustomFileInputStream.java")
+                            .filter(
+                                (file) =>
+                                    file.filename !== "Main.java" &&
+                                    file.filename !== "CustomFileInputStream.java"
+                            )
                             .map((file) => (
                                 <div key={file.filename} className="relative group">
                                     <div className="flex items-center space-x-2">
@@ -1098,16 +1053,18 @@ public class CustomFileInputStream extends InputStream {
                                             <div className="w-8 h-8 bg-gradient-to-br from-orange-400 to-red-500 rounded-lg flex items-center justify-center shadow-sm">
                                                 <Code className="h-4 w-4 text-white" />
                                             </div>
-                                            <span className="font-mono text-sm font-medium truncate flex-1">{file.filename}</span>
+                                            <span className="font-mono text-sm font-medium truncate flex-1">
+                                            {file.filename}
+                                        </span>
                                         </button>
 
                                         {/* Action Buttons */}
                                         <div className="flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                                             <button
                                                 onClick={() => {
-                                                    const newFileName = prompt("Enter new file name", file.filename)
+                                                    const newFileName = prompt("Enter new file name", file.filename);
                                                     if (newFileName && newFileName !== file.filename) {
-                                                        renameFile(file.filename, newFileName)
+                                                        renameFile(file.filename, newFileName);
                                                     }
                                                 }}
                                                 className="p-2 bg-neutral-100 dark:bg-neutral-800 hover:bg-blue-100 dark:hover:bg-blue-900/40 rounded-lg transition-all duration-200 border border-neutral-200 dark:border-neutral-700 hover:border-blue-300 dark:hover:border-blue-600"
@@ -1130,7 +1087,7 @@ public class CustomFileInputStream extends InputStream {
 
                     {/* Actions Section */}
                     <div className="space-y-4 flex-shrink-0">
-                        <div className="flex items-center space-x-2 mb-4">
+                        <div className="flex  items-center space-x-2 mb-4">
                             <Play className="h-4 w-4 text-blue-500" />
                             <h3 className="text-neutral-900 dark:text-white text-sm font-semibold">Actions</h3>
                         </div>
@@ -1186,7 +1143,7 @@ public class CustomFileInputStream extends InputStream {
 
                             <button
                                 className="rounded-lg py-3 px-4 bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300 font-medium transition-all duration-200 border border-stone-200 dark:border-stone-700 hover:border-stone-300 dark:hover:border-stone-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 active:scale-[0.98]"
-                                onClick={() => router.push("/studenthome/java/repo")}
+                                onClick={() => router.push('/studenthome/java/repo')}
                                 disabled={!cheerpjLoaded}
                             >
                                 <IconBrandGithub className="w-4 h-4" />
@@ -1199,9 +1156,7 @@ public class CustomFileInputStream extends InputStream {
                             <div className="mt-4 p-4 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg">
                                 <div className="flex items-center space-x-3">
                                     <IconLoader className="h-4 w-4 text-blue-500 animate-spin" />
-                                    <span className="text-neutral-600 dark:text-neutral-400 text-sm font-medium">
-                    Loading Java Compiler...
-                  </span>
+                                    <span className="text-neutral-600 dark:text-neutral-400 text-sm font-medium">Loading Java Compiler...</span>
                                 </div>
                             </div>
                         )}
@@ -1251,7 +1206,9 @@ public class CustomFileInputStream extends InputStream {
                     <MonacoEditor
                         language="java"
                         theme="vs-dark"
-                        value={files.find((f) => f.filename === activeFile)?.contents ?? ""}
+                        value={
+                            files.find((f) => f.filename === activeFile)?.contents ?? ""
+                        }
                         onChange={handleEditorChange}
                         options={{
                             automaticLayout: true,
@@ -1268,21 +1225,21 @@ public class CustomFileInputStream extends InputStream {
                 {/* Output */}
                 <div
                     style={{
-                        height: "5px",
-                        cursor: "row-resize",
-                        backgroundColor: "#ccc",
+                        height: '5px',
+                        cursor: 'row-resize',
+                        backgroundColor: '#ccc',
                     }}
                 />
 
                 <div
                     style={{
-                        height: "200px",
-                        borderTop: "1px solid #ccc",
-                        backgroundColor: "#1e1e1e",
-                        color: "white",
-                        fontFamily: "monospace",
-                        padding: "10px",
-                        overflowY: "auto",
+                        height: '200px',
+                        borderTop: '1px solid #ccc',
+                        backgroundColor: '#1e1e1e',
+                        color: 'white',
+                        fontFamily: 'monospace',
+                        padding: '10px',
+                        overflowY: 'auto',
                     }}
                     ref={outputRef}
                 >
@@ -1317,19 +1274,19 @@ public class CustomFileInputStream extends InputStream {
                     ))}
 
                     {/* Input Field */}
-                    <div style={{ display: "flex" }}>
+                    <div style={{ display: 'flex' }}>
                         &gt;&nbsp;
                         <input
                             type="text"
                             ref={inputFieldRef}
                             disabled
                             style={{
-                                width: "100%",
-                                backgroundColor: "transparent",
-                                color: "white",
-                                border: "none",
-                                outline: "none",
-                                fontFamily: "monospace",
+                                width: '100%',
+                                backgroundColor: 'transparent',
+                                color: 'white',
+                                border: 'none',
+                                outline: 'none',
+                                fontFamily: 'monospace',
                             }}
                         />
                     </div>
@@ -1339,4 +1296,4 @@ public class CustomFileInputStream extends InputStream {
     )
 }
 
-export default Editor
+export default Editor;

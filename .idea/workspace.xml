@@ -4,8 +4,15 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b81c8c27-8c15-4931-ae89-c670a04f9254" name="Changes" comment="[Operational] localstorage + project management + github">
+    <list default="true" id="b81c8c27-8c15-4931-ae89-c670a04f9254" name="Changes" comment="restoring old github code that works">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/educatorhome/cpp/repo/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/educatorhome/cpp/repo/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/educatorhome/java/repo/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/educatorhome/java/repo/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/educatorhome/python/repo/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/educatorhome/python/repo/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/cpp/repo/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/cpp/repo/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/java/ide/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/java/ide/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/java/repo/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/java/repo/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/python/repo/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/python/repo/page.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -343,7 +350,23 @@
       <option name="project" value="LOCAL" />
       <updated>1749434488209</updated>
     </task>
-    <option name="localTasksCounter" value="28" />
+    <task id="LOCAL-00028" summary="[Operational v2] localstorage + project management + github + UI">
+      <option name="closed" value="true" />
+      <created>1749440153340</created>
+      <option name="number" value="00028" />
+      <option name="presentableId" value="LOCAL-00028" />
+      <option name="project" value="LOCAL" />
+      <updated>1749440153340</updated>
+    </task>
+    <task id="LOCAL-00029" summary="merging w/ ShockPen">
+      <option name="closed" value="true" />
+      <created>1749440264218</created>
+      <option name="number" value="00029" />
+      <option name="presentableId" value="LOCAL-00029" />
+      <option name="project" value="LOCAL" />
+      <updated>1749440264218</updated>
+    </task>
+    <option name="localTasksCounter" value="30" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -395,7 +418,10 @@
     <MESSAGE value="v2 at the cusp of completion (no linux)." />
     <MESSAGE value="added personalized to the user github tokens" />
     <MESSAGE value="[Operational] localstorage + project management + github" />
-    <option name="LAST_COMMIT_MESSAGE" value="[Operational] localstorage + project management + github" />
+    <MESSAGE value="[Operational v2] localstorage + project management + github + UI" />
+    <MESSAGE value="merging w/ ShockPen" />
+    <MESSAGE value="restoring old github code that works" />
+    <option name="LAST_COMMIT_MESSAGE" value="restoring old github code that works" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
