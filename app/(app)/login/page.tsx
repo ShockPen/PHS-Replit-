@@ -35,7 +35,6 @@ export default function Page() {
 
     const [signInPressed, setSignInPressed] = useState(false);
     const [showPassword, setShowPassword] = useState(false); 
-
     const togglePasswordVisibility = () => {
         setShowPassword((prev) => !prev);
     };

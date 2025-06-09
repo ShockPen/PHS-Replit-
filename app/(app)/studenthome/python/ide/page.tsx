@@ -15,7 +15,7 @@ import {
     IconFolderDown,
     IconLoader,
     IconFileDownload,
-    IconUpload,
+
     IconPlayerPlayFilled,
     IconCloudUpload,
     IconBrandGithub,
