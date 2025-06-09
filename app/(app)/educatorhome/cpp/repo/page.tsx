@@ -54,12 +54,11 @@ const localStorageManager = {
                     const data = JSON.parse(localStorage.getItem(key) || "{}")
                     if (data.files && Array.isArray(data.files)) {
                         // Filter only C++ files for the repo page
-                        const cppFiles = data.files.filter(
-                            (file: File) =>
-                                file.filename.endsWith(".cpp") ||
-                                file.filename.endsWith(".c") ||
-                                file.filename.endsWith(".h") ||
-                                file.filename.endsWith(".hpp"),
+                        const cppFiles = data.files.filter((file: File) =>
+                            file.filename.endsWith(".cpp") ||
+                            file.filename.endsWith(".c") ||
+                            file.filename.endsWith(".h") ||
+                            file.filename.endsWith(".hpp")
                         )
                         if (cppFiles.length > 0) {
                             projects.push({
@@ -188,29 +187,37 @@ export default function Page() {
         }
     }, [])
 
-    // Enhanced GitHub functionality using backend routes for C++
+    // Dynamic GitHub functionality using user's account
     const createRepo = async (repoName: string) => {
+        if (!githubToken) {
+            alert("GitHub authentication required. Please sign in with GitHub.")
+            return null
+        }
+
         setIsCreatingRepo(true)
         try {
-            const response = await fetch("/api/github/create-repo", {
+            const res = await fetch("https://api.github.com/user/repos", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
+                    Authorization: `token ${githubToken}`,
+                    Accept: "application/vnd.github.v3+json",
                 },
                 body: JSON.stringify({
                     name: repoName.trim(),
                     description: `Created via SchoolNest C++ IDE - ${selectedProject?.projectName || "C++ Project"}`,
-                    isPrivate: false,
+                    private: false,
+                    auto_init: true,
                 }),
             })
 
-            const data = await response.json()
+            const data = await res.json()
 
-            if (!response.ok) {
-                if (data.error?.errors?.some((e: any) => e.message?.includes("already exists"))) {
+            if (!res.ok) {
+                if (data.errors?.some((e: any) => e.message?.includes("already exists"))) {
                     alert("Repository name already exists. Please choose a different name.")
                 } else {
-                    alert("Failed to create repo: " + (data.error?.message || data.error || "Unknown error"))
+                    alert("Failed to create repo: " + (data.message || data.error || "Unknown error"))
                 }
                 return null
             }
@@ -227,6 +234,11 @@ export default function Page() {
     }
 
     const handlePush = async (owner: string, repo: string) => {
+        if (!githubToken) {
+            alert("GitHub authentication required. Please sign in with GitHub.")
+            return
+        }
+
         if (!activeFile) {
             alert("No file selected for push.")
             return
@@ -234,24 +246,49 @@ export default function Page() {
 
         setIsPushing(true)
         try {
-            const response = await fetch("/api/github/push", {
-                method: "POST",
+            // First, get the current file SHA if it exists
+            let sha = null
+            try {
+                const getFileRes = await fetch(
+                    `https://api.github.com/repos/${owner}/${repo}/contents/${activeFile.filename}`,
+                    {
+                        headers: {
+                            Authorization: `token ${githubToken}`,
+                            Accept: "application/vnd.github.v3+json",
+                        },
+                    },
+                )
+                if (getFileRes.ok) {
+                    const fileData = await getFileRes.json()
+                    sha = fileData.sha
+                }
+            } catch (e) {
+                // File doesn't exist yet, which is fine
+            }
+
+            // Push the file
+            const pushData: any = {
+                message: `Update ${activeFile.filename} via SchoolNest C++ IDE`,
+                content: btoa(activeFile.contents), // Base64 encode
+            }
+
+            if (sha) {
+                pushData.sha = sha // Required for updates
+            }
+
+            const res = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${activeFile.filename}`, {
+                method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
+                    Authorization: `token ${githubToken}`,
+                    Accept: "application/vnd.github.v3+json",
                 },
-                body: JSON.stringify({
-                    owner,
-                    repo,
-                    path: activeFile.filename,
-                    content: activeFile.contents,
-                    message: `Update ${activeFile.filename} via SchoolNest C++ IDE`,
-                }),
+                body: JSON.stringify(pushData),
             })
 
-            const data = await response.json()
-
-            if (!response.ok) {
-                alert("Push failed: " + (data.error || "Unknown error"))
+            if (!res.ok) {
+                const errorData = await res.json()
+                alert("Push failed: " + (errorData.message || "Unknown error"))
             } else {
                 alert(`File "${activeFile.filename}" pushed successfully to ${owner}/${repo}!`)
             }
@@ -317,12 +354,7 @@ export default function Page() {
         const file = event.target.files?.[0]
         if (!file) return
 
-        if (
-            !file.name.endsWith(".cpp") &&
-            !file.name.endsWith(".c") &&
-            !file.name.endsWith(".h") &&
-            !file.name.endsWith(".hpp")
-        ) {
+        if (!file.name.endsWith(".cpp") && !file.name.endsWith(".c") && !file.name.endsWith(".h") && !file.name.endsWith(".hpp")) {
             alert("Only C++ files (.cpp, .c, .h, .hpp) are supported in the repository manager.")
             return
         }
@@ -646,13 +678,7 @@ export default function Page() {
     return (
         <>
             <FloatingNav />
-            <input
-                type="file"
-                ref={fileInputRef}
-                onChange={handleFileUpload}
-                style={{ display: "none" }}
-                accept=".cpp,.c,.h,.hpp"
-            />
+            <input type="file" ref={fileInputRef} onChange={handleFileUpload} style={{ display: "none" }} accept=".cpp,.c,.h,.hpp" />
 
             <div className="min-h-screen w-full bg-black relative flex flex-col items-center antialiased">
                 {/* Hero Section */}
@@ -668,8 +694,8 @@ export default function Page() {
                         </h1>
 
                         <p className="text-xl text-blue-200 max-w-2xl mx-auto leading-relaxed mb-4">
-                            Master Git operations and repository management with integrated C++ file handling. Access your C++ IDE
-                            projects and push code to your GitHub account.
+                            Master Git operations and repository management with integrated C++ file handling. Access your C++
+                            IDE projects and push code to your GitHub account.
                         </p>
 
                         {/* Project Selector */}

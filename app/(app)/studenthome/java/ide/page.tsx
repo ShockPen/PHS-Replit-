@@ -25,12 +25,11 @@ import Image from "next/image"
 import { cn } from "@/lib/utils"
 import JSZip from "jszip"
 import { saveAs } from "file-saver"
-import type React from "react"
-import { useEffect, useRef, useState, useCallback } from "react"
+import React, { useEffect, useRef, useState, useCallback } from "react"
 import { useSession } from "next-auth/react"
 import dynamic from "next/dynamic"
 import { useSearchParams, useRouter } from "next/navigation"
-import { Code, Edit3, Play } from "lucide-react"
+import { Code, Edit3, Play } from 'lucide-react'
 
 // Import MonacoEditor to avoid SSR issues
 const MonacoEditor = dynamic(() => import("@monaco-editor/react"), { ssr: false })
@@ -522,7 +521,7 @@ public class CustomFileInputStream extends InputStream {
                                 status: "none",
                                 natives: {
                                     async Java_CustomFileInputStream_getCurrentInputString() {
-                                        const input = await getInput()
+                                        let input = await getInput()
                                         return input
                                     },
                                     async Java_CustomFileInputStream_clearCurrentInputString() {
@@ -694,14 +693,7 @@ public class CustomFileInputStream extends InputStream {
         try {
             const sourceFiles = filesToCompile.map((file) => "/str/" + file.filename)
             const classPath = "/app/tools.jar:/files/"
-            const code = await window.cheerpjRunMain(
-                "com.sun.tools.javac.Main",
-                classPath,
-                ...sourceFiles,
-                "-d",
-                "/files/",
-                "-Xlint",
-            )
+            const code = await window.cheerpjRunMain("com.sun.tools.javac.Main", classPath, ...sourceFiles, "-d", "/files/", "-Xlint")
 
             if (code !== 0) {
                 addToOutput("Compilation failed.", "error")
@@ -726,15 +718,15 @@ public class CustomFileInputStream extends InputStream {
     }
 
     const addFile = () => {
-        const baseName = "Class"
-        const extension = ".java"
+        let baseName = "Class"
+        let extension = ".java"
 
         // Get the maximum suffix used so far
         let maxSuffix = 0
         files.forEach((f) => {
             const match = f.filename.match(/^Class(\d*)\.java$/)
             if (match) {
-                const suffix = match[1] ? Number.parseInt(match[1], 10) : 0
+                const suffix = match[1] ? parseInt(match[1], 10) : 0
                 if (suffix >= maxSuffix) {
                     maxSuffix = suffix + 1
                 }
@@ -903,108 +895,6 @@ public class CustomFileInputStream extends InputStream {
         },
     ]
 
-    // Enhanced GitHub integration using backend routes for Java
-    const createRepoViaBackend = async (repoName: string, description = "") => {
-        try {
-            const response = await fetch("/api/github/create-repo", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    name: repoName,
-                    description: description || `Created via SchoolNest Java IDE - ${currentProject}`,
-                    isPrivate: false,
-                }),
-            })
-
-            const data = await response.json()
-
-            if (!response.ok) {
-                throw new Error(data.error?.message || data.error || "Failed to create repository")
-            }
-
-            addToOutput(`✓ Repository "${repoName}" created successfully!`, "system")
-            return data
-        } catch (error: any) {
-            addToOutput(`✗ Failed to create repository: ${error.message}`, "error")
-            throw error
-        }
-    }
-
-    const pushFileViaBackend = async (owner: string, repo: string, filename: string, content: string) => {
-        try {
-            const response = await fetch("/api/github/push", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    owner,
-                    repo,
-                    path: filename,
-                    content,
-                    message: `Update ${filename} via SchoolNest Java IDE`,
-                }),
-            })
-
-            const data = await response.json()
-
-            if (!response.ok) {
-                throw new Error(data.error || "Failed to push file")
-            }
-
-            addToOutput(`✓ File "${filename}" pushed successfully to ${owner}/${repo}`, "system")
-            return data
-        } catch (error: any) {
-            addToOutput(`✗ Failed to push file: ${error.message}`, "error")
-            throw error
-        }
-    }
-
-    // Enhanced GitHub operations for Java files
-    const handleGitHubOperations = {
-        createRepo: async () => {
-            const repoName = prompt(`Enter repository name for project "${currentProject}":`)
-            if (!repoName || !repoName.trim()) {
-                addToOutput("Repository name is required", "error")
-                return null
-            }
-
-            try {
-                const repo = await createRepoViaBackend(repoName.trim())
-                return repo
-            } catch (error) {
-                return null
-            }
-        },
-
-        pushProject: async (owner: string, repo: string) => {
-            if (!files.length) {
-                addToOutput("No files to push", "error")
-                return
-            }
-
-            const javaFiles = files.filter((f) => f.filename.endsWith(".java") && f.filename !== "CustomFileInputStream.java")
-
-            if (!javaFiles.length) {
-                addToOutput("No Java files to push", "error")
-                return
-            }
-
-            addToOutput(`Pushing ${javaFiles.length} Java files...`, "system")
-
-            try {
-                for (const file of javaFiles) {
-                    await pushFileViaBackend(owner, repo, file.filename, file.contents)
-                }
-                addToOutput(`✓ Successfully pushed ${javaFiles.length} files`, "system")
-            } catch (error) {
-                addToOutput("Push operation failed", "error")
-            }
-        },
-    }
-
     return (
         <div
             className={cn(
@@ -1063,15 +953,9 @@ public class CustomFileInputStream extends InputStream {
                             <path d="M2300.53 1373H851L2475.94 2535L2300.53 1373Z" fill="url(#paint1_linear_0_1)" />
                             <path d="M2476 2535L2300.5 1373L1740.5 2009L2476 2535Z" fill="url(#paint2_linear_0_1)" />
                             <path d="M1232 0H456L531.5 1008L713 1155.5L1591.5 367L1232 0Z" fill="url(#paint3_linear_0_1)" />
-                            <path
-                                d="M-1.65747e-05 813L331.001 28.9998L371.002 687.5L-1.65747e-05 813Z"
-                                fill="url(#paint4_linear_0_1)"
-                            />
+                            <path d="M-1.65747e-05 813L331.001 28.9998L371.002 687.5L-1.65747e-05 813Z" fill="url(#paint4_linear_0_1)" />
                             <path d="M4824.5 108.5H2233L2526 1850.5L4824.5 108.5Z" fill="url(#paint5_linear_0_1)" />
-                            <path
-                                d="M2639.5 2549.5L2566 2025.5L2980.5 1713L3935.5 2394L2639.5 2549.5Z"
-                                fill="url(#paint6_linear_0_1)"
-                            />
+                            <path d="M2639.5 2549.5L2566 2025.5L2980.5 1713L3935.5 2394L2639.5 2549.5Z" fill="url(#paint6_linear_0_1)" />
                             <defs>
                                 <linearGradient
                                     id="paint0_linear_0_1"
@@ -1258,7 +1142,7 @@ public class CustomFileInputStream extends InputStream {
                                 disabled={!cheerpjLoaded}
                             >
                                 <IconFileDownload className="w-4 h-4" />
-                                <span className="text-sm">Ad File</span>
+                                <span className="text-sm">Add File</span>
                             </button>
 
                             <button
@@ -1307,20 +1191,6 @@ public class CustomFileInputStream extends InputStream {
                             >
                                 <IconBrandGithub className="w-4 h-4" />
                                 <span className="text-sm">Repo</span>
-                            </button>
-
-                            <button
-                                className="rounded-lg py-3 px-4 bg-green-100 dark:bg-green-800 hover:bg-green-200 dark:hover:bg-green-700 text-green-700 dark:text-green-300 font-medium transition-all duration-200 border border-green-200 dark:border-green-700 hover:border-green-300 dark:hover:border-green-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 active:scale-[0.98]"
-                                onClick={async () => {
-                                    const repo = await handleGitHubOperations.createRepo()
-                                    if (repo) {
-                                        await handleGitHubOperations.pushProject(repo.owner.login, repo.name)
-                                    }
-                                }}
-                                disabled={!cheerpjLoaded}
-                            >
-                                <IconBrandGithub className="w-4 h-4" />
-                                <span className="text-sm">Create & Push</span>
                             </button>
                         </div>
 
@@ -1404,96 +1274,64 @@ public class CustomFileInputStream extends InputStream {
                     }}
                 />
 
-                {/* Output Panel */}
                 <div
                     style={{
                         height: "200px",
-                        borderTop: "1px solid #333",
-                        backgroundColor: "#1a1a1a",
-                        color: "#ffffff",
-                        fontFamily: "'Fira Code', 'Consolas', 'Monaco', 'Courier New', monospace",
-                        fontSize: "13px",
-                        lineHeight: "1.4",
-                        padding: "0",
+                        borderTop: "1px solid #ccc",
+                        backgroundColor: "#1e1e1e",
+                        color: "white",
+                        fontFamily: "monospace",
+                        padding: "10px",
                         overflowY: "auto",
-                        position: "relative",
                     }}
                     ref={outputRef}
                 >
-                    {/* Terminal Header */}
-                    <div className="sticky top-0 bg-[#2d2d2d] border-b border-gray-600 px-4 py-2 flex items-center justify-between z-10">
-                        <div className="flex items-center space-x-2">
-                            <div className="flex space-x-1">
-                                <div className="w-3 h-3 rounded-full bg-red-500"></div>
-                                <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
-                                <div className="w-3 h-3 rounded-full bg-green-500"></div>
-                            </div>
-                            <span className="text-gray-300 text-sm font-medium ml-2">Java Console</span>
-                        </div>
+                    {/* Output Header */}
+                    <div className="flex items-center justify-between mb-2 pb-2 border-b border-gray-600">
+                        <span className="text-sm font-semibold text-gray-300">Output</span>
                         <button
                             onClick={clearOutput}
-                            className="text-gray-400 hover:text-white text-sm px-3 py-1 rounded bg-gray-700 hover:bg-gray-600 transition-colors"
+                            className="text-gray-400 hover:text-white text-xs px-2 py-1 rounded hover:bg-gray-700"
                         >
                             Clear
                         </button>
                     </div>
 
-                    {/* Terminal Content */}
-                    <div className="p-4 space-y-1">
-                        {output.length === 0 && (
-                            <div className="text-gray-500 italic">
-                                Java {cheerpjLoaded ? "17 (OpenJDK)" : "loading..."} | CheerpJ WASM Runtime
-                            </div>
-                        )}
-
-                        {output.map((item, index) => (
-                            <div key={index} className="flex items-start space-x-2">
-                                {/* Timestamp and type indicator */}
-                                <span className="text-gray-500 text-xs mt-0.5 min-w-[60px] font-mono">{item.timestamp}</span>
-
-                                {/* Type indicator */}
-                                <span
-                                    className={`text-xs mt-0.5 min-w-[8px] ${
-                                        item.type === "error"
-                                            ? "text-red-400"
-                                            : item.type === "system"
-                                                ? "text-blue-400"
-                                                : item.type === "input"
-                                                    ? "text-green-400"
-                                                    : "text-gray-400"
-                                    }`}
-                                >
-                  {item.type === "error" ? "✗" : item.type === "system" ? "●" : item.type === "input" ? ">" : "○"}
-                </span>
-
-                                {/* Content */}
-                                <div
-                                    className={`flex-1 font-mono ${
-                                        item.type === "error"
-                                            ? "text-red-300"
-                                            : item.type === "system"
-                                                ? "text-blue-300"
-                                                : item.type === "input"
-                                                    ? "text-green-300"
-                                                    : "text-white"
-                                    }`}
-                                >
-                                    <pre className="whitespace-pre-wrap break-words m-0 font-inherit text-inherit">{item.text}</pre>
-                                </div>
-                            </div>
-                        ))}
-
-                        {/* Input Field */}
-                        <div className="flex items-center space-x-2 mt-2 bg-gray-800 rounded px-2 py-1">
-                            <span className="text-green-400 font-mono">{">"}</span>
-                            <input
-                                type="text"
-                                ref={inputFieldRef}
-                                disabled
-                                className="flex-1 bg-transparent text-white outline-none font-mono placeholder-gray-500"
-                                placeholder="Input will appear here when requested..."
-                            />
+                    {/* Output Content */}
+                    {output.map((item, index) => (
+                        <div
+                            key={index}
+                            className={`mb-1 ${
+                                item.type === "error"
+                                    ? "text-red-400"
+                                    : item.type === "system"
+                                        ? "text-yellow-400"
+                                        : item.type === "input"
+                                            ? "text-green-400"
+                                            : "text-white"
+                            }`}
+                        >
+                            {item.type === "system" && <span className="text-gray-500">[{item.timestamp}] </span>}
+                            <span className="whitespace-pre-wrap">{item.text}</span>
                         </div>
+                    ))}
+
+                    {/* Input Field */}
+                    <div style={{ display: "flex" }}>
+                        &gt;&nbsp;
+                        <input
+                            type="text"
+                            ref={inputFieldRef}
+                            disabled
+                            style={{
+                                width: "100%",
+                                backgroundColor: "transparent",
+                                color: "white",
+                                border: "none",
+                                outline: "none",
+                                fontFamily: "monospace",
+                            }}
+                        />
                     </div>
                 </div>
             </div>

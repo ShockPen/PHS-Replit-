@@ -14,6 +14,7 @@ import {
   IconFileDownload,
   IconUpload,
   IconPlayerPlayFilled,
+  IconCloudDownload,
   IconBrandGithub,
   IconCloudUpload,
   IconArrowLeft,
@@ -28,7 +29,7 @@ import { useSearchParams, useRouter } from "next/navigation"
 import type React from "react"
 import { useRef, useState, useEffect, useCallback } from "react"
 import dynamic from "next/dynamic"
-import { Code, Edit3, Play } from "lucide-react"
+import { Code, Edit3, Play } from 'lucide-react'
 
 const MonacoEditor = dynamic(() => import("@monaco-editor/react"), { ssr: false })
 
@@ -73,12 +74,11 @@ const localStorageManager = {
         try {
           const data = JSON.parse(localStorage.getItem(key) || "{}")
           if (data.files && Array.isArray(data.files)) {
-            const cppFiles = data.files.filter(
-                (file: File) =>
-                    file.filename.endsWith(".cpp") ||
-                    file.filename.endsWith(".c") ||
-                    file.filename.endsWith(".h") ||
-                    file.filename.endsWith(".hpp"),
+            const cppFiles = data.files.filter((file: File) =>
+                file.filename.endsWith(".cpp") ||
+                file.filename.endsWith(".c") ||
+                file.filename.endsWith(".h") ||
+                file.filename.endsWith(".hpp")
             )
             if (cppFiles.length > 0) {
               projects.push({
@@ -215,116 +215,6 @@ class CPPCompiler {
       output: `Compilation successful! (Wandbox GCC)\nOutput:\n${result.program_output || "No output"}\n${result.compiler_message || ""}`,
       compiledCode: JSON.stringify(result),
     }
-  }
-}
-
-// Enhanced GitHub integration using backend routes for C++
-const createRepoViaBackend = async (repoName: string, description = "", currentProject: string) => {
-  try {
-    const response = await fetch("/api/github/create-repo", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        name: repoName,
-        description: description || `Created via SchoolNest C++ IDE - ${currentProject}`,
-        isPrivate: false,
-      }),
-    })
-
-    const data = await response.json()
-
-    if (!response.ok) {
-      throw new Error(data.error?.message || data.error || "Failed to create repository")
-    }
-
-    return data
-  } catch (error: any) {
-    throw error
-  }
-}
-
-const pushFileViaBackend = async (owner: string, repo: string, filename: string, content: string) => {
-  try {
-    const response = await fetch("/api/github/push", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        owner,
-        repo,
-        path: filename,
-        content,
-        message: `Update ${filename} via SchoolNest C++ IDE`,
-      }),
-    })
-
-    const data = await response.json()
-
-    if (!response.ok) {
-      throw new Error(data.error || "Failed to push file")
-    }
-
-    return data
-  } catch (error: any) {
-    throw error
-  }
-}
-
-// Enhanced GitHub operations for C++ files
-const handleGitHubOperations = (currentProject: string, files: File[], addToOutput: any) => {
-  return {
-    createRepo: async () => {
-      const repoName = prompt(`Enter repository name for project "${currentProject}":`)
-      if (!repoName || !repoName.trim()) {
-        addToOutput("Repository name is required", "error")
-        return null
-      }
-
-      try {
-        const repo = await createRepoViaBackend(repoName.trim(), "", currentProject)
-        return repo
-      } catch (error) {
-        if (error instanceof Error) {
-          addToOutput(`✗ Failed to create repository: ${error.message}`, "error");
-        } else {
-          addToOutput("✗ Failed to create repository: Unknown error", "error");
-        }
-      }
-    },
-
-    pushProject: async (owner: string, repo: string) => {
-      if (!files.length) {
-        addToOutput("No files to push", "error")
-        return
-      }
-
-      const cppFiles = files.filter(
-          (f) =>
-              f.filename.endsWith(".cpp") ||
-              f.filename.endsWith(".c") ||
-              f.filename.endsWith(".h") ||
-              f.filename.endsWith(".hpp"),
-      )
-
-      if (!cppFiles.length) {
-        addToOutput("No C++ files to push", "error")
-        return
-      }
-
-      addToOutput(`Pushing ${cppFiles.length} C++ files...`, "system")
-
-      try {
-        for (const file of cppFiles) {
-          await pushFileViaBackend(owner, repo, file.filename, file.contents)
-        }
-        addToOutput(`✓ Successfully pushed ${cppFiles.length} files`, "system")
-      } catch (error) {
-        addToOutput("Push operation failed", "error")
-      }
-    },
   }
 }
 
@@ -520,13 +410,12 @@ int main() {
           new CustomEvent("cppProjectSaved", {
             detail: {
               project: currentProject,
-              files: files.filter(
-                  (f) =>
-                      f.filename.endsWith(".cpp") ||
-                      f.filename.endsWith(".c") ||
-                      f.filename.endsWith(".h") ||
-                      f.filename.endsWith(".hpp"),
-              ),
+              files: files.filter((f) =>
+                  f.filename.endsWith(".cpp") ||
+                  f.filename.endsWith(".c") ||
+                  f.filename.endsWith(".h") ||
+                  f.filename.endsWith(".hpp")
+              )
             },
           }),
       )
@@ -1056,23 +945,6 @@ int main() {
                 >
                   <IconBrandGithub className="w-4 h-4" />
                   <span className="text-sm">Repo</span>
-                </button>
-
-                <button
-                    className="rounded-lg py-3 px-4 bg-green-100 dark:bg-green-800 hover:bg-green-200 dark:hover:bg-green-700 text-green-700 dark:text-green-300 font-medium transition-all duration-200 border border-green-200 dark:border-green-700 hover:border-green-300 dark:hover:border-green-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 active:scale-[0.98]"
-                    onClick={async () => {
-                      const repo = await handleGitHubOperations(currentProject, files, addToOutput).createRepo()
-                      if (repo) {
-                        await handleGitHubOperations(currentProject, files, addToOutput).pushProject(
-                            repo.owner.login,
-                            repo.name,
-                        )
-                      }
-                    }}
-                    disabled={!compilerLoaded}
-                >
-                  <IconBrandGithub className="w-4 h-4" />
-                  <span className="text-sm">Create & Push</span>
                 </button>
               </div>
 
