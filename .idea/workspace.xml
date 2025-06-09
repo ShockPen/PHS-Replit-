@@ -5,36 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b81c8c27-8c15-4931-ae89-c670a04f9254" name="Changes" comment="[Operational] localstorage + project management + github">
-      <change afterPath="$PROJECT_DIR$/app/(app)/studenthome/linux/XTermLoader.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(app)/educatorhome/cpp/dependencies/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/educatorhome/cpp/dependencies/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(app)/educatorhome/cpp/ide/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/educatorhome/cpp/ide/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(app)/educatorhome/cpp/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/educatorhome/cpp/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(app)/educatorhome/cpp/repo/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/educatorhome/cpp/repo/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(app)/educatorhome/cpp/templates/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/educatorhome/cpp/templates/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(app)/educatorhome/java/dependencies/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/educatorhome/java/dependencies/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(app)/educatorhome/java/ide/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/educatorhome/java/ide/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(app)/educatorhome/java/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/educatorhome/java/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(app)/educatorhome/java/repo/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/educatorhome/java/repo/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(app)/educatorhome/java/templates/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/educatorhome/java/templates/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(app)/educatorhome/node/debugger/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/educatorhome/node/debugger/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(app)/educatorhome/node/dependencies/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/educatorhome/node/dependencies/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(app)/educatorhome/node/ide/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/educatorhome/node/ide/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(app)/educatorhome/node/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/educatorhome/node/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(app)/educatorhome/node/repo/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/educatorhome/node/repo/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(app)/educatorhome/node/templates/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/educatorhome/node/templates/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(app)/educatorhome/python/dependencies/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/educatorhome/python/dependencies/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(app)/educatorhome/python/ide/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/educatorhome/python/ide/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(app)/educatorhome/python/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/educatorhome/python/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(app)/educatorhome/python/repo/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/educatorhome/python/repo/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(app)/educatorhome/python/templates/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/educatorhome/python/templates/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/cpp/ide/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/cpp/ide/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/cpp/repo/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/cpp/repo/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/java/ide/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/java/ide/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/java/repo/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/java/repo/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/linux/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/linux/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/python/ide/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/python/ide/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/python/repo/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/python/repo/page.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -83,28 +54,28 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "DefaultHtmlFileTemplate": "HTML File",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "main",
-    "ignore.virus.scanning.warn.message": "true",
-    "last_opened_file_path": "C:/Users/davee/WebstormProjects/Rep-lite/app/(app)/studenthome/java",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.standard": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.standard": "",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_interpreter_path": "node",
-    "nodejs_package_manager_path": "npm",
-    "run.code.analysis.last.selected.profile": "pProject Default",
-    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable",
-    "ts.external.directory.path": "C:\\Users\\davee\\WebstormProjects\\Rep-lite\\node_modules\\typescript\\lib",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;DefaultHtmlFileTemplate&quot;: &quot;HTML File&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/davee/WebstormProjects/Rep-lite/app/(app)/studenthome/java&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.standard&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.standard&quot;: &quot;&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_interpreter_path&quot;: &quot;node&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;run.code.analysis.last.selected.profile&quot;: &quot;pProject Default&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;C:\\Users\\davee\\WebstormProjects\\Rep-lite\\node_modules\\typescript\\lib&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\davee\WebstormProjects\Rep-lite\app\(app)\studenthome\java" />
