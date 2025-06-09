@@ -5,12 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b81c8c27-8c15-4931-ae89-c670a04f9254" name="Changes" comment="v2 at the cusp of completion (no linux).">
+      <change afterPath="$PROJECT_DIR$/app/(app)/api/github/user/route.ts" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/app/(app)/studenthome/linux/XTermLoader.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(app)/educatorhome/classes/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/educatorhome/classes/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(app)/educatorhome/python/ide/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/educatorhome/python/ide/page.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/linux/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/linux/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/python/ide/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/python/ide/page.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -24,8 +22,8 @@
         <option value="HTML File" />
         <option value="tsconfig.json" />
         <option value="JavaScript File" />
-        <option value="TypeScript File" />
         <option value="TypeScript JSX File" />
+        <option value="TypeScript File" />
       </list>
     </option>
   </component>
@@ -130,7 +128,7 @@
       <workItem from="1749099989844" duration="14101000" />
       <workItem from="1749154969245" duration="6455000" />
       <workItem from="1749391157105" duration="11566000" />
-      <workItem from="1749408187282" duration="22489000" />
+      <workItem from="1749408187282" duration="24408000" />
     </task>
     <task id="LOCAL-00001" summary="so many errors do not run">
       <option name="closed" value="true" />
@@ -332,7 +330,15 @@
       <option name="project" value="LOCAL" />
       <updated>1749425801750</updated>
     </task>
-    <option name="localTasksCounter" value="26" />
+    <task id="LOCAL-00026" summary="v2 at the cusp of completion (no linux).">
+      <option name="closed" value="true" />
+      <created>1749432556200</created>
+      <option name="number" value="00026" />
+      <option name="presentableId" value="LOCAL-00026" />
+      <option name="project" value="LOCAL" />
+      <updated>1749432556200</updated>
+    </task>
+    <option name="localTasksCounter" value="27" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
