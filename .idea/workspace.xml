@@ -4,15 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b81c8c27-8c15-4931-ae89-c670a04f9254" name="Changes" comment="restoring old github code that works">
+    <list default="true" id="b81c8c27-8c15-4931-ae89-c670a04f9254" name="Changes" comment="fixes">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(app)/educatorhome/cpp/repo/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/educatorhome/cpp/repo/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(app)/educatorhome/java/repo/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/educatorhome/java/repo/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(app)/educatorhome/python/repo/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/educatorhome/python/repo/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/cpp/repo/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/cpp/repo/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/java/ide/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/java/ide/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/java/repo/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/java/repo/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/python/repo/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/python/repo/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/cpp/ide/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/cpp/ide/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/python/ide/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/python/ide/page.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -133,6 +128,7 @@
       <workItem from="1749154969245" duration="6455000" />
       <workItem from="1749391157105" duration="11566000" />
       <workItem from="1749408187282" duration="27344000" />
+      <workItem from="1749557900630" duration="917000" />
     </task>
     <task id="LOCAL-00001" summary="so many errors do not run">
       <option name="closed" value="true" />
@@ -396,7 +392,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="so many errors do not run" />
     <MESSAGE value="version 2 with more pages but less functionality" />
     <MESSAGE value="fixing node's nodes" />
     <MESSAGE value="Say you can't sleep, Java, I know&#10;That's that me espresso" />
@@ -421,7 +416,8 @@
     <MESSAGE value="[Operational v2] localstorage + project management + github + UI" />
     <MESSAGE value="merging w/ ShockPen" />
     <MESSAGE value="restoring old github code that works" />
-    <option name="LAST_COMMIT_MESSAGE" value="restoring old github code that works" />
+    <MESSAGE value="fixes" />
+    <option name="LAST_COMMIT_MESSAGE" value="fixes" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
