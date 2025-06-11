@@ -8,6 +8,7 @@ import { Link, Button } from "@nextui-org/react"
 import { BentoGrid, BentoGridItem } from "@/app/components/ui/bento-grid"
 import { BackgroundLines } from "@/app/components/ui/background-lines"
 import { FloatingNav } from "@/app/components/ui/floating-navbar"
+import GitHubAuth from "@/app/components/GitHubAuth" // Import our new auth component
 
 import {
     IconHome,
@@ -26,6 +27,7 @@ import {
     IconGitFork,
     IconGitPullRequest,
     IconPlayerPlayFilled,
+    IconShield,
 } from "@tabler/icons-react"
 
 interface File {
@@ -77,7 +79,7 @@ const localStorageManager = {
 export default function Page() {
     const router = useRouter()
     const searchParams = useSearchParams()
-    const { data: session } = useSession()
+    const { data: session, status } = useSession()
 
     // State for IDE integration
     const [javaProjects, setJavaProjects] = useState<JavaProject[]>([])
@@ -88,7 +90,7 @@ export default function Page() {
     const [signedIn, setSignedIn] = useState(false)
     const [name, setName] = useState("")
     const [githubUsername, setGithubUsername] = useState("")
-    const [githubToken, setGithubToken] = useState("")
+    const [isGitHubAuthenticated, setIsGitHubAuthenticated] = useState(false)
 
     // Loading states for UI feedback
     const [isSavingProject, setIsSavingProject] = useState(false)
@@ -113,29 +115,29 @@ export default function Page() {
         }
     }
 
+    // Check GitHub authentication status
+    const checkGitHubAuth = () => {
+        if (status === 'authenticated' && session?.accessToken && session?.githubUsername) {
+            setIsGitHubAuthenticated(true)
+            setGithubUsername(session.githubUsername)
+            setName(session.user?.name || session.githubUsername)
+            return true
+        } else {
+            setIsGitHubAuthenticated(false)
+            return false
+        }
+    }
+
     // Initialize session and load project data
     useEffect(() => {
         const loadInitialData = async () => {
-            if (session?.user?.role === "student" || session?.user?.role === "educator") {
+            // Check if user has valid GitHub authentication
+            const isAuthenticated = checkGitHubAuth()
+
+            if (isAuthenticated) {
                 setSignedIn(true)
 
-                // Get GitHub info from session
-                if (session.user.name) {
-                    setName(session.user.name)
-                }
-
-                // Extract GitHub username from session or email
-                if (session.user.email) {
-                    const emailPrefix = session.user.email.split("@")[0]
-                    setGithubUsername(emailPrefix)
-                }
-
-                // Get GitHub token from session if available
-                if (session.accessToken) {
-                    setGithubToken(session.accessToken)
-                }
-
-                // Fetch student info for more details
+                // Fetch additional student info if available
                 try {
                     const studentInfoResponse = await fetch("/api/student/get_studentinfo/post", {
                         method: "POST",
@@ -153,7 +155,7 @@ export default function Page() {
 
         loadInitialData()
         loadJavaProjects()
-    }, [session])
+    }, [session, status])
 
     // Listen for updates from the Java IDE
     useEffect(() => {
@@ -182,17 +184,25 @@ export default function Page() {
         }
     }, [])
 
-    // Enhanced GitHub functionality using backend API
+    // Enhanced GitHub functionality using OAuth
     const createRepo = async (repoName: string) => {
+        if (!isGitHubAuthenticated) {
+            alert("Please authenticate with GitHub first.")
+            return null
+        }
+
         setIsCreatingRepo(true);
         try {
             const res = await fetch("/api/github/create-repo", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${session?.accessToken}`
+                },
                 body: JSON.stringify({
                     name: repoName.trim(),
                     description: `Created via SchoolNest Java IDE - ${selectedProject?.projectName || "Java Project"}`,
-                    isPrivate: false,
+                    private: false,
                 }),
             });
 
@@ -207,7 +217,7 @@ export default function Page() {
             const repo = data.repository;
             alert(`Repository "${repo.name}" created successfully on your GitHub account!`);
             return {
-                owner: { login: repo.full_name.split("/")[0] },
+                owner: { login: repo.owner.login },
                 name: repo.name,
             };
         } catch (error) {
@@ -220,85 +230,170 @@ export default function Page() {
     };
 
     const handlePush = async (owner: string, repo: string) => {
-        if (!activeFile) {
-            alert("No file selected for push.")
+        if (!isGitHubAuthenticated) {
+            alert("Please authenticate with GitHub first.");
+            return;
+        }
+
+        setIsPushing(true);
+
+        try {
+            // If activeFile is selected, push just that file
+            if (activeFile) {
+                const res = await fetch("/api/github/push", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${session?.accessToken}`,
+                    },
+                    body: JSON.stringify({
+                        owner,
+                        repo,
+                        path: activeFile.filename,
+                        content: activeFile.contents,
+                        message: `Update ${activeFile.filename} via SchoolNest Java IDE`,
+                    }),
+                });
+
+                if (!res.ok) {
+                    const errorData = await res.json();
+                    alert("Push failed: " + (errorData.error || "Unknown error"));
+                } else {
+                    alert(`File "${activeFile.filename}" pushed successfully to ${owner}/${repo}!`);
+                }
+            } else if (selectedProject) {
+                // No active file selected, push all files in the project
+                for (const file of selectedProject.files) {
+                    const res = await fetch("/api/github/push", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${session?.accessToken}`,
+                        },
+                        body: JSON.stringify({
+                            owner,
+                            repo,
+                            path: file.filename,
+                            content: file.contents,
+                            message: `Update ${file.filename} via SchoolNest Java IDE`,
+                        }),
+                    });
+
+                    if (!res.ok) {
+                        const errorData = await res.json();
+                        alert(`Push failed for file ${file.filename}: ` + (errorData.error || "Unknown error"));
+                        return; // Stop pushing if any file fails
+                    }
+                }
+
+                alert(`All files pushed successfully to ${owner}/${repo}!`);
+            } else {
+                alert("No file or project selected to push.");
+            }
+        } catch (error) {
+            console.error("Network or unexpected error during push:", error);
+            alert("Error pushing file(s). Please check your connection.");
+        } finally {
+            setIsPushing(false);
+        }
+    };
+
+    const handleClone = async (repoUrl: string) => {
+        if (!isGitHubAuthenticated) {
+            alert("Please authenticate with GitHub first.")
             return
         }
 
-        setIsPushing(true)
+        setIsCloning(true)
         try {
-            const res = await fetch("/api/github/push", {
+            const res = await fetch("/api/github/clone", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    Authorization: `token ${session?.accessToken}`,
+                    "Authorization": `Bearer ${session?.accessToken}`,
                 },
                 body: JSON.stringify({
-                    owner,
-                    repo,
-                    path: activeFile.filename,
-                    content: activeFile.contents,
-                    message: `Update ${activeFile.filename} via SchoolNest Java IDE`,
+                    repoUrl: repoUrl.trim(),
                 }),
             })
 
+            const data = await res.json()
+
             if (!res.ok) {
-                const errorData = await res.json()
-                alert("Push failed: " + (errorData.error || "Unknown error"))
+                alert("Clone failed: " + (data.error || "Unknown error"))
             } else {
-                alert(`File "${activeFile.filename}" pushed successfully to ${owner}/${repo}!`)
+                alert(`Repository cloned successfully! Found ${data.javaFiles?.length || 0} Java files.`)
+
+                // If Java files were found, add them to local storage
+                if (data.javaFiles && data.javaFiles.length > 0) {
+                    const projectName = repoUrl.split('/').pop()?.replace('.git', '') || 'cloned-project'
+                    const projectData = {
+                        project: projectName,
+                        files: data.javaFiles,
+                        timestamp: new Date().toISOString(),
+                    }
+
+                    localStorage.setItem(`java_project_${projectName}`, JSON.stringify(projectData))
+                    loadJavaProjects()
+                }
             }
         } catch (error) {
-            console.error("Network or unexpected error during push:", error)
-            alert("Error pushing file. Please check your connection.")
+            console.error("Network or unexpected error during clone:", error)
+            alert("Error cloning repository. Please check your connection.")
         } finally {
-            setIsPushing(false)
+            setIsCloning(false)
         }
     }
 
     const handleCreateAndPush = async () => {
-        if (!selectedProject || selectedProject.files.length === 0) {
-            alert("No Java files to push. Please select a project with Java files first.")
-            return
+        if (!isGitHubAuthenticated) {
+            alert("Please authenticate with GitHub first.");
+            return;
         }
 
-        let chosenRepo: { owner: string; name: string } | null = null
+        if (!selectedProject || selectedProject.files.length === 0) {
+            alert("No Java files to push. Please select a project with Java files first.");
+            return;
+        }
+
+        let chosenRepo: { owner: string; name: string } | null = null;
 
         if (createdRepos.length > 0) {
-            const repoNames = createdRepos.map((r, i) => `${i + 1}: ${r.name}`).join("\n")
+            const repoNames = createdRepos.map((r, i) => `${i + 1}: ${r.name}`).join("\n");
             const input = prompt(
                 `You have created these repositories this session:\n${repoNames}\n\n` +
-                `Enter the number of the repo to push to, or leave empty to create a new repo:`,
-            )
+                `Enter the number of the repo to push to, or leave empty to create a new repo:`
+            );
 
             if (input) {
-                const index = Number.parseInt(input, 10) - 1
+                const index = Number.parseInt(input, 10) - 1;
                 if (!isNaN(index) && createdRepos[index]) {
-                    chosenRepo = createdRepos[index]
+                    chosenRepo = createdRepos[index];
                 } else {
-                    alert("Invalid selection, creating a new repo.")
+                    alert("Invalid selection, creating a new repo.");
                 }
             }
         }
 
         if (!chosenRepo) {
-            const repoNameInput = prompt(`Enter new repository name for project "${selectedProject.projectName}":`)
+            const repoNameInput = prompt(`Enter new repository name for project "${selectedProject.projectName}":`);
             if (!repoNameInput || repoNameInput.trim() === "") {
-                alert("Repository name is required.")
-                return
+                alert("Repository name is required.");
+                return;
             }
 
-            const newRepo = await createRepo(repoNameInput)
-            if (!newRepo) return
+            const newRepo = await createRepo(repoNameInput);
+            if (!newRepo) return;
 
-            chosenRepo = { owner: newRepo.owner.login, name: newRepo.name }
-            setCreatedRepos((prev) => [...prev, chosenRepo!])
+            chosenRepo = { owner: newRepo.owner.login, name: newRepo.name };
+            setCreatedRepos((prev) => [...prev, chosenRepo!]);
         }
 
-        if (chosenRepo && activeFile) {
-            await handlePush(chosenRepo.owner, chosenRepo.name)
+        if (chosenRepo) {
+            await handlePush(chosenRepo.owner, chosenRepo.name);
         }
-    }
+    };
+
     // File upload functionality
     const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0]
@@ -358,14 +453,29 @@ export default function Page() {
     const fileStats = getFileStats()
 
     const handleGitOperation = async (operationName: string) => {
+        // Check GitHub authentication for operations that require it
+        const requiresAuth = [
+            "Clone Repository",
+            "Create Repository",
+            "Push Changes",
+            "Pull Changes",
+            "Commit Changes",
+            "Merge Branches",
+            "Fork Repository",
+            "Pull Request"
+        ]
+
+        if (requiresAuth.includes(operationName) && !isGitHubAuthenticated) {
+            alert("Please authenticate with GitHub to perform this operation.")
+            return
+        }
+
         switch (operationName) {
             case "Clone Repository":
-                setIsCloning(true)
                 const cloneUrl = prompt("Enter repository URL to clone:")
                 if (cloneUrl) {
-                    alert(`Cloning ${cloneUrl}... This would be implemented with backend integration.`)
+                    await handleClone(cloneUrl)
                 }
-                setIsCloning(false)
                 break
             case "Create Repository":
                 if (!selectedProject) {
@@ -624,6 +734,63 @@ export default function Page() {
         className: "md:col-span-1",
         icon: null,
     }))
+
+    // If not authenticated with GitHub, show authentication component
+    if (status === 'loading') {
+        return (
+            <div className="min-h-screen w-full bg-black flex items-center justify-center">
+                <div className="text-center">
+                    <div className="animate-spin h-8 w-8 border-2 border-blue-400 border-r-transparent rounded-full mx-auto mb-4"></div>
+                    <p className="text-blue-200">Loading...</p>
+                </div>
+            </div>
+        )
+    }
+
+    if (!isGitHubAuthenticated) {
+        return (
+            <>
+                <FloatingNav />
+                <div className="min-h-screen w-full bg-black relative flex flex-col items-center antialiased">
+                    <BackgroundLines className="flex items-center justify-center w-full flex-col px-4 py-20 bg-black">
+                        <div className="max-w-4xl mx-auto text-center">
+                            <div className="inline-flex items-center gap-2 bg-red-500/10 border border-red-500/30 rounded-full px-4 py-2 mb-6">
+                                <IconShield className="h-4 w-4 text-red-400" />
+                                <span className="text-sm text-red-300 font-medium">Authentication Required</span>
+                            </div>
+
+                            <h1 className="text-5xl md:text-7xl font-bold bg-gradient-to-b from-red-400 via-red-300 to-orange-400 bg-clip-text text-transparent mb-6">
+                                GitHub Access
+                            </h1>
+
+                            <p className="text-xl text-blue-200 max-w-2xl mx-auto leading-relaxed mb-8">
+                                To access repository management features, you need to authenticate with your GitHub account. This ensures secure access to your repositories and maintains your privacy.
+                            </p>
+
+                            <div className="bg-gray-900/50 rounded-lg p-6 mb-8 border border-blue-500/30 backdrop-blur-sm">
+                                <GitHubAuth />
+                            </div>
+
+                            <div className="text-sm text-blue-400 space-y-2">
+                                <div className="flex items-center justify-center gap-2">
+                                    <IconShield className="h-4 w-4" />
+                                    <span>Secure OAuth authentication</span>
+                                </div>
+                                <div className="flex items-center justify-center gap-2">
+                                    <IconGitBranch className="h-4 w-4" />
+                                    <span>Full repository access</span>
+                                </div>
+                                <div className="flex items-center justify-center gap-2">
+                                    <IconTemplate className="h-4 w-4" />
+                                    <span>Java IDE integration</span>
+                                </div>
+                            </div>
+                        </div>
+                    </BackgroundLines>
+                </div>
+            </>
+        )
+    }
 
     return (
         <>

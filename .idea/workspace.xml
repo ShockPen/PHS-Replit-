@@ -4,10 +4,15 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b81c8c27-8c15-4931-ae89-c670a04f9254" name="Changes" comment="fixes">
+    <list default="true" id="b81c8c27-8c15-4931-ae89-c670a04f9254" name="Changes" comment="repo fixes for consistency">
+      <change afterPath="$PROJECT_DIR$/app/components/GitHubAuth.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/utils/github.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/cpp/ide/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/cpp/ide/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/python/ide/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/python/ide/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/api/github/create-repo/route.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/api/github/create-repo/route.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/api/github/pull/route.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/api/github/pull/route.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/api/github/push/route.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/api/github/push/route.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/java/repo/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/java/repo/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/auth.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/auth.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -21,8 +26,8 @@
         <option value="HTML File" />
         <option value="tsconfig.json" />
         <option value="JavaScript File" />
-        <option value="TypeScript JSX File" />
         <option value="TypeScript File" />
+        <option value="TypeScript JSX File" />
       </list>
     </option>
   </component>
@@ -128,7 +133,8 @@
       <workItem from="1749154969245" duration="6455000" />
       <workItem from="1749391157105" duration="11566000" />
       <workItem from="1749408187282" duration="27344000" />
-      <workItem from="1749557900630" duration="917000" />
+      <workItem from="1749557900630" duration="9463000" />
+      <workItem from="1749645960868" duration="2665000" />
     </task>
     <task id="LOCAL-00001" summary="so many errors do not run">
       <option name="closed" value="true" />
@@ -362,7 +368,39 @@
       <option name="project" value="LOCAL" />
       <updated>1749440264218</updated>
     </task>
-    <option name="localTasksCounter" value="30" />
+    <task id="LOCAL-00030" summary="fixes">
+      <option name="closed" value="true" />
+      <created>1749596532220</created>
+      <option name="number" value="00030" />
+      <option name="presentableId" value="LOCAL-00030" />
+      <option name="project" value="LOCAL" />
+      <updated>1749596532220</updated>
+    </task>
+    <task id="LOCAL-00031" summary="git fixes v3">
+      <option name="closed" value="true" />
+      <created>1749600666164</created>
+      <option name="number" value="00031" />
+      <option name="presentableId" value="LOCAL-00031" />
+      <option name="project" value="LOCAL" />
+      <updated>1749600666164</updated>
+    </task>
+    <task id="LOCAL-00032" summary="linux fixes + some python ide fixes">
+      <option name="closed" value="true" />
+      <created>1749605274966</created>
+      <option name="number" value="00032" />
+      <option name="presentableId" value="LOCAL-00032" />
+      <option name="project" value="LOCAL" />
+      <updated>1749605274966</updated>
+    </task>
+    <task id="LOCAL-00033" summary="repo fixes for consistency">
+      <option name="closed" value="true" />
+      <created>1749606276880</created>
+      <option name="number" value="00033" />
+      <option name="presentableId" value="LOCAL-00033" />
+      <option name="project" value="LOCAL" />
+      <updated>1749606276880</updated>
+    </task>
+    <option name="localTasksCounter" value="34" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -392,9 +430,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="version 2 with more pages but less functionality" />
-    <MESSAGE value="fixing node's nodes" />
-    <MESSAGE value="Say you can't sleep, Java, I know&#10;That's that me espresso" />
     <MESSAGE value="you scroll me right round Java right round" />
     <MESSAGE value="Netlify deployment V1 finally up and running" />
     <MESSAGE value="Bcrypt --&gt; Bcryptjs + YIPPEEEE we're going global" />
@@ -417,7 +452,10 @@
     <MESSAGE value="merging w/ ShockPen" />
     <MESSAGE value="restoring old github code that works" />
     <MESSAGE value="fixes" />
-    <option name="LAST_COMMIT_MESSAGE" value="fixes" />
+    <MESSAGE value="git fixes v3" />
+    <MESSAGE value="linux fixes + some python ide fixes" />
+    <MESSAGE value="repo fixes for consistency" />
+    <option name="LAST_COMMIT_MESSAGE" value="repo fixes for consistency" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

@@ -1,4 +1,6 @@
-import { cookies } from "next/headers";
+// api/github/push/route.ts - Updated with user authentication
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 import { NextResponse } from "next/server";
 
 function toBase64(str: string) {
@@ -7,22 +9,17 @@ function toBase64(str: string) {
 
 export async function POST(req: Request) {
     try {
-        const cookieStore = await cookies();
-        let token = cookieStore.get("github_token")?.value;
+        // Get the user's session
+        const session = await getServerSession(authOptions);
 
-        // Fallback to environment variable if no cookie (for admin operations)
-        if (!token) {
-            token = process.env.GITHUB_TOKEN;
-            console.warn("Using fallback GitHub token from environment");
-        }
-
-        if (!token) {
-            console.error("No GitHub token found in cookies or environment");
+        if (!session?.accessToken) {
             return NextResponse.json({
-                error: "Unauthorized - Please connect your GitHub account"
+                error: "Authentication required",
+                message: "Please sign in with GitHub to push files"
             }, { status: 401 });
         }
 
+        const token = session.accessToken;
         const { owner, repo, path, content, message } = await req.json();
 
         // Validate required fields
@@ -32,7 +29,28 @@ export async function POST(req: Request) {
             }, { status: 400 });
         }
 
-        // 1. Try to get the SHA (for updates)
+        // Security check: ensure user can only push to their own repos or repos they have access to
+        if (owner !== session.githubUsername) {
+            // Verify user has write access to the repository
+            const repoCheckRes = await fetch(
+                `https://api.github.com/repos/${owner}/${repo}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        Accept: "application/vnd.github.v3+json",
+                        "User-Agent": "SchoolNest/1.0",
+                    },
+                }
+            );
+
+            if (!repoCheckRes.ok || !(await repoCheckRes.json()).permissions?.push) {
+                return NextResponse.json({
+                    error: "Access denied - You don't have write access to this repository"
+                }, { status: 403 });
+            }
+        }
+
+        // Get existing file SHA (for updates)
         const shaRes = await fetch(
             `https://api.github.com/repos/${owner}/${repo}/contents/${path}`,
             {
@@ -50,9 +68,8 @@ export async function POST(req: Request) {
             sha = shaData.sha;
         } else if (shaRes.status !== 404) {
             const errorData = await shaRes.json().catch(() => ({}));
-            console.error(`GitHub API Error (${shaRes.status}):`, errorData);
+            console.error(`GitHub API Error (${shaRes.status}) for user ${session.githubUsername}:`, errorData);
 
-            // Handle specific GitHub API errors
             if (shaRes.status === 403) {
                 return NextResponse.json({
                     error: "Access denied - Check repository permissions",
@@ -67,7 +84,7 @@ export async function POST(req: Request) {
             }, { status: shaRes.status });
         }
 
-        // 2. Push file (create or update)
+        // Push file (create or update)
         const pushRes = await fetch(
             `https://api.github.com/repos/${owner}/${repo}/contents/${path}`,
             {
@@ -88,14 +105,19 @@ export async function POST(req: Request) {
 
         if (!pushRes.ok) {
             const errorData = await pushRes.json().catch(() => ({}));
-            console.error(`GitHub Push Error (${pushRes.status}):`, errorData);
+            console.error(`GitHub Push Error (${pushRes.status}) for user ${session.githubUsername}:`, errorData);
 
-            // Handle specific errors
             if (pushRes.status === 409) {
                 return NextResponse.json({
                     error: "File conflict - File may have been modified by another user",
                     details: errorData
                 }, { status: 409 });
+            }
+
+            if (pushRes.status === 401) {
+                return NextResponse.json({
+                    error: "GitHub authentication expired - Please sign in again"
+                }, { status: 401 });
             }
 
             return NextResponse.json({
@@ -106,10 +128,13 @@ export async function POST(req: Request) {
         }
 
         const result = await pushRes.json();
+        console.log(`File '${path}' pushed successfully to ${owner}/${repo} by user ${session.githubUsername}`);
+
         return NextResponse.json({
             success: true,
             sha: result.content.sha,
-            url: result.content.html_url
+            url: result.content.html_url,
+            pushedBy: session.githubUsername
         });
 
     } catch (error) {

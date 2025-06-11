@@ -1,8 +1,20 @@
-import { cookies } from "next/headers";
+// api/github/pull/route.ts - Updated with user authentication
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 import { NextResponse } from "next/server";
 
 export async function GET(request: Request) {
     try {
+        // Get the user's session
+        const session = await getServerSession(authOptions);
+
+        if (!session?.accessToken) {
+            return NextResponse.json({
+                error: "Authentication required",
+                message: "Please sign in with GitHub to access repositories"
+            }, { status: 401 });
+        }
+
         const { searchParams } = new URL(request.url);
         const owner = searchParams.get("owner");
         const repo = searchParams.get("repo");
@@ -14,20 +26,7 @@ export async function GET(request: Request) {
             }, { status: 400 });
         }
 
-        const cookieStore = await cookies();
-        let token = cookieStore.get("github_token")?.value;
-
-        // Fallback to environment variable if no cookie
-        if (!token) {
-            token = process.env.GITHUB_TOKEN;
-            console.warn("Using fallback GitHub token from environment");
-        }
-
-        if (!token) {
-            return NextResponse.json({
-                error: "Unauthorized - Please connect your GitHub account"
-            }, { status: 401 });
-        }
+        const token = session.accessToken;
 
         // Fetch file content from GitHub
         const res = await fetch(
@@ -43,7 +42,7 @@ export async function GET(request: Request) {
 
         if (!res.ok) {
             const errorData = await res.json().catch(() => ({}));
-            console.error(`GitHub Pull Error (${res.status}):`, errorData);
+            console.error(`GitHub Pull Error (${res.status}) for user ${session.githubUsername}:`, errorData);
 
             if (res.status === 404) {
                 return NextResponse.json({
@@ -55,8 +54,14 @@ export async function GET(request: Request) {
 
             if (res.status === 403) {
                 return NextResponse.json({
-                    error: "Access denied - Check repository permissions"
+                    error: "Access denied - Check repository permissions or sign in again"
                 }, { status: 403 });
+            }
+
+            if (res.status === 401) {
+                return NextResponse.json({
+                    error: "GitHub authentication expired - Please sign in again"
+                }, { status: 401 });
             }
 
             return NextResponse.json({
@@ -67,10 +72,13 @@ export async function GET(request: Request) {
         }
 
         const content = await res.text();
+        console.log(`File '${path}' pulled successfully from ${owner}/${repo} by user ${session.githubUsername}`);
+
         return NextResponse.json({
             content,
             path,
-            repository: `${owner}/${repo}`
+            repository: `${owner}/${repo}`,
+            accessedBy: session.githubUsername
         });
 
     } catch (error) {
@@ -81,9 +89,17 @@ export async function GET(request: Request) {
     }
 }
 
-// POST method for fetching multiple files or with body parameters
 export async function POST(request: Request) {
     try {
+        const session = await getServerSession(authOptions);
+
+        if (!session?.accessToken) {
+            return NextResponse.json({
+                error: "Authentication required",
+                message: "Please sign in with GitHub to access repositories"
+            }, { status: 401 });
+        }
+
         const { owner, repo, path = "README.md" } = await request.json();
 
         if (!owner || !repo) {
@@ -92,18 +108,7 @@ export async function POST(request: Request) {
             }, { status: 400 });
         }
 
-        const cookieStore = await cookies();
-        let token = cookieStore.get("github_token")?.value;
-
-        if (!token) {
-            token = process.env.GITHUB_TOKEN;
-        }
-
-        if (!token) {
-            return NextResponse.json({
-                error: "Unauthorized - Please connect your GitHub account"
-            }, { status: 401 });
-        }
+        const token = session.accessToken;
 
         const res = await fetch(
             `https://api.github.com/repos/${owner}/${repo}/contents/${path}`,
@@ -129,7 +134,8 @@ export async function POST(request: Request) {
         return NextResponse.json({
             content,
             path,
-            repository: `${owner}/${repo}`
+            repository: `${owner}/${repo}`,
+            accessedBy: session.githubUsername
         });
 
     } catch (error) {

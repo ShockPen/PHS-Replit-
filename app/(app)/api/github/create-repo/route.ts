@@ -1,27 +1,26 @@
-import { cookies } from "next/headers";
+// api/github/create-repo/route.ts - Updated with user authentication
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
     try {
-        const cookieStore = await cookies();
-        let token = cookieStore.get("github_token")?.value;
+        // Get the user's session
+        const session = await getServerSession(authOptions);
 
-        if (!token) {
-            token = process.env.GITHUB_TOKEN;
-            console.warn("Using fallback GitHub token from environment for repo creation");
-        }
-
-        if (!token) {
+        if (!session?.accessToken) {
             return NextResponse.json({
-                error: "Unauthorized - Please connect your GitHub account to create repositories"
+                error: "Authentication required",
+                message: "Please sign in with GitHub to create repositories"
             }, { status: 401 });
         }
 
+        const token = session.accessToken;
         const body = await req.json();
         const {
             name,
             description = "",
-            isPrivate = true,
+            isPrivate = false,
             autoInit = true,
             gitignoreTemplate,
             licenseTemplate,
@@ -81,7 +80,7 @@ export async function POST(req: Request) {
         const data = await response.json().catch(() => ({}));
 
         if (!response.ok) {
-            console.error(`GitHub API error (${response.status}):`, data);
+            console.error(`GitHub API error (${response.status}) for user ${session.githubUsername}:`, data);
 
             if (response.status === 422) {
                 if (Array.isArray(data.errors)) {
@@ -109,7 +108,7 @@ export async function POST(req: Request) {
 
             if (response.status === 401) {
                 return NextResponse.json({
-                    error: "Invalid or expired GitHub token - Please reconnect your GitHub account"
+                    error: "GitHub authentication expired - Please sign in again"
                 }, { status: 401 });
             }
 
@@ -136,75 +135,17 @@ export async function POST(req: Request) {
             permissions: data.permissions,
         };
 
-        console.log(`Repository '${name}' created successfully`);
+        console.log(`Repository '${name}' created successfully for user ${session.githubUsername}`);
         return NextResponse.json({
             success: true,
-            repository: sanitizedRepo
+            repository: sanitizedRepo,
+            owner: session.githubUsername
         });
 
     } catch (error) {
         console.error("Internal server error in create-repo:", error);
         return NextResponse.json({
             error: "Internal server error - Failed to create repository"
-        }, { status: 500 });
-    }
-}
-
-export async function GET() {
-    try {
-        const cookieStore = await cookies();
-        let token = cookieStore.get("github_token")?.value;
-
-        if (!token) {
-            token = process.env.GITHUB_TOKEN;
-        }
-
-        if (!token) {
-            return NextResponse.json({
-                error: "Unauthorized - Please connect your GitHub account"
-            }, { status: 401 });
-        }
-
-        const gitignoreRes = await fetch("https://api.github.com/gitignore/templates", {
-            headers: {
-                Authorization: `Bearer ${token}`,
-                Accept: "application/vnd.github.v3+json",
-                "User-Agent": "SchoolNest/1.0",
-            },
-        });
-
-        const licensesRes = await fetch("https://api.github.com/licenses", {
-            headers: {
-                Authorization: `Bearer ${token}`,
-                Accept: "application/vnd.github.v3+json",
-                "User-Agent": "SchoolNest/1.0",
-            },
-        });
-
-        const templates: any = {
-            gitignore: [],
-            licenses: []
-        };
-
-        if (gitignoreRes.ok) {
-            templates.gitignore = await gitignoreRes.json();
-        }
-
-        if (licensesRes.ok) {
-            const licenses = await licensesRes.json();
-            templates.licenses = licenses.map((license: any) => ({
-                key: license.key,
-                name: license.name,
-                spdx_id: license.spdx_id
-            }));
-        }
-
-        return NextResponse.json(templates);
-
-    } catch (error) {
-        console.error("Error fetching templates:", error);
-        return NextResponse.json({
-            error: "Failed to fetch repository templates"
         }, { status: 500 });
     }
 }
