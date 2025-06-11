@@ -4,8 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b81c8c27-8c15-4931-ae89-c670a04f9254" name="Changes" comment="temporarily added lightmode due to onrender issues">
-      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/java/repo/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/java/repo/page.tsx" afterDir="false" />
+    <list default="true" id="b81c8c27-8c15-4931-ae89-c670a04f9254" name="Changes" comment="github oauth for future testing - not enough time">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/api/github/create-repo/route.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/api/github/create-repo/route.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/api/github/pull/route.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/api/github/pull/route.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/api/github/push/route.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/api/github/push/route.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/components/ThemeSwitcher.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/components/ThemeSwitcher.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -127,7 +131,7 @@
       <workItem from="1749391157105" duration="11566000" />
       <workItem from="1749408187282" duration="27344000" />
       <workItem from="1749557900630" duration="9463000" />
-      <workItem from="1749645960868" duration="3580000" />
+      <workItem from="1749645960868" duration="5435000" />
     </task>
     <task id="LOCAL-00001" summary="so many errors do not run">
       <option name="closed" value="true" />
@@ -409,7 +413,15 @@
       <option name="project" value="LOCAL" />
       <updated>1749649344367</updated>
     </task>
-    <option name="localTasksCounter" value="36" />
+    <task id="LOCAL-00036" summary="commented out github oauth for future testing - not enough time">
+      <option name="closed" value="true" />
+      <created>1749650212934</created>
+      <option name="number" value="00036" />
+      <option name="presentableId" value="LOCAL-00036" />
+      <option name="project" value="LOCAL" />
+      <updated>1749650212934</updated>
+    </task>
+    <option name="localTasksCounter" value="37" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -439,8 +451,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Bcrypt --&gt; Bcryptjs + YIPPEEEE we're going global" />
-    <MESSAGE value="C++ ide works but cannot interact with code (scanner etc invalid)" />
     <MESSAGE value="classpage test v1" />
     <MESSAGE value="classpage works v1 (login, ui, dynamicism fix required)" />
     <MESSAGE value="last minute fixes + comments to explain API and other parts of the site" />
@@ -464,7 +474,9 @@
     <MESSAGE value="repo fixes for consistency" />
     <MESSAGE value="github fix using oauth v2" />
     <MESSAGE value="temporarily added lightmode due to onrender issues" />
-    <option name="LAST_COMMIT_MESSAGE" value="temporarily added lightmode due to onrender issues" />
+    <MESSAGE value="commented out github oauth for future testing - not enough time" />
+    <MESSAGE value="github oauth for future testing - not enough time" />
+    <option name="LAST_COMMIT_MESSAGE" value="github oauth for future testing - not enough time" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
