@@ -8,7 +8,7 @@ import { Link, Button } from "@nextui-org/react"
 import { BentoGrid, BentoGridItem } from "@/app/components/ui/bento-grid"
 import { BackgroundLines } from "@/app/components/ui/background-lines"
 import { FloatingNav } from "@/app/components/ui/floating-navbar"
-import GitHubAuth from "@/app/components/GitHubAuth" // Import our new auth component
+// import GitHubAuth from "@/app/components/GitHubAuth" // Import our new auth component
 
 import {
     IconHome,
@@ -736,61 +736,61 @@ export default function Page() {
     }))
 
     // If not authenticated with GitHub, show authentication component
-    if (status === 'loading') {
-        return (
-            <div className="min-h-screen w-full bg-black flex items-center justify-center">
-                <div className="text-center">
-                    <div className="animate-spin h-8 w-8 border-2 border-blue-400 border-r-transparent rounded-full mx-auto mb-4"></div>
-                    <p className="text-blue-200">Loading...</p>
-                </div>
-            </div>
-        )
-    }
-
-    if (!isGitHubAuthenticated) {
-        return (
-            <>
-                <FloatingNav />
-                <div className="min-h-screen w-full bg-black relative flex flex-col items-center antialiased">
-                    <BackgroundLines className="flex items-center justify-center w-full flex-col px-4 py-20 bg-black">
-                        <div className="max-w-4xl mx-auto text-center">
-                            <div className="inline-flex items-center gap-2 bg-red-500/10 border border-red-500/30 rounded-full px-4 py-2 mb-6">
-                                <IconShield className="h-4 w-4 text-red-400" />
-                                <span className="text-sm text-red-300 font-medium">Authentication Required</span>
-                            </div>
-
-                            <h1 className="text-5xl md:text-7xl font-bold bg-gradient-to-b from-red-400 via-red-300 to-orange-400 bg-clip-text text-transparent mb-6">
-                                GitHub Access
-                            </h1>
-
-                            <p className="text-xl text-blue-200 max-w-2xl mx-auto leading-relaxed mb-8">
-                                To access repository management features, you need to authenticate with your GitHub account. This ensures secure access to your repositories and maintains your privacy.
-                            </p>
-
-                            <div className="bg-gray-900/50 rounded-lg p-6 mb-8 border border-blue-500/30 backdrop-blur-sm">
-                                <GitHubAuth />
-                            </div>
-
-                            <div className="text-sm text-blue-400 space-y-2">
-                                <div className="flex items-center justify-center gap-2">
-                                    <IconShield className="h-4 w-4" />
-                                    <span>Secure OAuth authentication</span>
-                                </div>
-                                <div className="flex items-center justify-center gap-2">
-                                    <IconGitBranch className="h-4 w-4" />
-                                    <span>Full repository access</span>
-                                </div>
-                                <div className="flex items-center justify-center gap-2">
-                                    <IconTemplate className="h-4 w-4" />
-                                    <span>Java IDE integration</span>
-                                </div>
-                            </div>
-                        </div>
-                    </BackgroundLines>
-                </div>
-            </>
-        )
-    }
+    // if (status === 'loading') {
+    //     return (
+    //         <div className="min-h-screen w-full bg-black flex items-center justify-center">
+    //             <div className="text-center">
+    //                 <div className="animate-spin h-8 w-8 border-2 border-blue-400 border-r-transparent rounded-full mx-auto mb-4"></div>
+    //                 <p className="text-blue-200">Loading...</p>
+    //             </div>
+    //         </div>
+    //     )
+    // }
+    //
+    // if (!isGitHubAuthenticated) {
+    //     return (
+    //         <>
+    //             <FloatingNav />
+    //             <div className="min-h-screen w-full bg-black relative flex flex-col items-center antialiased">
+    //                 <BackgroundLines className="flex items-center justify-center w-full flex-col px-4 py-20 bg-black">
+    //                     <div className="max-w-4xl mx-auto text-center">
+    //                         <div className="inline-flex items-center gap-2 bg-red-500/10 border border-red-500/30 rounded-full px-4 py-2 mb-6">
+    //                             <IconShield className="h-4 w-4 text-red-400" />
+    //                             <span className="text-sm text-red-300 font-medium">Authentication Required</span>
+    //                         </div>
+    //
+    //                         <h1 className="text-5xl md:text-7xl font-bold bg-gradient-to-b from-red-400 via-red-300 to-orange-400 bg-clip-text text-transparent mb-6">
+    //                             GitHub Access
+    //                         </h1>
+    //
+    //                         <p className="text-xl text-blue-200 max-w-2xl mx-auto leading-relaxed mb-8">
+    //                             To access repository management features, you need to authenticate with your GitHub account. This ensures secure access to your repositories and maintains your privacy.
+    //                         </p>
+    //
+    //                         <div className="bg-gray-900/50 rounded-lg p-6 mb-8 border border-blue-500/30 backdrop-blur-sm">
+    //                             <GitHubAuth />
+    //                         </div>
+    //
+    //                         <div className="text-sm text-blue-400 space-y-2">
+    //                             <div className="flex items-center justify-center gap-2">
+    //                                 <IconShield className="h-4 w-4" />
+    //                                 <span>Secure OAuth authentication</span>
+    //                             </div>
+    //                             <div className="flex items-center justify-center gap-2">
+    //                                 <IconGitBranch className="h-4 w-4" />
+    //                                 <span>Full repository access</span>
+    //                             </div>
+    //                             <div className="flex items-center justify-center gap-2">
+    //                                 <IconTemplate className="h-4 w-4" />
+    //                                 <span>Java IDE integration</span>
+    //                             </div>
+    //                         </div>
+    //                     </div>
+    //                 </BackgroundLines>
+    //             </div>
+    //         </>
+    //     )
+    // }
 
     return (
         <>
