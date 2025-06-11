@@ -12,7 +12,6 @@ export async function GET() {
             }, { status: 401 });
         }
 
-        // Fetch user information
         const res = await fetch("https://api.github.com/user", {
             headers: {
                 Authorization: `Bearer ${token}`,
@@ -21,50 +20,47 @@ export async function GET() {
             },
         });
 
+        const data = await res.json().catch(() => ({}));
+
         if (!res.ok) {
-            const errorData = await res.json().catch(() => ({}));
-            console.error(`GitHub User API Error (${res.status}):`, errorData);
+            console.error(`GitHub User API Error (${res.status}):`, data);
 
             if (res.status === 401) {
                 return NextResponse.json({
-                    error: "Invalid or expired GitHub token"
+                    error: "Invalid or expired GitHub token",
+                    details: data
                 }, { status: 401 });
             }
 
             return NextResponse.json({
                 error: "Failed to fetch user information",
-                status: res.status,
-                details: errorData
+                details: data
             }, { status: res.status });
         }
 
-        const user = await res.json();
-
-        // Return only necessary user information (security best practice)
         const sanitizedUser = {
-            id: user.id,
-            login: user.login,
-            name: user.name,
-            email: user.email,
-            avatar_url: user.avatar_url,
-            html_url: user.html_url,
-            public_repos: user.public_repos,
-            followers: user.followers,
-            following: user.following,
-            created_at: user.created_at,
+            id: data.id,
+            login: data.login,
+            name: data.name,
+            email: data.email,
+            avatar_url: data.avatar_url,
+            html_url: data.html_url,
+            public_repos: data.public_repos,
+            followers: data.followers,
+            following: data.following,
+            created_at: data.created_at,
         };
 
         return NextResponse.json(sanitizedUser);
 
     } catch (error) {
-        console.error("Unexpected error in GitHub user:", error);
+        console.error("Unexpected error in GitHub user GET:", error);
         return NextResponse.json({
             error: "Internal server error"
         }, { status: 500 });
     }
 }
 
-// POST method to get user repositories
 export async function POST() {
     try {
         const cookieStore = await cookies();
@@ -76,7 +72,6 @@ export async function POST() {
             }, { status: 401 });
         }
 
-        // Fetch user repositories
         const res = await fetch("https://api.github.com/user/repos?sort=updated&per_page=100", {
             headers: {
                 Authorization: `Bearer ${token}`,
@@ -85,19 +80,17 @@ export async function POST() {
             },
         });
 
+        const data = await res.json().catch(() => ({}));
+
         if (!res.ok) {
-            const errorData = await res.json().catch(() => ({}));
+            console.error(`GitHub Repos API Error (${res.status}):`, data);
             return NextResponse.json({
                 error: "Failed to fetch repositories",
-                status: res.status,
-                details: errorData
+                details: data
             }, { status: res.status });
         }
 
-        const repos = await res.json();
-
-        // Return sanitized repository information
-        const sanitizedRepos = repos.map((repo: any) => ({
+        const sanitizedRepos = data.map((repo: any) => ({
             id: repo.id,
             name: repo.name,
             full_name: repo.full_name,
@@ -114,7 +107,7 @@ export async function POST() {
         return NextResponse.json({ repositories: sanitizedRepos });
 
     } catch (error) {
-        console.error("Unexpected error in GitHub repos:", error);
+        console.error("Unexpected error in GitHub user POST:", error);
         return NextResponse.json({
             error: "Internal server error"
         }, { status: 500 });

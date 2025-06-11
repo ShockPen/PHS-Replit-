@@ -184,7 +184,7 @@ export default function Page() {
 
     // Enhanced GitHub functionality using backend API
     const createRepo = async (repoName: string) => {
-        setIsCreatingRepo(true)
+        setIsCreatingRepo(true);
         try {
             const res = await fetch("/api/github/create-repo", {
                 method: "POST",
@@ -194,29 +194,30 @@ export default function Page() {
                     description: `Created via SchoolNest Java IDE - ${selectedProject?.projectName || "Java Project"}`,
                     isPrivate: false,
                 }),
-            })
+            });
 
-            const data = await res.json()
+            const data = await res.json();
 
             if (!res.ok) {
-                if (data.error?.errors?.some((e: any) => e.message?.includes("already exists"))) {
-                    alert("Repository name already exists. Please choose a different name.")
-                } else {
-                    alert("Failed to create repo: " + (data.error?.message || data.error || "Unknown error"))
-                }
-                return null
+                const errorMsg = data?.error || "Unknown error";
+                alert("Failed to create repo: " + errorMsg);
+                return null;
             }
 
-            alert(`Repository "${repoName}" created successfully on your GitHub account!`)
-            return data
+            const repo = data.repository;
+            alert(`Repository "${repo.name}" created successfully on your GitHub account!`);
+            return {
+                owner: { login: repo.full_name.split("/")[0] },
+                name: repo.name,
+            };
         } catch (error) {
-            console.error("Network or unexpected error creating repo:", error)
-            alert("Error creating repository. Please check your connection and GitHub authentication.")
-            return null
+            console.error("Network or unexpected error creating repo:", error);
+            alert("Error creating repository. Please check your connection and GitHub authentication.");
+            return null;
         } finally {
-            setIsCreatingRepo(false)
+            setIsCreatingRepo(false);
         }
-    }
+    };
 
     const handlePush = async (owner: string, repo: string) => {
         if (!activeFile) {

@@ -6,14 +6,12 @@ export async function POST(req: Request) {
         const cookieStore = await cookies();
         let token = cookieStore.get("github_token")?.value;
 
-        // Fallback to environment variable if no cookie (for admin operations)
         if (!token) {
             token = process.env.GITHUB_TOKEN;
             console.warn("Using fallback GitHub token from environment for repo creation");
         }
 
         if (!token) {
-            console.error("No GitHub token found in cookies or environment");
             return NextResponse.json({
                 error: "Unauthorized - Please connect your GitHub account to create repositories"
             }, { status: 401 });
@@ -35,14 +33,12 @@ export async function POST(req: Request) {
             hasWiki = true
         } = body;
 
-        // Validate required fields
         if (!name || typeof name !== 'string' || name.trim() === '') {
             return NextResponse.json({
                 error: "Repository name is required and must be a non-empty string"
             }, { status: 400 });
         }
 
-        // Validate repository name format
         const nameRegex = /^[a-zA-Z0-9._-]+$/;
         if (!nameRegex.test(name)) {
             return NextResponse.json({
@@ -50,7 +46,6 @@ export async function POST(req: Request) {
             }, { status: 400 });
         }
 
-        // Prepare repository creation payload
         const repoPayload: any = {
             name: name.trim(),
             description: description.trim(),
@@ -64,7 +59,6 @@ export async function POST(req: Request) {
             has_wiki: Boolean(hasWiki),
         };
 
-        // Add optional templates if provided
         if (gitignoreTemplate && gitignoreTemplate.trim()) {
             repoPayload.gitignore_template = gitignoreTemplate.trim();
         }
@@ -73,7 +67,6 @@ export async function POST(req: Request) {
             repoPayload.license_template = licenseTemplate.trim();
         }
 
-        // Create the repository
         const response = await fetch("https://api.github.com/user/repos", {
             method: "POST",
             headers: {
@@ -85,20 +78,26 @@ export async function POST(req: Request) {
             body: JSON.stringify(repoPayload),
         });
 
-        if (!response.ok) {
-            const errorData = await response.json().catch(() => ({}));
-            console.error(`GitHub API error (${response.status}):`, errorData);
+        const data = await response.json().catch(() => ({}));
 
-            // Handle specific GitHub API errors
+        if (!response.ok) {
+            console.error(`GitHub API error (${response.status}):`, data);
+
             if (response.status === 422) {
-                if (errorData.errors?.some((e: any) => e.message?.includes("already exists"))) {
-                    return NextResponse.json({
-                        error: `Repository '${name}' already exists in your account`
-                    }, { status: 409 });
+                if (Array.isArray(data.errors)) {
+                    const exists = data.errors.some((e: any) =>
+                        e.message?.includes("name already exists")
+                    );
+                    if (exists) {
+                        return NextResponse.json({
+                            error: `Repository '${name}' already exists in your account`
+                        }, { status: 409 });
+                    }
                 }
+
                 return NextResponse.json({
                     error: "Invalid repository configuration",
-                    details: errorData.errors || errorData.message
+                    details: data.errors || data.message
                 }, { status: 422 });
             }
 
@@ -116,14 +115,10 @@ export async function POST(req: Request) {
 
             return NextResponse.json({
                 error: "Failed to create repository",
-                status: response.status,
-                details: errorData
+                details: data
             }, { status: response.status });
         }
 
-        const data = await response.json();
-
-        // Return sanitized repository data
         const sanitizedRepo = {
             id: data.id,
             name: data.name,
@@ -141,11 +136,10 @@ export async function POST(req: Request) {
             permissions: data.permissions,
         };
 
-        console.log(`Repository '${name}' created successfully for user`);
+        console.log(`Repository '${name}' created successfully`);
         return NextResponse.json({
             success: true,
-            repository: sanitizedRepo,
-            message: `Repository '${name}' created successfully`
+            repository: sanitizedRepo
         });
 
     } catch (error) {
@@ -156,7 +150,6 @@ export async function POST(req: Request) {
     }
 }
 
-// GET method to fetch available templates
 export async function GET() {
     try {
         const cookieStore = await cookies();
@@ -172,7 +165,6 @@ export async function GET() {
             }, { status: 401 });
         }
 
-        // Fetch available gitignore templates
         const gitignoreRes = await fetch("https://api.github.com/gitignore/templates", {
             headers: {
                 Authorization: `Bearer ${token}`,
@@ -181,7 +173,6 @@ export async function GET() {
             },
         });
 
-        // Fetch available license templates
         const licensesRes = await fetch("https://api.github.com/licenses", {
             headers: {
                 Authorization: `Bearer ${token}`,
