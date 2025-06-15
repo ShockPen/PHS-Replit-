@@ -1,11 +1,15 @@
 "use client"
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useTheme } from "next-themes";
 
 
 
 const ThemeSwitcher = () => {
     const { theme, setTheme } = useTheme();
+    useEffect(() => {
+    setTheme("dark");
+  }, [setTheme]);
+
     return (
         <button
             aria-label="theme toggler"
