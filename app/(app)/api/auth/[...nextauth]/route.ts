@@ -17,14 +17,8 @@ const handler = NextAuth({
             clientId: getEnv("GITHUB_ID"),
             clientSecret: getEnv("GITHUB_SECRET"),
         }),
-
-        GoogleProvider({
-          clientId: getEnv("GOOGLE_CLIENT_ID"),
-          clientSecret: getEnv("GOOGLE_CLIENT_SECRET"),
-        }),
     ],
     secret: getEnv("NEXTAUTH_SECRET"),
 });
 
 export { handler as GET, handler as POST };
-export default handler;

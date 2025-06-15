@@ -4,8 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b81c8c27-8c15-4931-ae89-c670a04f9254" name="Changes" comment=".env.local github signin fixing for netlify">
+    <list default="true" id="b81c8c27-8c15-4931-ae89-c670a04f9254" name="Changes" comment="github oauth for future testing - not enough time">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/studenthome/python/ide/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/studenthome/python/ide/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -54,35 +57,35 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;DefaultHtmlFileTemplate&quot;: &quot;HTML File&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/davee/WebstormProjects/Rep-lite/app/(app)/educatorhome&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.standard&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.standard&quot;: &quot;&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_interpreter_path&quot;: &quot;node&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;run.code.analysis.last.selected.profile&quot;: &quot;pProject Default&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;,
-    &quot;ts.external.directory.path&quot;: &quot;C:\\Users\\davee\\WebstormProjects\\Rep-lite\\node_modules\\typescript\\lib&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "DefaultHtmlFileTemplate": "HTML File",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "Merging main",
+    "ignore.virus.scanning.warn.message": "true",
+    "last_opened_file_path": "C:/Users/davee/WebstormProjects/Rep-lite/app/(app)/studenthome/java",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.standard": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.standard": "",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_interpreter_path": "node",
+    "nodejs_package_manager_path": "npm",
+    "run.code.analysis.last.selected.profile": "pProject Default",
+    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable",
+    "ts.external.directory.path": "C:\\Users\\davee\\WebstormProjects\\Rep-lite\\node_modules\\typescript\\lib",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\davee\WebstormProjects\Rep-lite\app\(app)\studenthome\java" />
+      <recent name="C:\Users\davee\WebstormProjects\Rep-lite\app\(app)\studenthome\cpp" />
+      <recent name="C:\Users\davee\WebstormProjects\Rep-lite\app\(app)\educatorhome\python" />
+      <recent name="C:\Users\davee\WebstormProjects\Rep-lite\app\(app)\studenthome\python" />
       <recent name="C:\Users\davee\WebstormProjects\Rep-lite\app\(app)\educatorhome" />
-      <recent name="C:\Users\davee\WebstormProjects\Rep-lite\app\(app)\educatorhome\" />
-      <recent name="C:\Users\davee\WebstormProjects\Rep-lite\app\(app)" />
-      <recent name="C:\Users\davee\WebstormProjects\Rep-lite\app\(app)\studenthome" />
-      <recent name="C:\Users\davee\WebstormProjects\Rep-lite\app\(app)\studenthome\linux\public" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\davee\WebstormProjects\Rep-lite" />
@@ -125,7 +128,9 @@
       <workItem from="1749099989844" duration="14101000" />
       <workItem from="1749154969245" duration="6455000" />
       <workItem from="1749391157105" duration="11566000" />
-      <workItem from="1749408187282" duration="15093000" />
+      <workItem from="1749408187282" duration="27344000" />
+      <workItem from="1749557900630" duration="9463000" />
+      <workItem from="1749645960868" duration="12975000" />
     </task>
     <task id="LOCAL-00001" summary="so many errors do not run">
       <option name="closed" value="true" />
@@ -287,7 +292,143 @@
       <option name="project" value="LOCAL" />
       <updated>1749423156361</updated>
     </task>
-    <option name="localTasksCounter" value="21" />
+    <task id="LOCAL-00021" summary="make sure login will actually work now">
+      <option name="closed" value="true" />
+      <created>1749424934273</created>
+      <option name="number" value="00021" />
+      <option name="presentableId" value="LOCAL-00021" />
+      <option name="project" value="LOCAL" />
+      <updated>1749424934273</updated>
+    </task>
+    <task id="LOCAL-00022" summary="feedback form">
+      <option name="closed" value="true" />
+      <created>1749425048335</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1749425048335</updated>
+    </task>
+    <task id="LOCAL-00023" summary="login v2 deploy-ready">
+      <option name="closed" value="true" />
+      <created>1749425390809</created>
+      <option name="number" value="00023" />
+      <option name="presentableId" value="LOCAL-00023" />
+      <option name="project" value="LOCAL" />
+      <updated>1749425390809</updated>
+    </task>
+    <task id="LOCAL-00024" summary="login v2 deploy-ready">
+      <option name="closed" value="true" />
+      <created>1749425765693</created>
+      <option name="number" value="00024" />
+      <option name="presentableId" value="LOCAL-00024" />
+      <option name="project" value="LOCAL" />
+      <updated>1749425765693</updated>
+    </task>
+    <task id="LOCAL-00025" summary="login v2 deploy-ready">
+      <option name="closed" value="true" />
+      <created>1749425801750</created>
+      <option name="number" value="00025" />
+      <option name="presentableId" value="LOCAL-00025" />
+      <option name="project" value="LOCAL" />
+      <updated>1749425801750</updated>
+    </task>
+    <task id="LOCAL-00026" summary="v2 at the cusp of completion (no linux).">
+      <option name="closed" value="true" />
+      <created>1749432556200</created>
+      <option name="number" value="00026" />
+      <option name="presentableId" value="LOCAL-00026" />
+      <option name="project" value="LOCAL" />
+      <updated>1749432556200</updated>
+    </task>
+    <task id="LOCAL-00027" summary="added personalized to the user github tokens">
+      <option name="closed" value="true" />
+      <created>1749434488209</created>
+      <option name="number" value="00027" />
+      <option name="presentableId" value="LOCAL-00027" />
+      <option name="project" value="LOCAL" />
+      <updated>1749434488209</updated>
+    </task>
+    <task id="LOCAL-00028" summary="[Operational v2] localstorage + project management + github + UI">
+      <option name="closed" value="true" />
+      <created>1749440153340</created>
+      <option name="number" value="00028" />
+      <option name="presentableId" value="LOCAL-00028" />
+      <option name="project" value="LOCAL" />
+      <updated>1749440153340</updated>
+    </task>
+    <task id="LOCAL-00029" summary="merging w/ ShockPen">
+      <option name="closed" value="true" />
+      <created>1749440264218</created>
+      <option name="number" value="00029" />
+      <option name="presentableId" value="LOCAL-00029" />
+      <option name="project" value="LOCAL" />
+      <updated>1749440264218</updated>
+    </task>
+    <task id="LOCAL-00030" summary="fixes">
+      <option name="closed" value="true" />
+      <created>1749596532220</created>
+      <option name="number" value="00030" />
+      <option name="presentableId" value="LOCAL-00030" />
+      <option name="project" value="LOCAL" />
+      <updated>1749596532220</updated>
+    </task>
+    <task id="LOCAL-00031" summary="git fixes v3">
+      <option name="closed" value="true" />
+      <created>1749600666164</created>
+      <option name="number" value="00031" />
+      <option name="presentableId" value="LOCAL-00031" />
+      <option name="project" value="LOCAL" />
+      <updated>1749600666164</updated>
+    </task>
+    <task id="LOCAL-00032" summary="linux fixes + some python ide fixes">
+      <option name="closed" value="true" />
+      <created>1749605274966</created>
+      <option name="number" value="00032" />
+      <option name="presentableId" value="LOCAL-00032" />
+      <option name="project" value="LOCAL" />
+      <updated>1749605274966</updated>
+    </task>
+    <task id="LOCAL-00033" summary="repo fixes for consistency">
+      <option name="closed" value="true" />
+      <created>1749606276880</created>
+      <option name="number" value="00033" />
+      <option name="presentableId" value="LOCAL-00033" />
+      <option name="project" value="LOCAL" />
+      <updated>1749606276880</updated>
+    </task>
+    <task id="LOCAL-00034" summary="github fix using oauth v2">
+      <option name="closed" value="true" />
+      <created>1749649192462</created>
+      <option name="number" value="00034" />
+      <option name="presentableId" value="LOCAL-00034" />
+      <option name="project" value="LOCAL" />
+      <updated>1749649192462</updated>
+    </task>
+    <task id="LOCAL-00035" summary="temporarily added lightmode due to onrender issues">
+      <option name="closed" value="true" />
+      <created>1749649344367</created>
+      <option name="number" value="00035" />
+      <option name="presentableId" value="LOCAL-00035" />
+      <option name="project" value="LOCAL" />
+      <updated>1749649344367</updated>
+    </task>
+    <task id="LOCAL-00036" summary="commented out github oauth for future testing - not enough time">
+      <option name="closed" value="true" />
+      <created>1749650212934</created>
+      <option name="number" value="00036" />
+      <option name="presentableId" value="LOCAL-00036" />
+      <option name="project" value="LOCAL" />
+      <updated>1749650212934</updated>
+    </task>
+    <task id="LOCAL-00037" summary="github oauth for future testing - not enough time">
+      <option name="closed" value="true" />
+      <created>1749652195106</created>
+      <option name="number" value="00037" />
+      <option name="presentableId" value="LOCAL-00037" />
+      <option name="project" value="LOCAL" />
+      <updated>1749652195106</updated>
+    </task>
+    <option name="localTasksCounter" value="38" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -317,14 +458,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="so many errors do not run" />
-    <MESSAGE value="version 2 with more pages but less functionality" />
-    <MESSAGE value="fixing node's nodes" />
-    <MESSAGE value="Say you can't sleep, Java, I know&#10;That's that me espresso" />
-    <MESSAGE value="you scroll me right round Java right round" />
-    <MESSAGE value="Netlify deployment V1 finally up and running" />
-    <MESSAGE value="Bcrypt --&gt; Bcryptjs + YIPPEEEE we're going global" />
-    <MESSAGE value="C++ ide works but cannot interact with code (scanner etc invalid)" />
     <MESSAGE value="classpage test v1" />
     <MESSAGE value="classpage works v1 (login, ui, dynamicism fix required)" />
     <MESSAGE value="last minute fixes + comments to explain API and other parts of the site" />
@@ -333,7 +466,24 @@
     <MESSAGE value="login and educatorhome v0.1" />
     <MESSAGE value="final commits to educatorhome and studenthome made page functionality" />
     <MESSAGE value=".env.local github signin fixing for netlify" />
-    <option name="LAST_COMMIT_MESSAGE" value=".env.local github signin fixing for netlify" />
+    <MESSAGE value="make sure login will actually work now" />
+    <MESSAGE value="feedback form" />
+    <MESSAGE value="login v2 deploy-ready" />
+    <MESSAGE value="v2 at the cusp of completion (no linux)." />
+    <MESSAGE value="added personalized to the user github tokens" />
+    <MESSAGE value="[Operational] localstorage + project management + github" />
+    <MESSAGE value="[Operational v2] localstorage + project management + github + UI" />
+    <MESSAGE value="merging w/ ShockPen" />
+    <MESSAGE value="restoring old github code that works" />
+    <MESSAGE value="fixes" />
+    <MESSAGE value="git fixes v3" />
+    <MESSAGE value="linux fixes + some python ide fixes" />
+    <MESSAGE value="repo fixes for consistency" />
+    <MESSAGE value="github fix using oauth v2" />
+    <MESSAGE value="temporarily added lightmode due to onrender issues" />
+    <MESSAGE value="commented out github oauth for future testing - not enough time" />
+    <MESSAGE value="github oauth for future testing - not enough time" />
+    <option name="LAST_COMMIT_MESSAGE" value="github oauth for future testing - not enough time" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

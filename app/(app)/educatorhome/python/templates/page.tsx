@@ -70,27 +70,27 @@ export default function Page() {
         {
             title: "Home",
             icon: <IconHome className="h-full w-full text-blue-500 dark:text-blue-300" />,
-            href: "/studenthome",
+            href: "/educatorhome",
         },
         {
             title: "Dashboard",
             icon: <IconBrandPython className="h-full w-full text-blue-500 dark:text-blue-300" />,
-            href: "/studenthome/python",
+            href: "/educatorhome/python",
         },
         {
             title: "Python IDE",
             icon: <IconFileCode className="h-full w-full text-blue-500 dark:text-blue-300" />,
-            href: "/studenthome/python/ide",
+            href: "/educatorhome/python/ide",
         },
         {
             title: "Templates",
             icon: <IconTemplate className="h-full w-full text-blue-500 dark:text-blue-300" />,
-            href: "/studenthome/python/templates",
+            href: "/educatorhome/python/templates",
         },
         {
             title: "Classes",
             icon: <IconSchool className="h-full w-full text-blue-500 dark:text-blue-300" />,
-            href: "/studenthome/classes",
+            href: "/educatorhome/classes",
         },
     ]
 

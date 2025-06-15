@@ -429,7 +429,7 @@ export default function PythonDashboard() {
             </div>
             <Button
                 as={Link}
-                href="/studenthome/python/repo"
+                href="/studenthome/linux"
                 className="w-full bg-neutral-800 hover:bg-neutral-700 text-orange-400 hover:text-orange-300 transition-all duration-200 hover:scale-105 border border-neutral-600/50 flex-shrink-0 group-hover:bg-neutral-750 group-hover:border-neutral-500/70"
                 size="sm"
             >

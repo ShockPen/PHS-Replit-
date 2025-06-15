@@ -71,27 +71,27 @@ export default function Page() {
         {
             title: "Home",
             icon: <IconHome className="h-full w-full text-blue-500 dark:text-blue-300" />,
-            href: "/studenthome",
+            href: "/educatorhome",
         },
         {
             title: "Dashboard",
             icon: <IconBrandCpp className="h-full w-full text-blue-500 dark:text-blue-300" />,
-            href: "/studenthome/cpp",
+            href: "/educatorhome/cpp",
         },
         {
             title: "C++ IDE",
             icon: <IconFileCode className="h-full w-full text-blue-500 dark:text-blue-300" />,
-            href: "/studenthome/cpp/ide",
+            href: "/educatorhome/cpp/ide",
         },
         {
             title: "Templates",
             icon: <IconTemplate className="h-full w-full text-blue-500 dark:text-blue-300" />,
-            href: "/studenthome/cpp/templates",
+            href: "/educatorhome/cpp/templates",
         },
         {
             title: "Classes",
             icon: <IconSchool className="h-full w-full text-blue-500 dark:text-blue-300" />,
-            href: "/studenthome/classes",
+            href: "/educatorhome/classes",
         },
     ]
 

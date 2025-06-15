@@ -160,20 +160,22 @@ const Editor = () => {
   const [files, setFiles] = useState<File[]>([
     {
       filename: "main.cpp",
-      contents: `#include <iostream>
+      contents: `// hello.cpp
+
+#include <iostream>
 #include <string>
 
+// Function to greet the user
+std::string greet(const std::string& name) {
+    return "Hello, " + name + "!";
+}
+
 int main() {
-    std::string name;
-    std::cout << "What is your name? ";
-    std::cin >> name;
-    std::cout << "Hello, " << name << "!" << std::endl;
-    
-    int age;
-    std::cout << "How old are you? ";
-    std::cin >> age;
-    std::cout << "In 10 years, you will be " << age + 10 << " years old." << std::endl;
-    
+    std::cout << "Hello, world!" << std::endl;
+
+    std::string name = "Alice";
+    std::cout << greet(name) << std::endl;
+
     return 0;
 }`,
     },

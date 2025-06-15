@@ -70,27 +70,27 @@ export default function Page() {
         {
             title: "Home",
             icon: <IconHome className="h-full w-full text-blue-500 dark:text-blue-300" />,
-            href: "/studenthome",
+            href: "/educatorhome",
         },
         {
             title: "Dashboard",
             icon: <IconCoffee className="h-full w-full text-blue-500 dark:text-blue-300" />,
-            href: "/studenthome/java",
+            href: "/educatorhome/java",
         },
         {
             title: "Java IDE",
             icon: <IconFileCode className="h-full w-full text-blue-500 dark:text-blue-300" />,
-            href: "/studenthome/java/ide",
+            href: "/educatorhome/java/ide",
         },
         {
             title: "Templates",
             icon: <IconTemplate className="h-full w-full text-blue-500 dark:text-blue-300" />,
-            href: "/studenthome/java/templates",
+            href: "/educatorhome/java/templates",
         },
         {
             title: "Classes",
             icon: <IconSchool className="h-full w-full text-blue-500 dark:text-blue-300" />,
-            href: "/studenthome/classes",
+            href: "/educatorhome/classes",
         },
     ]
 

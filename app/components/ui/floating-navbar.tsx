@@ -174,6 +174,8 @@ export const FloatingNav = ({
                         </button>
                     </>
                 )}
+
+                <ThemeSwitcher />
             </motion.div>
         </AnimatePresence>
     );

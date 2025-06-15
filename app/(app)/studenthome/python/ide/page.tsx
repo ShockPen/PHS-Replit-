@@ -82,7 +82,8 @@ export default function PythonIDE() {
             filename: "main.py",
             contents: `# Welcome to Python IDE
 print("Hello, World!")
-print("Welcome to the python IDE!")
+name = input("What's your name? ")
+print(f"Nice to meet you, {name}!")
 
 # You can import other files when you create them
 # from utils import helper_function

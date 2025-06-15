@@ -515,7 +515,7 @@ export default function NodeDashboard() {
         {
             title: "Back Home",
             icon: <IconHome className="h-full w-full text-green-400" />,
-            href: "/studenthome",
+            href: "/educatorhome",
         },
         {
             title: "Node IDE",

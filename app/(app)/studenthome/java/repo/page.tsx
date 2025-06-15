@@ -8,6 +8,7 @@ import { Link, Button } from "@nextui-org/react"
 import { BentoGrid, BentoGridItem } from "@/app/components/ui/bento-grid"
 import { BackgroundLines } from "@/app/components/ui/background-lines"
 import { FloatingNav } from "@/app/components/ui/floating-navbar"
+// import GitHubAuth from "@/app/components/GitHubAuth" // Import our new auth component
 
 import {
     IconHome,
@@ -15,7 +16,6 @@ import {
     IconTemplate,
     IconFileCode,
     IconUpload,
-    IconFileDownload,
     IconFolderPlus,
     IconCloudUpload,
     IconCopy,
@@ -27,6 +27,7 @@ import {
     IconGitFork,
     IconGitPullRequest,
     IconPlayerPlayFilled,
+    IconShield,
 } from "@tabler/icons-react"
 
 interface File {
@@ -34,315 +35,454 @@ interface File {
     contents: string
 }
 
-interface GitOperationCardProps {
-    title: string
-    description: string
-    icon: React.ReactElement
-    color?: string
-    command?: string
-    isSpecial?: boolean
-    isLoading?: boolean
+interface JavaProject {
+    projectName: string
+    files: File[]
+    timestamp: string
+    totalFiles: number
+    javaFiles: number
+}
+
+// Enhanced localStorage manager that only returns Java files for repo operations
+const localStorageManager = {
+    getAllJavaProjects: (): JavaProject[] => {
+        if (typeof window === "undefined") return []
+
+        const projects: JavaProject[] = []
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i)
+            if (key && key.startsWith("java_project_")) {
+                try {
+                    const data = JSON.parse(localStorage.getItem(key) || "{}")
+                    if (data.files && Array.isArray(data.files)) {
+                        // Filter only Java files for the repo page
+                        const javaFiles = data.files.filter((file: File) => file.filename.endsWith(".java"))
+                        if (javaFiles.length > 0) {
+                            projects.push({
+                                projectName: data.project || key.replace("java_project_", ""),
+                                files: javaFiles,
+                                timestamp: data.timestamp,
+                                totalFiles: data.files.length,
+                                javaFiles: javaFiles.length,
+                            })
+                        }
+                    }
+                } catch (error) {
+                    console.error(`Error parsing project ${key}:`, error)
+                }
+            }
+        }
+        return projects.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+    },
 }
 
 export default function Page() {
     const router = useRouter()
     const searchParams = useSearchParams()
-    const { data: session } = useSession()
+    const { data: session, status } = useSession()
 
     // State for IDE integration
-    const [files, setFiles] = useState<File[]>([
-        {
-            filename: "Main.java",
-            contents: `import java.util.Scanner;
+    const [javaProjects, setJavaProjects] = useState<JavaProject[]>([])
+    const [selectedProject, setSelectedProject] = useState<JavaProject | null>(null)
+    const [activeFile, setActiveFile] = useState<File | null>(null)
 
-public class Main {
-    public static void main(String args[]) {
-        Scanner scan = new Scanner(System.in);
-        System.out.println("Enter an integer");
-        int a = scan.nextInt();
-        System.out.println("Your integer: " + a);
-    }
-}`,
-        },
-    ])
-    const [activeFile, setActiveFile] = useState("Main.java")
+    // User state
     const [signedIn, setSignedIn] = useState(false)
     const [name, setName] = useState("")
-    const [project, setProject] = useState(searchParams.get("project") ?? "")
-    const [projectList, setProjectList] = useState<string[]>([])
-    const [createdRepos, setCreatedRepos] = useState<{ owner: string; name: string }[]>([])
+    const [githubUsername, setGithubUsername] = useState("")
+    const [isGitHubAuthenticated, setIsGitHubAuthenticated] = useState(false)
 
     // Loading states for UI feedback
     const [isSavingProject, setIsSavingProject] = useState(false)
     const [isCreatingRepo, setIsCreatingRepo] = useState(false)
     const [isPushing, setIsPushing] = useState(false)
     const [isCloning, setIsCloning] = useState(false)
+    const [createdRepos, setCreatedRepos] = useState<{ owner: string; name: string }[]>([])
 
     const fileInputRef = useRef<HTMLInputElement>(null)
+
+    // Load projects from localStorage
+    const loadJavaProjects = () => {
+        const projects = localStorageManager.getAllJavaProjects()
+        setJavaProjects(projects)
+
+        // Auto-select first project if none selected
+        if (projects.length > 0 && !selectedProject) {
+            setSelectedProject(projects[0])
+            if (projects[0].files.length > 0) {
+                setActiveFile(projects[0].files[0])
+            }
+        }
+    }
+
+    // Check GitHub authentication status
+    const checkGitHubAuth = () => {
+        if (status === 'authenticated' && session?.accessToken && session?.githubUsername) {
+            setIsGitHubAuthenticated(true)
+            setGithubUsername(session.githubUsername)
+            setName(session.user?.name || session.githubUsername)
+            return true
+        } else {
+            setIsGitHubAuthenticated(false)
+            return false
+        }
+    }
 
     // Initialize session and load project data
     useEffect(() => {
         const loadInitialData = async () => {
-            if (session?.user?.role === "student") {
+            // Check if user has valid GitHub authentication
+            const isAuthenticated = checkGitHubAuth()
+
+            if (isAuthenticated) {
                 setSignedIn(true)
 
-                // Fetch student info
+                // Fetch additional student info if available
                 try {
                     const studentInfoResponse = await fetch("/api/student/get_studentinfo/post", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                     })
                     const studentInfoData = await studentInfoResponse.json()
-                    setName(studentInfoData.firstname + " " + studentInfoData.lastname)
+                    if (studentInfoData.firstname && studentInfoData.lastname) {
+                        setName(studentInfoData.firstname + " " + studentInfoData.lastname)
+                    }
                 } catch (error) {
                     console.error("Failed to fetch student info:", error)
                 }
-
-                // Fetch project files if a project is selected
-                if (project) {
-                    try {
-                        const filesResponse = await fetch("/api/student/get_files/post", {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({ project_name: project }),
-                        })
-                        const filesData = await filesResponse.json()
-                        if (filesData.project) {
-                            setFiles(filesData.project.files)
-                            // Set active file to the first file if exists, or default
-                            if (filesData.project.files.length > 0) {
-                                setActiveFile(filesData.project.files[0].filename)
-                            }
-                        }
-                    } catch (error) {
-                        console.error("Failed to fetch project files:", error)
-                    }
-                }
-
-                // Fetch project list
-                try {
-                    const projectListResponse = await fetch("/api/student/get_projectlist/post", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                    })
-                    const projectListData = await projectListResponse.json()
-                    setProjectList(projectListData.java_project_names)
-                } catch (error) {
-                    console.error("Failed to fetch project list:", error)
-                }
-            } else {
-                setSignedIn(false) // If not a student or no session, ensure signedIn is false
             }
         }
 
         loadInitialData()
-    }, [session, project]) // Dependencies for re-running effect
+        loadJavaProjects()
+    }, [session, status])
 
-    // Save project functionality
-    const saveProject = async () => {
-        setIsSavingProject(true)
-        try {
-            const response = await fetch("/api/student/save_files/post", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ project, files }),
-            })
-            if (response.ok) {
-                alert("Project saved successfully!")
-            } else {
-                const errorData = await response.json()
-                console.error("Error saving project:", errorData)
-                alert(`Error saving project: ${errorData.message || "Unknown error"}`)
-            }
-        } catch (error) {
-            console.error("Network or unexpected error saving project:", error)
-            alert("Error saving project. Please check your connection.")
-        } finally {
-            setIsSavingProject(false)
+    // Listen for updates from the Java IDE
+    useEffect(() => {
+        const handleJavaProjectSaved = (event: CustomEvent) => {
+            console.log("Java project saved:", event.detail)
+            loadJavaProjects()
         }
-    }
 
-    // GitHub functionality
+        // Listen for custom events from the IDE
+        window.addEventListener("javaProjectSaved", handleJavaProjectSaved as EventListener)
+
+        // Also refresh on storage events
+        const handleStorageChange = () => {
+            loadJavaProjects()
+        }
+
+        window.addEventListener("storage", handleStorageChange)
+
+        // Refresh projects every 5 seconds to catch auto-saves
+        const refreshInterval = setInterval(loadJavaProjects, 5000)
+
+        return () => {
+            window.removeEventListener("javaProjectSaved", handleJavaProjectSaved as EventListener)
+            window.removeEventListener("storage", handleStorageChange)
+            clearInterval(refreshInterval)
+        }
+    }, [])
+
+    // Enhanced GitHub functionality using OAuth
     const createRepo = async (repoName: string) => {
-        setIsCreatingRepo(true)
+        if (!isGitHubAuthenticated) {
+            alert("Please authenticate with GitHub first.")
+            return null
+        }
+
+        setIsCreatingRepo(true);
         try {
             const res = await fetch("/api/github/create-repo", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${session?.accessToken}`
+                },
                 body: JSON.stringify({
                     name: repoName.trim(),
-                    description: "Created via Schoolnest Repository Manager",
-                    isPrivate: true,
+                    description: `Created via SchoolNest Java IDE - ${selectedProject?.projectName || "Java Project"}`,
+                    private: false,
+                }),
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                const errorMsg = data?.error || "Unknown error";
+                alert("Failed to create repo: " + errorMsg);
+                return null;
+            }
+
+            const repo = data.repository;
+            alert(`Repository "${repo.name}" created successfully on your GitHub account!`);
+            return {
+                owner: { login: repo.owner.login },
+                name: repo.name,
+            };
+        } catch (error) {
+            console.error("Network or unexpected error creating repo:", error);
+            alert("Error creating repository. Please check your connection and GitHub authentication.");
+            return null;
+        } finally {
+            setIsCreatingRepo(false);
+        }
+    };
+
+    const handlePush = async (owner: string, repo: string) => {
+        if (!isGitHubAuthenticated) {
+            alert("Please authenticate with GitHub first.");
+            return;
+        }
+
+        setIsPushing(true);
+
+        try {
+            // If activeFile is selected, push just that file
+            if (activeFile) {
+                const res = await fetch("/api/github/push", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${session?.accessToken}`,
+                    },
+                    body: JSON.stringify({
+                        owner,
+                        repo,
+                        path: activeFile.filename,
+                        content: activeFile.contents,
+                        message: `Update ${activeFile.filename} via SchoolNest Java IDE`,
+                    }),
+                });
+
+                if (!res.ok) {
+                    const errorData = await res.json();
+                    alert("Push failed: " + (errorData.error || "Unknown error"));
+                } else {
+                    alert(`File "${activeFile.filename}" pushed successfully to ${owner}/${repo}!`);
+                }
+            } else if (selectedProject) {
+                // No active file selected, push all files in the project
+                for (const file of selectedProject.files) {
+                    const res = await fetch("/api/github/push", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${session?.accessToken}`,
+                        },
+                        body: JSON.stringify({
+                            owner,
+                            repo,
+                            path: file.filename,
+                            content: file.contents,
+                            message: `Update ${file.filename} via SchoolNest Java IDE`,
+                        }),
+                    });
+
+                    if (!res.ok) {
+                        const errorData = await res.json();
+                        alert(`Push failed for file ${file.filename}: ` + (errorData.error || "Unknown error"));
+                        return; // Stop pushing if any file fails
+                    }
+                }
+
+                alert(`All files pushed successfully to ${owner}/${repo}!`);
+            } else {
+                alert("No file or project selected to push.");
+            }
+        } catch (error) {
+            console.error("Network or unexpected error during push:", error);
+            alert("Error pushing file(s). Please check your connection.");
+        } finally {
+            setIsPushing(false);
+        }
+    };
+
+    const handleClone = async (repoUrl: string) => {
+        if (!isGitHubAuthenticated) {
+            alert("Please authenticate with GitHub first.")
+            return
+        }
+
+        setIsCloning(true)
+        try {
+            const res = await fetch("/api/github/clone", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${session?.accessToken}`,
+                },
+                body: JSON.stringify({
+                    repoUrl: repoUrl.trim(),
                 }),
             })
 
             const data = await res.json()
 
             if (!res.ok) {
-                if (data.error?.errors?.some((e: any) => e.message.includes("already exists"))) {
-                    alert("Repository name already exists. Please choose a different name.")
-                } else {
-                    alert("Failed to create repo: " + (data.error?.message || data.error))
-                }
-                return null
-            }
-
-            alert(`Repo "${repoName}" created successfully!`)
-            return data
-        } catch (error) {
-            console.error("Network or unexpected error creating repo:", error)
-            alert("Error creating repository. Please try again.")
-            return null
-        } finally {
-            setIsCreatingRepo(false)
-        }
-    }
-
-    const handlePush = async (owner: string, repo: string) => {
-        setIsPushing(true)
-        const fileToPush = files.find((f) => f.filename === activeFile)
-
-        if (!fileToPush) {
-            alert("No file selected or active file not found for push.")
-            setIsPushing(false)
-            return
-        }
-
-        try {
-            const res = await fetch("/api/github/push", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `token ${session?.accessToken}`,
-                },
-                body: JSON.stringify({
-                    owner,
-                    repo,
-                    path: fileToPush.filename,
-                    content: fileToPush.contents,
-                    message: "Schoolnest Repository Manager Commit",
-                }),
-            })
-
-            if (!res.ok) {
-                const errorData = await res.json()
-                alert("Push failed: " + (errorData.error || "Unknown error"))
+                alert("Clone failed: " + (data.error || "Unknown error"))
             } else {
-                alert("File pushed successfully!")
+                alert(`Repository cloned successfully! Found ${data.javaFiles?.length || 0} Java files.`)
+
+                // If Java files were found, add them to local storage
+                if (data.javaFiles && data.javaFiles.length > 0) {
+                    const projectName = repoUrl.split('/').pop()?.replace('.git', '') || 'cloned-project'
+                    const projectData = {
+                        project: projectName,
+                        files: data.javaFiles,
+                        timestamp: new Date().toISOString(),
+                    }
+
+                    localStorage.setItem(`java_project_${projectName}`, JSON.stringify(projectData))
+                    loadJavaProjects()
+                }
             }
         } catch (error) {
-            console.error("Network or unexpected error during push:", error)
-            alert("Error pushing file. Please check your connection.")
+            console.error("Network or unexpected error during clone:", error)
+            alert("Error cloning repository. Please check your connection.")
         } finally {
-            setIsPushing(false)
+            setIsCloning(false)
         }
     }
 
     const handleCreateAndPush = async () => {
-        if (files.length === 0) {
-            alert("No files to push. Please upload or create files first.")
-            return
+        if (!isGitHubAuthenticated) {
+            alert("Please authenticate with GitHub first.");
+            return;
         }
 
-        let chosenRepo: { owner: string; name: string } | null = null
+        if (!selectedProject || selectedProject.files.length === 0) {
+            alert("No Java files to push. Please select a project with Java files first.");
+            return;
+        }
+
+        let chosenRepo: { owner: string; name: string } | null = null;
 
         if (createdRepos.length > 0) {
-            const repoNames = createdRepos.map((r, i) => `${i + 1}: ${r.name}`).join("\n")
+            const repoNames = createdRepos.map((r, i) => `${i + 1}: ${r.name}`).join("\n");
             const input = prompt(
                 `You have created these repositories this session:\n${repoNames}\n\n` +
-                `Enter the number of the repo to push to, or leave empty to create a new repo:`,
-            )
+                `Enter the number of the repo to push to, or leave empty to create a new repo:`
+            );
 
             if (input) {
-                const index = Number.parseInt(input, 10) - 1
+                const index = Number.parseInt(input, 10) - 1;
                 if (!isNaN(index) && createdRepos[index]) {
-                    chosenRepo = createdRepos[index]
+                    chosenRepo = createdRepos[index];
                 } else {
-                    alert("Invalid selection, creating a new repo.")
+                    alert("Invalid selection, creating a new repo.");
                 }
             }
         }
 
         if (!chosenRepo) {
-            const repoNameInput = prompt("Enter new repository name:")
+            const repoNameInput = prompt(`Enter new repository name for project "${selectedProject.projectName}":`);
             if (!repoNameInput || repoNameInput.trim() === "") {
-                alert("Repository name is required.")
-                return
+                alert("Repository name is required.");
+                return;
             }
 
-            const newRepo = await createRepo(repoNameInput)
-            if (!newRepo) return
+            const newRepo = await createRepo(repoNameInput);
+            if (!newRepo) return;
 
-            chosenRepo = { owner: newRepo.owner.login, name: newRepo.name }
-            setCreatedRepos((prev) => [...prev, chosenRepo!])
+            chosenRepo = { owner: newRepo.owner.login, name: newRepo.name };
+            setCreatedRepos((prev) => [...prev, chosenRepo!]);
         }
 
         if (chosenRepo) {
-            await handlePush(chosenRepo.owner, chosenRepo.name)
+            await handlePush(chosenRepo.owner, chosenRepo.name);
         }
-    }
+    };
 
     // File upload functionality
     const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0]
         if (!file) return
 
+        if (!file.name.endsWith(".java")) {
+            alert("Only Java files (.java) are supported in the repository manager.")
+            return
+        }
+
         const reader = new FileReader()
         reader.onload = (e) => {
             const contents = e.target?.result as string
-            const newFile = {
+            const newFile: File = {
                 filename: file.name,
                 contents,
             }
-            setFiles((prev) => {
-                // Replace existing file or add new one
-                const existingFileIndex = prev.findIndex((f) => f.filename === newFile.filename)
-                if (existingFileIndex > -1) {
-                    const updatedFiles = [...prev]
-                    updatedFiles[existingFileIndex] = newFile
-                    return updatedFiles
+
+            // Add to selected project or create new project
+            if (selectedProject) {
+                const updatedProject = {
+                    ...selectedProject,
+                    files: [...selectedProject.files, newFile],
+                    javaFiles: selectedProject.javaFiles + 1,
                 }
-                return [...prev, newFile]
-            })
-            setActiveFile(file.name)
-            alert(`File "${file.name}" uploaded successfully!`)
+                setSelectedProject(updatedProject)
+            }
+
+            setActiveFile(newFile)
+            alert(`Java file "${file.name}" uploaded successfully!`)
         }
         reader.readAsText(file)
     }
 
     // Get file statistics for dynamic display
     const getFileStats = () => {
-        const totalFiles = files.length
-        const javaFiles = files.filter((f) => f.filename.endsWith(".java")).length
-        const otherFiles = totalFiles - javaFiles
-        const totalLines = files.reduce((acc, file) => acc + file.contents.split("\n").length, 0)
-        const avgLinesPerFile = totalFiles > 0 ? Math.round(totalLines / totalFiles) : 0
-        const fileTypes = [...new Set(files.map((f) => f.filename.split(".").pop()?.toLowerCase() || "unknown"))]
+        if (!selectedProject) {
+            return {
+                totalFiles: 0,
+                javaFiles: 0,
+                totalLines: 0,
+                avgLinesPerFile: 0,
+            }
+        }
+
+        const totalLines = selectedProject.files.reduce((acc, file) => acc + file.contents.split("\n").length, 0)
+        const avgLinesPerFile = selectedProject.files.length > 0 ? Math.round(totalLines / selectedProject.files.length) : 0
 
         return {
-            totalFiles,
-            javaFiles,
-            otherFiles,
+            totalFiles: selectedProject.totalFiles,
+            javaFiles: selectedProject.javaFiles,
             totalLines,
             avgLinesPerFile,
-            fileTypes,
         }
     }
 
     const fileStats = getFileStats()
 
     const handleGitOperation = async (operationName: string) => {
+        // Check GitHub authentication for operations that require it
+        const requiresAuth = [
+            "Clone Repository",
+            "Create Repository",
+            "Push Changes",
+            "Pull Changes",
+            "Commit Changes",
+            "Merge Branches",
+            "Fork Repository",
+            "Pull Request"
+        ]
+
+        if (requiresAuth.includes(operationName) && !isGitHubAuthenticated) {
+            alert("Please authenticate with GitHub to perform this operation.")
+            return
+        }
+
         switch (operationName) {
             case "Clone Repository":
-                setIsCloning(true)
                 const cloneUrl = prompt("Enter repository URL to clone:")
                 if (cloneUrl) {
-                    alert(`Cloning ${cloneUrl}... This would be implemented with backend integration.`)
+                    await handleClone(cloneUrl)
                 }
-                setIsCloning(false)
                 break
             case "Create Repository":
-                const newRepoName = prompt("Enter repository name:")
+                if (!selectedProject) {
+                    alert("Please select a project first.")
+                    return
+                }
+                const newRepoName = prompt(`Enter repository name for project "${selectedProject.projectName}":`)
                 if (newRepoName && newRepoName.trim() !== "") {
                     const repo = await createRepo(newRepoName)
                     if (repo) {
@@ -353,14 +493,11 @@ public class Main {
                 }
                 break
             case "Push Changes":
-                if (files.length === 0) {
-                    alert("No files to push. Please upload or create files first.")
+                if (!selectedProject || selectedProject.files.length === 0) {
+                    alert("No Java files to push. Please select a project with Java files first.")
                     return
                 }
                 await handleCreateAndPush()
-                break
-            case "Save Project":
-                await saveProject()
                 break
             case "Upload File":
                 fileInputRef.current?.click()
@@ -377,6 +514,16 @@ public class Main {
             default:
                 alert(`Operation "${operationName}" not implemented directly here.`)
         }
+    }
+
+    interface GitOperationCardProps {
+        title: string
+        description: string
+        icon: React.ReactElement
+        color?: string
+        command?: string
+        isSpecial?: boolean
+        isLoading?: boolean
     }
 
     const GitOperationCard = ({
@@ -410,12 +557,12 @@ public class Main {
                     )}
 
                     {/* Dynamic file info for special operations */}
-                    {isSpecial && (
+                    {isSpecial && selectedProject && (
                         <div className={`bg-${color}-900/20 rounded-lg p-3 border border-${color}-500/30 mb-4`}>
                             <div className="space-y-2">
                                 <div className="grid grid-cols-2 gap-2 text-xs">
                                     <div className={`text-${color}-300`}>
-                                        <span className="font-medium">Total Files:</span> {fileStats.totalFiles}
+                                        <span className="font-medium">Project:</span> {selectedProject.projectName}
                                     </div>
                                     <div className={`text-${color}-300`}>
                                         <span className="font-medium">Java Files:</span> {fileStats.javaFiles}
@@ -427,15 +574,11 @@ public class Main {
                                         <span className="font-medium">Avg Lines:</span> {fileStats.avgLinesPerFile}
                                     </div>
                                 </div>
-                                {fileStats.totalFiles > 0 && (
-                                    <>
-                                        <div className={`text-xs text-${color}-300`}>
-                                            <span className="font-medium">File Types:</span> {fileStats.fileTypes.join(", ")}
-                                        </div>
-                                        <div className={`text-xs text-${color}-400 max-h-16 overflow-y-auto`}>
-                                            <span className="font-medium">Files:</span> {files.map((f) => f.filename).join(", ")}
-                                        </div>
-                                    </>
+                                {selectedProject.files.length > 0 && (
+                                    <div className={`text-xs text-${color}-400 max-h-16 overflow-y-auto`}>
+                                        <span className="font-medium">Files:</span>{" "}
+                                        {selectedProject.files.map((f) => f.filename).join(", ")}
+                                    </div>
                                 )}
                             </div>
                         </div>
@@ -492,39 +635,28 @@ public class Main {
     const gitOperations = [
         {
             title: "Upload File",
-            description: `Upload files from your computer. Currently supports ${
-                fileStats.fileTypes.length > 0 ? fileStats.fileTypes.join(", ") : "Java, text, and source code"
-            } files. You have ${fileStats.totalFiles} files loaded.`,
+            description: `Upload Java files from your computer. Currently ${fileStats.javaFiles} Java files loaded from local storage.`,
             icon: <IconUpload className="h-6 w-6" />,
             color: "blue",
-            command: `Upload via file picker • Current: ${fileStats.totalFiles} files`,
+            command: `Upload .java files • Current: ${fileStats.javaFiles} Java files`,
             isSpecial: true,
             isLoading: false,
         },
         {
-            title: "Save Project",
-            description: `Save your ${fileStats.totalFiles} project files (${fileStats.totalLines} total lines) to the server. This preserves your work across sessions.`,
-            icon: <IconFileDownload className="h-6 w-6" />,
-            color: "green",
-            command: `Save ${fileStats.totalFiles} files to server storage`,
-            isSpecial: true,
-            isLoading: isSavingProject,
-        },
-        {
             title: "Create Repository",
-            description: `Initialize a new Git repository on GitHub for your ${fileStats.totalFiles} files. Creates a remote repository for version control.`,
+            description: `Initialize a new Git repository on your GitHub account (@${githubUsername}) for your ${fileStats.javaFiles} Java files.`,
             icon: <IconFolderPlus className="h-6 w-6" />,
             color: "purple",
-            command: `Create new GitHub repo for ${fileStats.totalFiles} files`,
+            command: `Create GitHub repo for ${githubUsername} with ${fileStats.javaFiles} Java files`,
             isSpecial: true,
             isLoading: isCreatingRepo,
         },
         {
             title: "Push Changes",
-            description: `Upload your ${fileStats.totalFiles} project files (${fileStats.javaFiles} Java files, ${fileStats.otherFiles} other files) to GitHub repository.`,
+            description: `Upload your ${fileStats.javaFiles} Java files (${fileStats.totalLines} total lines) to your GitHub repository.`,
             icon: <IconCloudUpload className="h-6 w-6" />,
             color: "orange",
-            command: `git push ${fileStats.totalFiles} files with ${fileStats.totalLines} lines`,
+            command: `git push ${fileStats.javaFiles} Java files with ${fileStats.totalLines} lines`,
             isSpecial: true,
             isLoading: isPushing,
         },
@@ -603,16 +735,67 @@ public class Main {
         icon: null,
     }))
 
+    // If not authenticated with GitHub, show authentication component
+    // if (status === 'loading') {
+    //     return (
+    //         <div className="min-h-screen w-full bg-black flex items-center justify-center">
+    //             <div className="text-center">
+    //                 <div className="animate-spin h-8 w-8 border-2 border-blue-400 border-r-transparent rounded-full mx-auto mb-4"></div>
+    //                 <p className="text-blue-200">Loading...</p>
+    //             </div>
+    //         </div>
+    //     )
+    // }
+    //
+    // if (!isGitHubAuthenticated) {
+    //     return (
+    //         <>
+    //             <FloatingNav />
+    //             <div className="min-h-screen w-full bg-black relative flex flex-col items-center antialiased">
+    //                 <BackgroundLines className="flex items-center justify-center w-full flex-col px-4 py-20 bg-black">
+    //                     <div className="max-w-4xl mx-auto text-center">
+    //                         <div className="inline-flex items-center gap-2 bg-red-500/10 border border-red-500/30 rounded-full px-4 py-2 mb-6">
+    //                             <IconShield className="h-4 w-4 text-red-400" />
+    //                             <span className="text-sm text-red-300 font-medium">Authentication Required</span>
+    //                         </div>
+    //
+    //                         <h1 className="text-5xl md:text-7xl font-bold bg-gradient-to-b from-red-400 via-red-300 to-orange-400 bg-clip-text text-transparent mb-6">
+    //                             GitHub Access
+    //                         </h1>
+    //
+    //                         <p className="text-xl text-blue-200 max-w-2xl mx-auto leading-relaxed mb-8">
+    //                             To access repository management features, you need to authenticate with your GitHub account. This ensures secure access to your repositories and maintains your privacy.
+    //                         </p>
+    //
+    //                         <div className="bg-gray-900/50 rounded-lg p-6 mb-8 border border-blue-500/30 backdrop-blur-sm">
+    //                             <GitHubAuth />
+    //                         </div>
+    //
+    //                         <div className="text-sm text-blue-400 space-y-2">
+    //                             <div className="flex items-center justify-center gap-2">
+    //                                 <IconShield className="h-4 w-4" />
+    //                                 <span>Secure OAuth authentication</span>
+    //                             </div>
+    //                             <div className="flex items-center justify-center gap-2">
+    //                                 <IconGitBranch className="h-4 w-4" />
+    //                                 <span>Full repository access</span>
+    //                             </div>
+    //                             <div className="flex items-center justify-center gap-2">
+    //                                 <IconTemplate className="h-4 w-4" />
+    //                                 <span>Java IDE integration</span>
+    //                             </div>
+    //                         </div>
+    //                     </div>
+    //                 </BackgroundLines>
+    //             </div>
+    //         </>
+    //     )
+    // }
+
     return (
         <>
             <FloatingNav />
-            <input
-                type="file"
-                ref={fileInputRef}
-                onChange={handleFileUpload}
-                style={{ display: "none" }}
-                accept=".java,.txt,.js,.py,.cpp,.c,.h,.css,.html,.json,.xml,.md"
-            />
+            <input type="file" ref={fileInputRef} onChange={handleFileUpload} style={{ display: "none" }} accept=".java" />
 
             <div className="min-h-screen w-full bg-black relative flex flex-col items-center antialiased">
                 {/* Hero Section */}
@@ -628,11 +811,35 @@ public class Main {
                         </h1>
 
                         <p className="text-xl text-blue-200 max-w-2xl mx-auto leading-relaxed mb-4">
-                            Master Git operations and repository management with integrated file handling. Upload files, save
-                            projects, create repositories, and push code to GitHub.
+                            Master Git operations and repository management with integrated Java file handling. Access your Java IDE
+                            projects and push code to your GitHub account.
                         </p>
 
-                        {signedIn && (
+                        {/* Project Selector */}
+                        {javaProjects.length > 0 && (
+                            <div className="mb-6">
+                                <select
+                                    value={selectedProject?.projectName || ""}
+                                    onChange={(e) => {
+                                        const project = javaProjects.find((p) => p.projectName === e.target.value)
+                                        setSelectedProject(project || null)
+                                        if (project && project.files.length > 0) {
+                                            setActiveFile(project.files[0])
+                                        }
+                                    }}
+                                    className="bg-gray-900/80 border border-blue-500/30 rounded-lg px-4 py-2 text-blue-200 backdrop-blur-sm"
+                                >
+                                    <option value="">Select a Java project...</option>
+                                    {javaProjects.map((project) => (
+                                        <option key={project.projectName} value={project.projectName}>
+                                            {project.projectName} ({project.javaFiles} Java files)
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                        )}
+
+                        {signedIn && selectedProject && (
                             <div className="bg-gray-900/50 rounded-lg p-4 mb-6 border border-blue-500/30 backdrop-blur-sm">
                                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                                     <div className="text-center">
@@ -648,21 +855,48 @@ public class Main {
                                         <div className="text-purple-300">Total Lines</div>
                                     </div>
                                     <div className="text-center">
-                                        <div className="text-cyan-400 font-bold text-lg">{fileStats.fileTypes.length}</div>
-                                        <div className="text-cyan-300">File Types</div>
+                                        <div className="text-cyan-400 font-bold text-lg">{javaProjects.length}</div>
+                                        <div className="text-cyan-300">Projects</div>
                                     </div>
                                 </div>
                                 <div className="mt-3 pt-3 border-t border-blue-500/20 text-center">
                                     <p className="text-sm text-blue-300">
                                         Welcome, <span className="text-blue-400 font-medium">{name}</span>
-                                        {project && (
+                                        {githubUsername && (
                                             <>
                                                 {" "}
-                                                • Project: <span className="text-green-400 font-medium">{project}</span>
+                                                • GitHub: <span className="text-green-400 font-medium">@{githubUsername}</span>
+                                            </>
+                                        )}
+                                        {selectedProject && (
+                                            <>
+                                                {" "}
+                                                • Project: <span className="text-purple-400 font-medium">{selectedProject.projectName}</span>
                                             </>
                                         )}
                                     </p>
                                 </div>
+                            </div>
+                        )}
+
+                        {/* File Selector */}
+                        {selectedProject && selectedProject.files.length > 0 && (
+                            <div className="mb-6">
+                                <select
+                                    value={activeFile?.filename || ""}
+                                    onChange={(e) => {
+                                        const file = selectedProject.files.find((f) => f.filename === e.target.value)
+                                        setActiveFile(file || null)
+                                    }}
+                                    className="bg-gray-900/80 border border-blue-500/30 rounded-lg px-4 py-2 text-blue-200 backdrop-blur-sm"
+                                >
+                                    <option value="">Select a Java file...</option>
+                                    {selectedProject.files.map((file) => (
+                                        <option key={file.filename} value={file.filename}>
+                                            {file.filename} ({file.contents.split("\n").length} lines)
+                                        </option>
+                                    ))}
+                                </select>
                             </div>
                         )}
 
@@ -674,7 +908,7 @@ public class Main {
                             <div className="w-px h-4 bg-blue-600"></div>
                             <div className="flex items-center gap-2">
                                 <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                                <span>File Management</span>
+                                <span>Java Files</span>
                             </div>
                             <div className="w-px h-4 bg-blue-600"></div>
                             <div className="flex items-center gap-2">

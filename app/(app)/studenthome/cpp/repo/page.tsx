@@ -11,11 +11,10 @@ import { FloatingNav } from "@/app/components/ui/floating-navbar"
 
 import {
     IconHome,
-    IconBrandCpp,
+    IconCode,
     IconTemplate,
     IconFileCode,
     IconUpload,
-    IconFileDownload,
     IconFolderPlus,
     IconCloudUpload,
     IconCopy,
@@ -34,14 +33,50 @@ interface File {
     contents: string
 }
 
-interface GitOperationCardProps {
-    title: string
-    description: string
-    icon: React.ReactElement
-    color?: string
-    command?: string
-    isSpecial?: boolean
-    isLoading?: boolean
+interface CppProject {
+    projectName: string
+    files: File[]
+    timestamp: string
+    totalFiles: number
+    cppFiles: number
+}
+
+// Enhanced localStorage manager that only returns C++ files for repo operations
+const localStorageManager = {
+    getAllCppProjects: (): CppProject[] => {
+        if (typeof window === "undefined") return []
+
+        const projects: CppProject[] = []
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i)
+            if (key && key.startsWith("cpp_project_")) {
+                try {
+                    const data = JSON.parse(localStorage.getItem(key) || "{}")
+                    if (data.files && Array.isArray(data.files)) {
+                        // Filter only C++ files for the repo page
+                        const cppFiles = data.files.filter((file: File) =>
+                            file.filename.endsWith(".cpp") ||
+                            file.filename.endsWith(".c") ||
+                            file.filename.endsWith(".h") ||
+                            file.filename.endsWith(".hpp")
+                        )
+                        if (cppFiles.length > 0) {
+                            projects.push({
+                                projectName: data.project || key.replace("cpp_project_", ""),
+                                files: cppFiles,
+                                timestamp: data.timestamp,
+                                totalFiles: data.files.length,
+                                cppFiles: cppFiles.length,
+                            })
+                        }
+                    }
+                } catch (error) {
+                    console.error(`Error parsing project ${key}:`, error)
+                }
+            }
+        }
+        return projects.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+    },
 }
 
 export default function Page() {
@@ -50,118 +85,109 @@ export default function Page() {
     const { data: session } = useSession()
 
     // State for IDE integration
-    const [files, setFiles] = useState<File[]>([
-        {
-            filename: "main.cpp",
-            contents: `#include <iostream>
+    const [cppProjects, setCppProjects] = useState<CppProject[]>([])
+    const [selectedProject, setSelectedProject] = useState<CppProject | null>(null)
+    const [activeFile, setActiveFile] = useState<File | null>(null)
 
-int main() {
-    int number;
-    std::cout << "Enter an integer: ";
-    std::cin >> number;
-    std::cout << "Your integer: " << number << std::endl;
-    return 0;
-}`,
-        },
-    ])
-    const [activeFile, setActiveFile] = useState("main.cpp")
+    // User state
     const [signedIn, setSignedIn] = useState(false)
     const [name, setName] = useState("")
-    const [project, setProject] = useState(searchParams.get("project") ?? "")
-    const [projectList, setProjectList] = useState<string[]>([])
-    const [createdRepos, setCreatedRepos] = useState<{ owner: string; name: string }[]>([])
+    const [githubUsername, setGithubUsername] = useState("")
+    const [githubToken, setGithubToken] = useState("")
 
     // Loading states for UI feedback
     const [isSavingProject, setIsSavingProject] = useState(false)
     const [isCreatingRepo, setIsCreatingRepo] = useState(false)
     const [isPushing, setIsPushing] = useState(false)
     const [isCloning, setIsCloning] = useState(false)
+    const [createdRepos, setCreatedRepos] = useState<{ owner: string; name: string }[]>([])
 
     const fileInputRef = useRef<HTMLInputElement>(null)
+
+    // Load projects from localStorage
+    const loadCppProjects = () => {
+        const projects = localStorageManager.getAllCppProjects()
+        setCppProjects(projects)
+
+        // Auto-select first project if none selected
+        if (projects.length > 0 && !selectedProject) {
+            setSelectedProject(projects[0])
+            if (projects[0].files.length > 0) {
+                setActiveFile(projects[0].files[0])
+            }
+        }
+    }
 
     // Initialize session and load project data
     useEffect(() => {
         const loadInitialData = async () => {
-            if (session?.user?.role === "student") {
+            if (session?.user?.role === "student" || session?.user?.role === "educator") {
                 setSignedIn(true)
 
-                // Fetch student info
+                // Get GitHub info from session
+                if (session.user.name) {
+                    setName(session.user.name)
+                }
+
+                // Extract GitHub username from session or email
+                if (session.user.email) {
+                    const emailPrefix = session.user.email.split("@")[0]
+                    setGithubUsername(emailPrefix)
+                }
+
+                // Get GitHub token from session if available
+                if (session.accessToken) {
+                    setGithubToken(session.accessToken)
+                }
+
+                // Fetch student info for more details
                 try {
                     const studentInfoResponse = await fetch("/api/student/get_studentinfo/post", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                     })
                     const studentInfoData = await studentInfoResponse.json()
-                    setName(studentInfoData.firstname + " " + studentInfoData.lastname)
+                    if (studentInfoData.firstname && studentInfoData.lastname) {
+                        setName(studentInfoData.firstname + " " + studentInfoData.lastname)
+                    }
                 } catch (error) {
                     console.error("Failed to fetch student info:", error)
                 }
-
-                // Fetch project files if a project is selected
-                if (project) {
-                    try {
-                        const filesResponse = await fetch("/api/student/get_files/post", {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({ project_name: project }),
-                        })
-                        const filesData = await filesResponse.json()
-                        if (filesData.project) {
-                            setFiles(filesData.project.files)
-                            // Set active file to the first file if exists, or default
-                            if (filesData.project.files.length > 0) {
-                                setActiveFile(filesData.project.files[0].filename)
-                            }
-                        }
-                    } catch (error) {
-                        console.error("Failed to fetch project files:", error)
-                    }
-                }
-
-                // Fetch project list
-                try {
-                    const projectListResponse = await fetch("/api/student/get_projectlist/post", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                    })
-                    const projectListData = await projectListResponse.json()
-                    setProjectList(projectListData.cpp_project_names)
-                } catch (error) {
-                    console.error("Failed to fetch project list:", error)
-                }
-            } else {
-                setSignedIn(false) // If not a student or no session, ensure signedIn is false
             }
         }
 
         loadInitialData()
-    }, [session, project]) // Dependencies for re-running effect
+        loadCppProjects()
+    }, [session])
 
-    // Save project functionality
-    const saveProject = async () => {
-        setIsSavingProject(true)
-        try {
-            const response = await fetch("/api/student/save_files/post", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ project, files }),
-            })
-            if (response.ok) {
-                alert("Project saved successfully!")
-            } else {
-                const errorData = await response.json()
-                console.error("Error saving project:", errorData)
-                alert(`Error saving project: ${errorData.message || "Unknown error"}`)
-            }
-        } catch (error) {
-            console.error("Network or unexpected error saving project:", error)
-            alert("Error saving project. Please check your connection.")
-        } finally {
-            setIsSavingProject(false)
+    // Listen for updates from the C++ IDE
+    useEffect(() => {
+        const handleCppProjectSaved = (event: CustomEvent) => {
+            console.log("C++ project saved:", event.detail)
+            loadCppProjects()
         }
-    }
 
-    // GitHub functionality
+        // Listen for custom events from the IDE
+        window.addEventListener("cppProjectSaved", handleCppProjectSaved as EventListener)
+
+        // Also refresh on storage events
+        const handleStorageChange = () => {
+            loadCppProjects()
+        }
+
+        window.addEventListener("storage", handleStorageChange)
+
+        // Refresh projects every 5 seconds to catch auto-saves
+        const refreshInterval = setInterval(loadCppProjects, 5000)
+
+        return () => {
+            window.removeEventListener("cppProjectSaved", handleCppProjectSaved as EventListener)
+            window.removeEventListener("storage", handleStorageChange)
+            clearInterval(refreshInterval)
+        }
+    }, [])
+
+    // Enhanced GitHub functionality using backend API
     const createRepo = async (repoName: string) => {
         setIsCreatingRepo(true)
         try {
@@ -170,27 +196,27 @@ int main() {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     name: repoName.trim(),
-                    description: "Created via Schoolnest Repository Manager",
-                    isPrivate: true,
+                    description: `Created via SchoolNest Java IDE - ${selectedProject?.projectName || "Java Project"}`,
+                    isPrivate: false,
                 }),
             })
 
             const data = await res.json()
 
             if (!res.ok) {
-                if (data.error?.errors?.some((e: any) => e.message.includes("already exists"))) {
+                if (data.error?.errors?.some((e: any) => e.message?.includes("already exists"))) {
                     alert("Repository name already exists. Please choose a different name.")
                 } else {
-                    alert("Failed to create repo: " + (data.error?.message || data.error))
+                    alert("Failed to create repo: " + (data.error?.message || data.error || "Unknown error"))
                 }
                 return null
             }
 
-            alert(`Repo "${repoName}" created successfully!`)
+            alert(`Repository "${repoName}" created successfully on your GitHub account!`)
             return data
         } catch (error) {
             console.error("Network or unexpected error creating repo:", error)
-            alert("Error creating repository. Please try again.")
+            alert("Error creating repository. Please check your connection and GitHub authentication.")
             return null
         } finally {
             setIsCreatingRepo(false)
@@ -198,15 +224,12 @@ int main() {
     }
 
     const handlePush = async (owner: string, repo: string) => {
-        setIsPushing(true)
-        const fileToPush = files.find((f) => f.filename === activeFile)
-
-        if (!fileToPush) {
-            alert("No file selected or active file not found for push.")
-            setIsPushing(false)
+        if (!activeFile) {
+            alert("No file selected for push.")
             return
         }
 
+        setIsPushing(true)
         try {
             const res = await fetch("/api/github/push", {
                 method: "POST",
@@ -217,9 +240,9 @@ int main() {
                 body: JSON.stringify({
                     owner,
                     repo,
-                    path: fileToPush.filename,
-                    content: fileToPush.contents,
-                    message: "Schoolnest Repository Manager Commit",
+                    path: activeFile.filename,
+                    content: activeFile.contents,
+                    message: `Update ${activeFile.filename} via SchoolNest Java IDE`,
                 }),
             })
 
@@ -227,7 +250,7 @@ int main() {
                 const errorData = await res.json()
                 alert("Push failed: " + (errorData.error || "Unknown error"))
             } else {
-                alert("File pushed successfully!")
+                alert(`File "${activeFile.filename}" pushed successfully to ${owner}/${repo}!`)
             }
         } catch (error) {
             console.error("Network or unexpected error during push:", error)
@@ -238,8 +261,8 @@ int main() {
     }
 
     const handleCreateAndPush = async () => {
-        if (files.length === 0) {
-            alert("No files to push. Please upload or create files first.")
+        if (!selectedProject || selectedProject.files.length === 0) {
+            alert("No Java files to push. Please select a project with Java files first.")
             return
         }
 
@@ -263,7 +286,7 @@ int main() {
         }
 
         if (!chosenRepo) {
-            const repoNameInput = prompt("Enter new repository name:")
+            const repoNameInput = prompt(`Enter new repository name for project "${selectedProject.projectName}":`)
             if (!repoNameInput || repoNameInput.trim() === "") {
                 alert("Repository name is required.")
                 return
@@ -276,7 +299,7 @@ int main() {
             setCreatedRepos((prev) => [...prev, chosenRepo!])
         }
 
-        if (chosenRepo) {
+        if (chosenRepo && activeFile) {
             await handlePush(chosenRepo.owner, chosenRepo.name)
         }
     }
@@ -286,47 +309,54 @@ int main() {
         const file = event.target.files?.[0]
         if (!file) return
 
+        if (!file.name.endsWith(".cpp") && !file.name.endsWith(".c") && !file.name.endsWith(".h") && !file.name.endsWith(".hpp")) {
+            alert("Only C++ files (.cpp, .c, .h, .hpp) are supported in the repository manager.")
+            return
+        }
+
         const reader = new FileReader()
         reader.onload = (e) => {
             const contents = e.target?.result as string
-            const newFile = {
+            const newFile: File = {
                 filename: file.name,
                 contents,
             }
-            setFiles((prev) => {
-                // Replace existing file or add new one
-                const existingFileIndex = prev.findIndex((f) => f.filename === newFile.filename)
-                if (existingFileIndex > -1) {
-                    const updatedFiles = [...prev]
-                    updatedFiles[existingFileIndex] = newFile
-                    return updatedFiles
+
+            // Add to selected project or create new project
+            if (selectedProject) {
+                const updatedProject = {
+                    ...selectedProject,
+                    files: [...selectedProject.files, newFile],
+                    cppFiles: selectedProject.cppFiles + 1,
                 }
-                return [...prev, newFile]
-            })
-            setActiveFile(file.name)
-            alert(`File "${file.name}" uploaded successfully!`)
+                setSelectedProject(updatedProject)
+            }
+
+            setActiveFile(newFile)
+            alert(`C++ file "${file.name}" uploaded successfully!`)
         }
         reader.readAsText(file)
     }
 
     // Get file statistics for dynamic display
     const getFileStats = () => {
-        const totalFiles = files.length
-        const cppFiles = files.filter(
-            (f) => f.filename.endsWith(".cpp") || f.filename.endsWith(".c") || f.filename.endsWith(".h"),
-        ).length
-        const otherFiles = totalFiles - cppFiles
-        const totalLines = files.reduce((acc, file) => acc + file.contents.split("\n").length, 0)
-        const avgLinesPerFile = totalFiles > 0 ? Math.round(totalLines / totalFiles) : 0
-        const fileTypes = [...new Set(files.map((f) => f.filename.split(".").pop()?.toLowerCase() || "unknown"))]
+        if (!selectedProject) {
+            return {
+                totalFiles: 0,
+                cppFiles: 0,
+                totalLines: 0,
+                avgLinesPerFile: 0,
+            }
+        }
+
+        const totalLines = selectedProject.files.reduce((acc, file) => acc + file.contents.split("\n").length, 0)
+        const avgLinesPerFile = selectedProject.files.length > 0 ? Math.round(totalLines / selectedProject.files.length) : 0
 
         return {
-            totalFiles,
-            cppFiles,
-            otherFiles,
+            totalFiles: selectedProject.totalFiles,
+            cppFiles: selectedProject.cppFiles,
             totalLines,
             avgLinesPerFile,
-            fileTypes,
         }
     }
 
@@ -343,7 +373,11 @@ int main() {
                 setIsCloning(false)
                 break
             case "Create Repository":
-                const newRepoName = prompt("Enter repository name:")
+                if (!selectedProject) {
+                    alert("Please select a project first.")
+                    return
+                }
+                const newRepoName = prompt(`Enter repository name for project "${selectedProject.projectName}":`)
                 if (newRepoName && newRepoName.trim() !== "") {
                     const repo = await createRepo(newRepoName)
                     if (repo) {
@@ -354,14 +388,11 @@ int main() {
                 }
                 break
             case "Push Changes":
-                if (files.length === 0) {
-                    alert("No files to push. Please upload or create files first.")
+                if (!selectedProject || selectedProject.files.length === 0) {
+                    alert("No C++ files to push. Please select a project with C++ files first.")
                     return
                 }
                 await handleCreateAndPush()
-                break
-            case "Save Project":
-                await saveProject()
                 break
             case "Upload File":
                 fileInputRef.current?.click()
@@ -378,6 +409,16 @@ int main() {
             default:
                 alert(`Operation "${operationName}" not implemented directly here.`)
         }
+    }
+
+    interface GitOperationCardProps {
+        title: string
+        description: string
+        icon: React.ReactElement
+        color?: string
+        command?: string
+        isSpecial?: boolean
+        isLoading?: boolean
     }
 
     const GitOperationCard = ({
@@ -411,12 +452,12 @@ int main() {
                     )}
 
                     {/* Dynamic file info for special operations */}
-                    {isSpecial && (
+                    {isSpecial && selectedProject && (
                         <div className={`bg-${color}-900/20 rounded-lg p-3 border border-${color}-500/30 mb-4`}>
                             <div className="space-y-2">
                                 <div className="grid grid-cols-2 gap-2 text-xs">
                                     <div className={`text-${color}-300`}>
-                                        <span className="font-medium">Total Files:</span> {fileStats.totalFiles}
+                                        <span className="font-medium">Project:</span> {selectedProject.projectName}
                                     </div>
                                     <div className={`text-${color}-300`}>
                                         <span className="font-medium">C++ Files:</span> {fileStats.cppFiles}
@@ -428,15 +469,11 @@ int main() {
                                         <span className="font-medium">Avg Lines:</span> {fileStats.avgLinesPerFile}
                                     </div>
                                 </div>
-                                {fileStats.totalFiles > 0 && (
-                                    <>
-                                        <div className={`text-xs text-${color}-300`}>
-                                            <span className="font-medium">File Types:</span> {fileStats.fileTypes.join(", ")}
-                                        </div>
-                                        <div className={`text-xs text-${color}-400 max-h-16 overflow-y-auto`}>
-                                            <span className="font-medium">Files:</span> {files.map((f) => f.filename).join(", ")}
-                                        </div>
-                                    </>
+                                {selectedProject.files.length > 0 && (
+                                    <div className={`text-xs text-${color}-400 max-h-16 overflow-y-auto`}>
+                                        <span className="font-medium">Files:</span>{" "}
+                                        {selectedProject.files.map((f) => f.filename).join(", ")}
+                                    </div>
                                 )}
                             </div>
                         </div>
@@ -470,7 +507,7 @@ int main() {
         },
         {
             title: "Dashboard",
-            icon: <IconBrandCpp className="h-full w-full text-blue-400 dark:text-blue-300" />,
+            icon: <IconCode className="h-full w-full text-blue-400 dark:text-blue-300" />,
             href: "/studenthome/cpp",
         },
         {
@@ -493,37 +530,28 @@ int main() {
     const gitOperations = [
         {
             title: "Upload File",
-            description: `Upload files from your computer. Currently supports ${fileStats.fileTypes.length > 0 ? fileStats.fileTypes.join(", ") : "C++, C, header, and source code"} files. You have ${fileStats.totalFiles} files loaded.`,
+            description: `Upload C++ files from your computer. Currently ${fileStats.cppFiles} C++ files loaded from local storage.`,
             icon: <IconUpload className="h-6 w-6" />,
             color: "blue",
-            command: `Upload via file picker • Current: ${fileStats.totalFiles} files`,
+            command: `Upload .cpp/.c/.h files • Current: ${fileStats.cppFiles} C++ files`,
             isSpecial: true,
             isLoading: false,
         },
         {
-            title: "Save Project",
-            description: `Save your ${fileStats.totalFiles} project files (${fileStats.totalLines} total lines) to the server. This preserves your work across sessions.`,
-            icon: <IconFileDownload className="h-6 w-6" />,
-            color: "green",
-            command: `Save ${fileStats.totalFiles} files to server storage`,
-            isSpecial: true,
-            isLoading: isSavingProject,
-        },
-        {
             title: "Create Repository",
-            description: `Initialize a new Git repository on GitHub for your ${fileStats.totalFiles} files. Creates a remote repository for version control.`,
+            description: `Initialize a new Git repository on your GitHub account (@${githubUsername}) for your ${fileStats.cppFiles} C++ files.`,
             icon: <IconFolderPlus className="h-6 w-6" />,
             color: "purple",
-            command: `Create new GitHub repo for ${fileStats.totalFiles} files`,
+            command: `Create GitHub repo for ${githubUsername} with ${fileStats.cppFiles} C++ files`,
             isSpecial: true,
             isLoading: isCreatingRepo,
         },
         {
             title: "Push Changes",
-            description: `Upload your ${fileStats.totalFiles} project files (${fileStats.cppFiles} C++ files, ${fileStats.otherFiles} other files) to GitHub repository.`,
+            description: `Upload your ${fileStats.cppFiles} C++ files (${fileStats.totalLines} total lines) to your GitHub repository.`,
             icon: <IconCloudUpload className="h-6 w-6" />,
             color: "orange",
-            command: `git push ${fileStats.totalFiles} files with ${fileStats.totalLines} lines`,
+            command: `git push ${fileStats.cppFiles} C++ files with ${fileStats.totalLines} lines`,
             isSpecial: true,
             isLoading: isPushing,
         },
@@ -605,13 +633,7 @@ int main() {
     return (
         <>
             <FloatingNav />
-            <input
-                type="file"
-                ref={fileInputRef}
-                onChange={handleFileUpload}
-                style={{ display: "none" }}
-                accept=".cpp,.c,.h,.hpp,.cc,.cxx,.txt,.js,.py,.css,.html,.json,.xml,.md"
-            />
+            <input type="file" ref={fileInputRef} onChange={handleFileUpload} style={{ display: "none" }} accept=".cpp,.c,.h,.hpp" />
 
             <div className="min-h-screen w-full bg-black relative flex flex-col items-center antialiased">
                 {/* Hero Section */}
@@ -627,11 +649,35 @@ int main() {
                         </h1>
 
                         <p className="text-xl text-blue-200 max-w-2xl mx-auto leading-relaxed mb-4">
-                            Master Git operations and repository management with integrated file handling. Upload files, save
-                            projects, create repositories, and push code to GitHub.
+                            Master Git operations and repository management with integrated C++ file handling. Access your C++
+                            IDE projects and push code to your GitHub account.
                         </p>
 
-                        {signedIn && (
+                        {/* Project Selector */}
+                        {cppProjects.length > 0 && (
+                            <div className="mb-6">
+                                <select
+                                    value={selectedProject?.projectName || ""}
+                                    onChange={(e) => {
+                                        const project = cppProjects.find((p) => p.projectName === e.target.value)
+                                        setSelectedProject(project || null)
+                                        if (project && project.files.length > 0) {
+                                            setActiveFile(project.files[0])
+                                        }
+                                    }}
+                                    className="bg-gray-900/80 border border-blue-500/30 rounded-lg px-4 py-2 text-blue-200 backdrop-blur-sm"
+                                >
+                                    <option value="">Select a C++ project...</option>
+                                    {cppProjects.map((project) => (
+                                        <option key={project.projectName} value={project.projectName}>
+                                            {project.projectName} ({project.cppFiles} C++ files)
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                        )}
+
+                        {signedIn && selectedProject && (
                             <div className="bg-gray-900/50 rounded-lg p-4 mb-6 border border-blue-500/30 backdrop-blur-sm">
                                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                                     <div className="text-center">
@@ -647,21 +693,48 @@ int main() {
                                         <div className="text-purple-300">Total Lines</div>
                                     </div>
                                     <div className="text-center">
-                                        <div className="text-cyan-400 font-bold text-lg">{fileStats.fileTypes.length}</div>
-                                        <div className="text-cyan-300">File Types</div>
+                                        <div className="text-cyan-400 font-bold text-lg">{cppProjects.length}</div>
+                                        <div className="text-cyan-300">Projects</div>
                                     </div>
                                 </div>
                                 <div className="mt-3 pt-3 border-t border-blue-500/20 text-center">
                                     <p className="text-sm text-blue-300">
                                         Welcome, <span className="text-blue-400 font-medium">{name}</span>
-                                        {project && (
+                                        {githubUsername && (
                                             <>
                                                 {" "}
-                                                • Project: <span className="text-green-400 font-medium">{project}</span>
+                                                • GitHub: <span className="text-green-400 font-medium">@{githubUsername}</span>
+                                            </>
+                                        )}
+                                        {selectedProject && (
+                                            <>
+                                                {" "}
+                                                • Project: <span className="text-purple-400 font-medium">{selectedProject.projectName}</span>
                                             </>
                                         )}
                                     </p>
                                 </div>
+                            </div>
+                        )}
+
+                        {/* File Selector */}
+                        {selectedProject && selectedProject.files.length > 0 && (
+                            <div className="mb-6">
+                                <select
+                                    value={activeFile?.filename || ""}
+                                    onChange={(e) => {
+                                        const file = selectedProject.files.find((f) => f.filename === e.target.value)
+                                        setActiveFile(file || null)
+                                    }}
+                                    className="bg-gray-900/80 border border-blue-500/30 rounded-lg px-4 py-2 text-blue-200 backdrop-blur-sm"
+                                >
+                                    <option value="">Select a C++ file...</option>
+                                    {selectedProject.files.map((file) => (
+                                        <option key={file.filename} value={file.filename}>
+                                            {file.filename} ({file.contents.split("\n").length} lines)
+                                        </option>
+                                    ))}
+                                </select>
                             </div>
                         )}
 
@@ -673,7 +746,7 @@ int main() {
                             <div className="w-px h-4 bg-blue-600"></div>
                             <div className="flex items-center gap-2">
                                 <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                                <span>File Management</span>
+                                <span>C++ Files</span>
                             </div>
                             <div className="w-px h-4 bg-blue-600"></div>
                             <div className="flex items-center gap-2">

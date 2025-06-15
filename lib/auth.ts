@@ -1,48 +1,61 @@
-//NextAuth Config for GitHub
-
-import GithubProvider from "next-auth/providers/github";
-import { NextAuthOptions } from "next-auth";
-import { cookies } from "next/headers"; // Add this for reading cookies in app router
+// lib/auth.ts - NextAuth configuration with GitHub OAuth
+import { NextAuthOptions } from "next-auth"
+import GitHubProvider from "next-auth/providers/github"
 
 export const authOptions: NextAuthOptions = {
     providers: [
-        GithubProvider({
-            clientId: process.env.GITHUB_ID!,
-            clientSecret: process.env.GITHUB_SECRET!,
+        GitHubProvider({
+            clientId: process.env.GITHUB_CLIENT_ID!,
+            clientSecret: process.env.GITHUB_CLIENT_SECRET!,
             authorization: {
                 params: {
-                    scope: 'repo user:email',
-                },
-            },
-        }),
+                    scope: "read:user user:email repo public_repo delete_repo admin:repo_hook",
+                }
+            }
+        })
     ],
-    secret: process.env.NEXTAUTH_SECRET,
-    pages: {
-        signIn: "/login",
-    },
     callbacks: {
-        async jwt({ token, account }) {
-            // Attach access token from GitHub
-            if (account?.provider === "github") {
-                token.accessToken = account.access_token;
+        async jwt({ token, account, profile }) {
+            // Store the GitHub access token in the JWT
+            if (account) {
+                token.accessToken = account.access_token
+                token.githubId = account.providerAccountId
+                token.githubUsername = (profile as { login?: string })?.login;
             }
-
-            // Assign role from cookie (set in /api/auth/github?role=teacher etc.)
-            const cookieStore = await cookies();
-            const loginRole = cookieStore.get("loginRole")?.value;
-
-            if (loginRole) {
-                token.role = loginRole;
-            }
-
-            return token;
+            return token
         },
         async session({ session, token }) {
-            session.accessToken = token.accessToken;
-            if (token?.role) {
-                session.user.role = token.role; // Attach role to session
-            }
-            return session;
+            // Send properties to the client
+            session.accessToken = token.accessToken as string
+            session.githubId = token.githubId as string
+            session.githubUsername = token.githubUsername as string
+            return session
         },
     },
-};
+    pages: {
+        signIn: '/auth/signin',
+        error: '/auth/error',
+    },
+    session: {
+        strategy: "jwt",
+    },
+}
+
+// types/next-auth.d.ts - Extend NextAuth types
+import NextAuth from "next-auth"
+
+declare module "next-auth" {
+    interface Session {
+        accessToken?: string
+        githubId?: string
+        githubUsername?: string
+    }
+}
+
+declare module "next-auth/jwt" {
+    interface JWT {
+        accessToken?: string
+        githubId?: string
+        githubUsername?: string
+    }
+}
